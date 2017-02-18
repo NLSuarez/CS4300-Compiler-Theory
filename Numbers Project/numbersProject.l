@@ -24,7 +24,7 @@
 							/* This pattern will recognize a finite series of decimal digits,
 							   without leading 0's, and an optional minus sign. It will also
 							   be able to recognize decimal numbers that contain a "." followed
-							   additional finite series of decimal numbers. -M
+							   by additional finite series of decimal digits. -M
 							*/ 
 							/*
 								I'm just going to break the pattern down so I can understand it
@@ -33,7 +33,7 @@
 								[-]?			-> number may start with an optional "-"
 								(0|[1-9][0-9]*)	-> number may be 0 or may start with a digit [1-9] followed by 0 or more digits [0-9]
 								([.][0-9]+)?	-> number may have an optional "." in it, followed by 1 or more digits [0-9]
-								[eE]			-> number may be in the format of be followed by e or E
+								[eE]			-> number may be in the format of being followed by e or E
 								^				-> starts to read the expression from the beginning of the line
 								$				-> reads the expression until the end of line
 							*/
@@ -41,7 +41,9 @@
 							possibleNumbers++;	// increment by 1 as an input was given -M
 							actualNumbers++;	// increment by 1 as an input did match our pattern -M
 							
-							// This pattern breaks if you add a space between numbers. -M
+							/*	This pattern breaks if you add a space between numbers. -M
+								What still needs to be done is to find out how to break a line up at spaces. -M
+							*/
 						}
 .$	{	printf("%s is not a number.\n", yytext);
 			possibleNumbers++;	// increment by 1 as an input was given -M

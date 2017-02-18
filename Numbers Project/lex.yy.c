@@ -772,7 +772,7 @@ YY_RULE_SETUP
 							/* This pattern will recognize a finite series of decimal digits,
 							   without leading 0's, and an optional minus sign. It will also
 							   be able to recognize decimal numbers that contain a "." followed
-							   additional finite series of decimal numbers. -M
+							   by additional finite series of decimal digits. -M
 							*/ 
 							/*
 								I'm just going to break the pattern down so I can understand it
@@ -781,11 +781,17 @@ YY_RULE_SETUP
 								[-]?			-> number may start with an optional "-"
 								(0|[1-9][0-9]*)	-> number may be 0 or may start with a digit [1-9] followed by 0 or more digits [0-9]
 								([.][0-9]+)?	-> number may have an optional "." in it, followed by 1 or more digits [0-9]
-								[eE]			-> number may be in the format of be followed by e or E
+								[eE]			-> number may be in the format of being followed by e or E
+								^				-> starts to read the expression from the beginning of the line
+								$				-> reads the expression until the end of line
 							*/
 							printf("%s is a number.\n", yytext);
 							possibleNumbers++;	// increment by 1 as an input was given -M
 							actualNumbers++;	// increment by 1 as an input did match our pattern -M
+							
+							/*	This pattern breaks if you add a space between numbers. -M
+								What still needs to be done is to find out how to break a line up at spaces. -M
+							*/
 						}
 	YY_BREAK
 case 2:
@@ -793,7 +799,7 @@ case 2:
 (yy_c_buf_p) = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up yytext again */
 YY_RULE_SETUP
-#line 42 "numbersProject.l"
+#line 48 "numbersProject.l"
 {	printf("%s is not a number.\n", yytext);
 			possibleNumbers++;	// increment by 1 as an input was given -M
 			failedNumbers++;	// increment by 1 as the input has failed to match our patterns -M
@@ -801,10 +807,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 47 "numbersProject.l"
+#line 53 "numbersProject.l"
 ECHO;
 	YY_BREAK
-#line 808 "lex.yy.c"
+#line 814 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1805,7 +1811,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 47 "numbersProject.l"
+#line 53 "numbersProject.l"
 
 
 
