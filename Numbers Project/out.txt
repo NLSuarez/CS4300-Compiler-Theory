@@ -1,0 +1,5 @@
+123 123a 0123 12.3 12.03 -123 0 12.3e-5 0x123 0xabc 0XA9B 0.12E5 -1.0023e4 is not a number.
+
+-0xA98F 0XA98H 0.123e-18 0128 00123 goodbye is not a number.
+
+Out of 2 possible numbers, there were 0 numbers, and 2 not numbers.
