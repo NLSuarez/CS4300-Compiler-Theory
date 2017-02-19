@@ -45,6 +45,27 @@
 								What still needs to be done is to find out how to break a line up at spaces. -M
 							*/
 						}
+					
+^([-]?(00|0[1-7][0-7]*))$	{
+								/*
+									This pattern should recognize a finite digits containing at least 2 digits
+									with an optional "-", and exactly 1 leading 0.
+								*/
+								printf("%s is a number.\n", yytext);
+								possibleNumbers++;	// increment by 1 as an input was given -M
+								actualNumbers++;	// increment by 1 as an input did match our pattern -M
+							}
+							
+^([-]?(0[xX][0-9A-F]+))$	{
+								/*
+									This pattern should recognize a finite string of hexadeciaml containing at 
+									least 1 hexadecimal digit with an optional "-", and no leading 0's.
+								*/
+								printf("%s is a number.\n", yytext);
+								possibleNumbers++;	// increment by 1 as an input was given -M
+								actualNumbers++;	// increment by 1 as an input did match our pattern -M
+							}
+
 .$	{	printf("%s is not a number.\n", yytext);
 			possibleNumbers++;	// increment by 1 as an input was given -M
 			failedNumbers++;	// increment by 1 as the input has failed to match our patterns -M
@@ -56,5 +77,5 @@ main(int argc, char **argv)
 {
 	yylex();
 	// print out the report. -M
-	printf("Out of %d possible numbers, there were %d numbers, and %d not numbers.", possibleNumbers, actualNumbers, failedNumbers);
+	printf("Out of %d possible numbers, there were %d numbers, and %d not numbers.\n", possibleNumbers, actualNumbers, failedNumbers);
 }

@@ -368,8 +368,8 @@ static void yy_fatal_error (yyconst char msg[]  );
 	*yy_cp = '\0'; \
 	(yy_c_buf_p) = yy_cp;
 
-#define YY_NUM_RULES 3
-#define YY_END_OF_BUFFER 4
+#define YY_NUM_RULES 5
+#define YY_END_OF_BUFFER 6
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
@@ -377,11 +377,11 @@ struct yy_trans_info
 	flex_int32_t yy_verify;
 	flex_int32_t yy_nxt;
 	};
-static yyconst flex_int16_t yy_accept[23] =
+static yyconst flex_int16_t yy_accept[30] =
     {   0,
-        0,    0,    4,    3,    3,    3,    3,    3,    2,    0,
-        0,    1,    0,    0,    0,    1,    0,    0,    0,    0,
-        0,    0
+        0,    0,    6,    5,    5,    5,    5,    5,    4,    0,
+        0,    1,    0,    0,    0,    0,    0,    0,    1,    0,
+        2,    0,    0,    0,    0,    0,    0,    3,    0
     } ;
 
 static yyconst flex_int32_t yy_ec[256] =
@@ -391,14 +391,14 @@ static yyconst flex_int32_t yy_ec[256] =
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    3,    4,    1,    5,    6,    6,
-        6,    6,    6,    6,    6,    6,    6,    1,    1,    1,
-        1,    1,    1,    1,    1,    1,    1,    1,    7,    1,
+        6,    6,    6,    6,    6,    7,    7,    1,    1,    1,
+        1,    1,    1,    1,    8,    8,    8,    8,    9,    8,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+        1,    1,    1,    1,    1,    1,    1,   10,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
 
-        7,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+       11,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+        1,    1,    1,    1,    1,    1,    1,    1,    1,   10,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
@@ -416,41 +416,50 @@ static yyconst flex_int32_t yy_ec[256] =
         1,    1,    1,    1,    1
     } ;
 
-static yyconst flex_int32_t yy_meta[8] =
+static yyconst flex_int32_t yy_meta[12] =
     {   0,
-        1,    2,    1,    1,    3,    3,    1
+        1,    2,    1,    1,    3,    3,    4,    5,    5,    1,
+        1
     } ;
 
-static yyconst flex_int16_t yy_base[26] =
+static yyconst flex_int16_t yy_base[35] =
     {   0,
-       27,    0,   28,   25,   36,    6,   11,   14,   36,   24,
-       20,   36,    0,   18,    0,   36,   23,   14,   14,   12,
-        8,   36,   30,    6,   32
+       41,    0,   42,   39,   64,    6,   12,   22,   64,   38,
+       33,   64,    0,   30,   28,   31,    0,   23,   64,   37,
+       64,   18,   16,   13,    8,    7,    2,   64,   64,   48,
+       51,   54,   55,   59
     } ;
 
-static yyconst flex_int16_t yy_def[26] =
+static yyconst flex_int16_t yy_def[35] =
     {   0,
-       23,   22,   22,   22,   22,   22,   22,    7,   22,    7,
-        8,   22,   24,   22,   11,   22,   24,   14,   22,   25,
-       25,    0,   22,   22,   22
+       30,   30,   29,   29,   29,   29,   29,   29,   29,    7,
+        8,   29,   31,   29,   32,   29,   33,    8,   29,   31,
+       29,   32,   16,   29,   34,   33,   34,   29,    0,   29,
+       29,   29,   29,   29
     } ;
 
-static yyconst flex_int16_t yy_nxt[44] =
+static yyconst flex_int16_t yy_nxt[76] =
     {   0,
-        4,    5,    6,    4,    7,    8,    4,    9,   17,   16,
-       10,   11,   12,   16,   13,   16,   22,   14,   15,   15,
-       18,   16,   19,   20,   16,   16,    9,   22,    5,   14,
-        4,    4,    4,   21,   21,    3,   22,   22,   22,   22,
-       22,   22,   22
+       29,    5,    6,   19,    7,    8,    8,    9,   28,   19,
+       10,   11,   11,   12,   19,   13,   14,   15,   29,   21,
+       16,   17,   16,   12,   19,   13,   18,   18,   18,   21,
+       16,   21,   16,   23,   19,   24,   25,   25,   19,   19,
+        9,   29,    5,   29,   29,   16,   29,   16,    4,    4,
+        4,    4,    4,   20,   20,   22,   22,   26,   26,   26,
+       27,   27,   27,    3,   29,   29,   29,   29,   29,   29,
+       29,   29,   29,   29,   29
     } ;
 
-static yyconst flex_int16_t yy_chk[44] =
+static yyconst flex_int16_t yy_chk[76] =
     {   0,
-        2,    2,    2,    2,    2,    2,    2,    6,   24,   21,
-        6,    6,    7,   20,    7,   19,   18,    7,    8,    8,
-       14,   11,   14,   14,   17,   10,    4,    3,    1,   17,
-       23,   23,   23,   25,   25,   22,   22,   22,   22,   22,
-       22,   22,   22
+        0,    2,    2,   27,    2,    2,    2,    6,   26,   25,
+        6,    6,    6,    7,   24,    7,    7,    7,   23,   22,
+        7,    7,    7,    8,   18,    8,    8,    8,    8,   15,
+        8,   14,    8,   16,   11,   16,   16,   16,   20,   10,
+        4,    3,    1,    0,    0,   20,    0,   20,   30,   30,
+       30,   30,   30,   31,   31,   32,   32,   33,   33,   33,
+       34,   34,   34,   29,   29,   29,   29,   29,   29,   29,
+       29,   29,   29,   29,   29
     } ;
 
 static yy_state_type yy_last_accepting_state;
@@ -485,7 +494,7 @@ char *yytext;
 /*	This is section where our patterns to recognize numbers goes
 	here along with their reaction C code. -M
 */
-#line 489 "lex.yy.c"
+#line 498 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -678,7 +687,7 @@ YY_DECL
 #line 21 "numbersProject.l"
 
 
-#line 682 "lex.yy.c"
+#line 691 "lex.yy.c"
 
 	if ( !(yy_init) )
 		{
@@ -732,13 +741,13 @@ yy_match:
 			while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 				{
 				yy_current_state = (int) yy_def[yy_current_state];
-				if ( yy_current_state >= 23 )
+				if ( yy_current_state >= 30 )
 					yy_c = yy_meta[(unsigned int) yy_c];
 				}
 			yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
 			++yy_cp;
 			}
-		while ( yy_base[yy_current_state] != 36 );
+		while ( yy_base[yy_current_state] != 64 );
 
 yy_find_action:
 		yy_act = yy_accept[yy_current_state];
@@ -799,18 +808,50 @@ case 2:
 (yy_c_buf_p) = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up yytext again */
 YY_RULE_SETUP
-#line 48 "numbersProject.l"
+#line 49 "numbersProject.l"
+{
+								/*
+									This pattern should recognize a finite digits containing at least 2 digits
+									with an optional "-", and exactly 1 leading 0.
+								*/
+								printf("%s is a number.\n", yytext);
+								possibleNumbers++;	// increment by 1 as an input was given -M
+								actualNumbers++;	// increment by 1 as an input did match our pattern -M
+							}
+	YY_BREAK
+case 3:
+*yy_cp = (yy_hold_char); /* undo effects of setting up yytext */
+(yy_c_buf_p) = yy_cp -= 1;
+YY_DO_BEFORE_ACTION; /* set up yytext again */
+YY_RULE_SETUP
+#line 59 "numbersProject.l"
+{
+								/*
+									This pattern should recognize a finite string of hexadeciaml containing at 
+									least 1 hexadecimal digit with an optional "-", and no leading 0's.
+								*/
+								printf("%s is a number.\n", yytext);
+								possibleNumbers++;	// increment by 1 as an input was given -M
+								actualNumbers++;	// increment by 1 as an input did match our pattern -M
+							}
+	YY_BREAK
+case 4:
+*yy_cp = (yy_hold_char); /* undo effects of setting up yytext */
+(yy_c_buf_p) = yy_cp -= 1;
+YY_DO_BEFORE_ACTION; /* set up yytext again */
+YY_RULE_SETUP
+#line 69 "numbersProject.l"
 {	printf("%s is not a number.\n", yytext);
 			possibleNumbers++;	// increment by 1 as an input was given -M
 			failedNumbers++;	// increment by 1 as the input has failed to match our patterns -M
 		}
 	YY_BREAK
-case 3:
+case 5:
 YY_RULE_SETUP
-#line 53 "numbersProject.l"
+#line 74 "numbersProject.l"
 ECHO;
 	YY_BREAK
-#line 814 "lex.yy.c"
+#line 855 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1103,7 +1144,7 @@ static int yy_get_next_buffer (void)
 		while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 			{
 			yy_current_state = (int) yy_def[yy_current_state];
-			if ( yy_current_state >= 23 )
+			if ( yy_current_state >= 30 )
 				yy_c = yy_meta[(unsigned int) yy_c];
 			}
 		yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
@@ -1131,11 +1172,11 @@ static int yy_get_next_buffer (void)
 	while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 		{
 		yy_current_state = (int) yy_def[yy_current_state];
-		if ( yy_current_state >= 23 )
+		if ( yy_current_state >= 30 )
 			yy_c = yy_meta[(unsigned int) yy_c];
 		}
 	yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
-	yy_is_jam = (yy_current_state == 22);
+	yy_is_jam = (yy_current_state == 29);
 
 	return yy_is_jam ? 0 : yy_current_state;
 }
@@ -1811,7 +1852,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 53 "numbersProject.l"
+#line 74 "numbersProject.l"
 
 
 
@@ -1819,6 +1860,6 @@ main(int argc, char **argv)
 {
 	yylex();
 	// print out the report. -M
-	printf("Out of %d possible numbers, there were %d numbers, and %d not numbers.", possibleNumbers, actualNumbers, failedNumbers);
+	printf("Out of %d possible numbers, there were %d numbers, and %d not numbers.\n", possibleNumbers, actualNumbers, failedNumbers);
 }
 
