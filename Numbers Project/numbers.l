@@ -15,6 +15,16 @@
 	int failedNumbers = 0;
 %}
 
+/*
+	Creating some name definitions to make the patterns to be easier to read -M
+*/
+/*	We can use these to make the first pattern easier to read -M
+	These can be used like so: ^{Integers}{Float}?{Exp}?$ I'll you guys decide which way is better	-M
+Integers	[-]?(0|[1-9][0-9]*)
+Float		[.][0-9]+
+Exp			[eE][-]?(0|[1-9][0-9]*)
+*/
+
 /*	This is section where our patterns to recognize numbers goes
 	here along with their reaction C code. -M
 */
@@ -37,7 +47,7 @@
 								^				-> starts to read the expression from the beginning of the line
 								$				-> reads the expression until the end of line
 							*/
-							printf("%s is a number.\n", yytext);
+							printf("%s is a number.", yytext);
 							possibleNumbers++;	// increment by 1 as an input was given -M
 							actualNumbers++;	// increment by 1 as an input did match our pattern -M
 							
@@ -51,7 +61,7 @@
 									This pattern should recognize a finite digits containing at least 2 digits
 									with an optional "-", and exactly 1 leading 0.
 								*/
-								printf("%s is a number.\n", yytext);
+								printf("%s is a number.", yytext);
 								possibleNumbers++;	// increment by 1 as an input was given -M
 								actualNumbers++;	// increment by 1 as an input did match our pattern -M
 							}
@@ -61,12 +71,12 @@
 									This pattern should recognize a finite string of hexadeciaml containing at 
 									least 1 hexadecimal digit with an optional "-", and no leading 0's.
 								*/
-								printf("%s is a number.\n", yytext);
+								printf("%s is a number.", yytext);
 								possibleNumbers++;	// increment by 1 as an input was given -M
 								actualNumbers++;	// increment by 1 as an input did match our pattern -M
 							}
 
-.$	{	printf("%s is not a number.\n", yytext);
+.$	{	printf("%s is not a number.", yytext);
 			possibleNumbers++;	// increment by 1 as an input was given -M
 			failedNumbers++;	// increment by 1 as the input has failed to match our patterns -M
 		}

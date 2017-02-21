@@ -491,10 +491,19 @@ char *yytext;
 	int possibleNumbers = 0;
 	int actualNumbers = 0;
 	int failedNumbers = 0;
+/*
+	Creating some name definitions to make the patterns to be easier to read -M
+*/
+/*	We can use these to make the first pattern easier to read -M
+	These can be used like so: ^{Integers}{Float}?{Exp}?$ -M
+Integers	[-]?(0|[1-9][0-9]*)
+Float		[.][0-9]+
+Exp			[eE][-]?(0|[1-9][0-9]*)
+*/
 /*	This is section where our patterns to recognize numbers goes
 	here along with their reaction C code. -M
 */
-#line 498 "lex.yy.c"
+#line 507 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -684,10 +693,10 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 21 "numbersProject.l"
+#line 31 "numbersProject.l"
 
 
-#line 691 "lex.yy.c"
+#line 700 "lex.yy.c"
 
 	if ( !(yy_init) )
 		{
@@ -776,7 +785,7 @@ case 1:
 (yy_c_buf_p) = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up yytext again */
 YY_RULE_SETUP
-#line 23 "numbersProject.l"
+#line 33 "numbersProject.l"
 {
 							/* This pattern will recognize a finite series of decimal digits,
 							   without leading 0's, and an optional minus sign. It will also
@@ -794,7 +803,7 @@ YY_RULE_SETUP
 								^				-> starts to read the expression from the beginning of the line
 								$				-> reads the expression until the end of line
 							*/
-							printf("%s is a number.\n", yytext);
+							printf("%s is a number.", yytext);
 							possibleNumbers++;	// increment by 1 as an input was given -M
 							actualNumbers++;	// increment by 1 as an input did match our pattern -M
 							
@@ -808,13 +817,13 @@ case 2:
 (yy_c_buf_p) = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up yytext again */
 YY_RULE_SETUP
-#line 49 "numbersProject.l"
+#line 59 "numbersProject.l"
 {
 								/*
 									This pattern should recognize a finite digits containing at least 2 digits
 									with an optional "-", and exactly 1 leading 0.
 								*/
-								printf("%s is a number.\n", yytext);
+								printf("%s is a number.", yytext);
 								possibleNumbers++;	// increment by 1 as an input was given -M
 								actualNumbers++;	// increment by 1 as an input did match our pattern -M
 							}
@@ -824,13 +833,13 @@ case 3:
 (yy_c_buf_p) = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up yytext again */
 YY_RULE_SETUP
-#line 59 "numbersProject.l"
+#line 69 "numbersProject.l"
 {
 								/*
 									This pattern should recognize a finite string of hexadeciaml containing at 
 									least 1 hexadecimal digit with an optional "-", and no leading 0's.
 								*/
-								printf("%s is a number.\n", yytext);
+								printf("%s is a number.", yytext);
 								possibleNumbers++;	// increment by 1 as an input was given -M
 								actualNumbers++;	// increment by 1 as an input did match our pattern -M
 							}
@@ -840,18 +849,18 @@ case 4:
 (yy_c_buf_p) = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up yytext again */
 YY_RULE_SETUP
-#line 69 "numbersProject.l"
-{	printf("%s is not a number.\n", yytext);
+#line 79 "numbersProject.l"
+{	printf("%s is not a number.", yytext);
 			possibleNumbers++;	// increment by 1 as an input was given -M
 			failedNumbers++;	// increment by 1 as the input has failed to match our patterns -M
 		}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 74 "numbersProject.l"
+#line 84 "numbersProject.l"
 ECHO;
 	YY_BREAK
-#line 855 "lex.yy.c"
+#line 864 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1852,7 +1861,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 74 "numbersProject.l"
+#line 84 "numbersProject.l"
 
 
 

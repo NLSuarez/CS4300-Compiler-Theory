@@ -1,39 +1,20 @@
 123 is a number.
-
 123a is not a number.
-
 0123 is a number.
-
 12.3 is a number.
-
 12.03 is a number.
-
 -123 is a number.
-
 0 is a number.
-
 12.3e-5 is a number.
-
 0x123 is a number.
-
 0xabc is not a number.
-
 0XA9B is a number.
-
 0.12E5 is a number.
-
 -1.0023e4 is a number.
-
 -0xA98F is a number.
-
 0XA98H is not a number.
-
 0.123e-18 is a number.
-
 0128 is not a number.
-
 00123 is not a number.
-
 goodbye is not a number.
-
 Out of 19 possible numbers, there were 13 numbers, and 6 not numbers.
