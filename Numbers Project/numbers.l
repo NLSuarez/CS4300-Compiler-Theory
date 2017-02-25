@@ -1,13 +1,18 @@
-/* Authors: Manjinder Singh, */
+/* Authors: Manjinder Singh
+Small edits by: Stefan Suarez */
 
 /*	Would one you guys mind making some test data to see if these
 	patterns work all of the time or just for the ones I've tested with. -M
 */
 
+/* Begin Stefan Edit */
+%option noyywrap
+/* End Stefan Edit */
+
 /* Just creating this space for when we need it -M */
 %{
 	// C code goes into here.-M
-	
+
 	/*
 		possibleNumbers will keep track of how many inputs were given
 		actualNumbers will keep track of how many inputs actually matched our number patterns
@@ -26,7 +31,7 @@
 /*	We can use these to make the first pattern easier to read -M
 	These can be used like so: ^{Integers}{Float}?{Exp}?$ I'll you guys decide which way is better	-M
 */
-	
+
 Integers	[-]?(0|[1-9][0-9]*)
 Float		[.][0-9]+
 Exp			[eE][-]?(0|[1-9][0-9]*)
@@ -48,11 +53,11 @@ First pattern without the named marcos -M
 								   without leading 0's, and an optional minus sign. It will also
 								   be able to recognize decimal numbers that contain a "." followed
 								   by additional finite series of decimal digits. -M
-								*/ 
+								*/
 								/*
 									I'm just going to break the pattern down so I can understand it
 									easily when I come back to it at a later time. -M
-								
+
 									[-]?			-> number may start with an optional "-"
 									(0|[1-9][0-9]*)	-> number may be 0 or may start with a digit [1-9] followed by 0 or more digits [0-9]
 									([.][0-9]+)?	-> number may have an optional "." in it, followed by 1 or more digits [0-9]
@@ -63,13 +68,13 @@ First pattern without the named marcos -M
 								printf("%s is a number.\n", yytext);
 								possibleNumbers++;	// increment by 1 as an input was given -M
 								actualNumbers++;	// increment by 1 as an input did match our pattern -M
-							
+
 								/*	This pattern breaks if you add a space between numbers. -M
 									What still needs to be done is to find out how to break a line up at spaces. -M
-									Nevermind I got it working. -M 
+									Nevermind I got it working. -M
 								*/
 							}
-					
+
 {Octal}	{
 			/*
 				This pattern should recognize a finite digits containing at least 2 digits
@@ -79,10 +84,10 @@ First pattern without the named marcos -M
 			possibleNumbers++;	// increment by 1 as an input was given -M
 			actualNumbers++;	// increment by 1 as an input did match our pattern -M
 		}
-							
+
 {Hexa}	{
 			/*
-				This pattern should recognize a finite string of hexadeciaml containing at 
+				This pattern should recognize a finite string of hexadeciaml containing at
 				least 1 hexadecimal digit with an optional "-", and no leading 0's.
 			*/
 			printf("%s is a number.\n", yytext);
@@ -100,8 +105,8 @@ First pattern without the named marcos -M
 					failedNumbers++;	// increment by 1 as the input has failed to match our patterns -M
 				}
 
-[\n]	/*Do nothing for newline*/	
-	
+[\n]	/*Do nothing for newline*/
+
 .	/*Do nothing for anything else*/
 
 %%
