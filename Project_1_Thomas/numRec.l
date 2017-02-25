@@ -31,7 +31,7 @@ yylex();
 
 /* PROGRAM OUTPUT GOES HERE - USE VARS FROM ABOVE */
 
-printf("Out of %d possible numbers, there we %d numbers, and %d not numbers\n", input_size, number_count, not_number_count);
+printf("Out of %d possible numbers, there were %d numbers, and %d not numbers\n", input_size, number_count, not_number_count);
 
 return 0;
 }
