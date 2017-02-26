@@ -1,0 +1,37 @@
+123		-> pattern INT
+123a		-> !! NO PATTERN !!
+0123		-> pattern OCT
+12.3		-> pattern FLT
+12.03		-> pattern FLT
+-123		-> pattern INT
+0		-> pattern INT
+12.3e-5		-> pattern POW
+0x123		-> pattern HEX
+0xabc		-> !! NO PATTERN !!
+0XA9B		-> pattern HEX
+0.12E5		-> pattern POW
+-1.0023e4		-> pattern POW
+-0xA98F		-> pattern HEX
+0XA98H		-> !! NO PATTERN !!
+0.123e-18		-> pattern POW
+0128		-> !! NO PATTERN !!
+00123		-> !! NO PATTERN !!
+goodbye		-> !! NO PATTERN !!
+--1234		-> !! NO PATTERN !!
+..5678		-> !! NO PATTERN !!
+5..7.1-9		-> !! NO PATTERN !!
+23.4e-1.		-> !! NO PATTERN !!
+80--90		-> !! NO PATTERN !!
+80-100		-> !! NO PATTERN !!
+01-90-80--		-> !! NO PATTERN !!
+50..		-> !! NO PATTERN !!
+-0XA98H		-> !! NO PATTERN !!
+-12.3e-10		-> pattern POW
+-0.123e-12		-> pattern POW
+-0127		-> pattern OCT
+.5.7.8...		-> !! NO PATTERN !!
+.4.24.1.4.15.6.233.2342.1.25.6.		-> !! NO PATTERN !!
+-231-24-2-5-6-7-482-3-239482-39-		-> !! NO PATTERN !!
+.89.89-8.-9-8.9-9.0-.89.8..89.-8.-		-> !! NO PATTERN !!
+gds980s.ssdf-sa.		-> !! NO PATTERN !!
+Out of 36 possible numbers, there were 16 numbers, and 20 not numbers
