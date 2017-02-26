@@ -17,4 +17,21 @@
 0128 is not a number.
 00123 is not a number.
 goodbye is not a number.
-Out of 19 possible numbers, there were 13 numbers, and 6 not numbers.
+--1234 is not a number.
+..5678 is not a number.
+5..7.1-9 is not a number.
+23.4e-1. is not a number.
+80--90 is not a number.
+80-100 is not a number.
+01-90-80-- is not a number.
+50.. is not a number.
+-0XA98H is not a number.
+-12.3e-10 is a number.
+-0.123e-12 is a number.
+-0127 is a number.
+.5.7.8... is not a number.
+.4.24.1.4.15.6.233.2342.1.25.6. is not a number.
+-231-24-2-5-6-7-482-3-239482-39- is not a number.
+.89.89-8.-9-8.9-9.0-.89.8..89.-8.- is not a number.
+gds980s.ssdf-sa. is not a number.
+Out of 36 possible numbers, there were 16 numbers, and 20 not numbers.

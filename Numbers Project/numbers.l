@@ -37,7 +37,8 @@ Float		[.][0-9]+
 Exp			[eE][-]?(0|[1-9][0-9]*)
 Octal		[-]?(00|0[1-7][0-7]*)
 Hexa		[-]?(0[xX][0-9A-F]+)
-notNumbers	[-]?(0{3}+)?([0-9a-zA-Z]*[.]?[0-9a-zA-Z]*)
+notNumbers	[-]*?(0{3}+)?([0-9a-zA-Z]*[.]?[0-9a-zA-Z]*)?(([-]*[.]*[0-9a-zA-Z]*)*)?([.]*[-]*)?
+tomsNotNumbers [^ \t\n\v\f\r]+
 
 /*([-]?(0|[1-9][0-9]*)([.][0-9]+)?)(([eE]([-]?(0|[1-9][0-9]*)))?)
 First pattern without the named marcos -M
