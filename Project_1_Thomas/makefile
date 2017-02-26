@@ -1,3 +1,3 @@
 make: numRec.l
-        $ flex numRec.l
-        $ cc lex.yy.c
+	$ flex numRec.l
+	$ cc lex.yy.c
