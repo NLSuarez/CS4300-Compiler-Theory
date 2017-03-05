@@ -1,3 +1,15 @@
+/*
+Spring 2017
+CS4300
+Project 1: Numbers
+Group Members and Roles:
+Thomas Ferguson - Programmer
+Manjinder Singh - Programmer
+Stefan Suarez - QA
+Timothy Viss - ???
+*/
+
+
 %option noyywrap
 
 %{
