@@ -768,27 +768,27 @@ do_action:	/* This label is used only to access EOF actions. */
 case 1:
 YY_RULE_SETUP
 #line 18 "numRec.l"
-{ ++input_size; ++number_count; printf("%s\t\t-> pattern INT\n", yytext); }
+{ ++input_size; ++number_count; printf("%s is a number\n", yytext); /*printf("%s\t\t-> pattern INT\n", yytext);*/ }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
 #line 19 "numRec.l"
-{ ++input_size; ++number_count; printf("%s\t\t-> pattern FLT\n", yytext); }
+{ ++input_size; ++number_count; printf("%s is a number\n", yytext); /*printf("%s\t\t-> pattern FLT\n", yytext);*/ }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
 #line 20 "numRec.l"
-{ ++input_size; ++number_count; printf("%s\t\t-> pattern POW\n", yytext); }
+{ ++input_size; ++number_count; printf("%s is a number\n", yytext); /*printf("%s\t\t-> pattern POW\n", yytext);*/ }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
 #line 21 "numRec.l"
-{ ++input_size; ++number_count; printf("%s\t\t-> pattern OCT\n", yytext); }
+{ ++input_size; ++number_count; printf("%s is a number\n", yytext); /*printf("%s\t\t-> pattern OCT\n", yytext);*/ }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
 #line 22 "numRec.l"
-{ ++input_size; ++number_count; printf("%s\t\t-> pattern HEX\n", yytext); }
+{ ++input_size; ++number_count; printf("%s is a number\n", yytext); /*printf("%s\t\t-> pattern HEX\n", yytext);*/ }
 	YY_BREAK
 case 6:
 /* rule 6 can match eol */
@@ -799,7 +799,7 @@ YY_RULE_SETUP
 case 7:
 YY_RULE_SETUP
 #line 24 "numRec.l"
-{ ++input_size; ++not_number_count; printf("%s\t\t-> !! NO PATTERN !!\n", yytext); }
+{ ++input_size; ++not_number_count; printf("%s is not a number\n", yytext); /*printf("%s\t\t-> !! NO PATTERN !!\n", yytext);*/ }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP

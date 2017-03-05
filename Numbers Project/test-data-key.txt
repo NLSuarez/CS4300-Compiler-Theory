@@ -34,3 +34,141 @@ goodbye not number
 -231-24-2-5-6-7-482-3-239482-39- not a number
 .89.89-8.-9-8.9-9.0-.89.8..89.-8.- not a number
 gds980s.ssdf-sa. not a number
+-0.123 number
+0.256 number
+1.588 number
+-2.0898 number
+10. not a number
+000.123 not a number
+0.0123 number
+-0.0129 number
+-2.98 number
+-11.. not a number
+-15. not a number
+-000.23 not a number
+-0.56-9 not a number
+12.3E-5 number
+0.12e5 number
+0.123E-18 number
+-1.0023E4 number
+-12.3E-10 number
+-0.123E-12 number
+0e-12 number
+0E12 number
+0e14 number
+0E-16 number
+15e17 number
+-16e-49 number
+16e-18 number
+-17e29 number
+15e17 number
+-16e-49 number
+16e-18 number
+-17e29 number
+-000.23e-6 not a number
+-0.56-9E-7 not a number
+1e0.142 not a number
+1..E13 not a number
+00 number
+-0 number
+-00 number
+-0123 number
+-01 number
+02 number
+08 not a number
+-0x98 number
+-0X79 number
+0x0 number
+-0x0 number
+0X0 number
+-0X0 number
+0x01 not a number
+0X002 not a number
+0x156-7 not a number
+
+totals:
+Possible numbers: 87
+Actual numbers: 53
+Not numbers: 34
+
+
+Things checked:
+On Integers:
+	Accepted:
+		-unsigned number: works
+		-signed number: works
+		-single zero: works
+	Rejected:
+		-leading zero: works
+		-Odd characters within the string: works
+On floating point:
+	Accepted:
+		-unsigned numbers
+			-with 0 as first digit: works
+			-with number as first digit: works
+			-with 0 as first digit and trailing 0's after decimal point: works
+			-with number as first digit and trailing 0's after decimal point: works
+		-signed numbers
+			-with 0 as first digit: works
+			-with number as first digit: works
+			-with 0 as first digit and trailing 0's after decimal point: works
+			-with number as first digit and trailing 0's after decimal point: works
+	Rejected:
+		-signed numbers
+			-leading zeroes before the decimal point: works
+			-white space after decimal point: works
+			-non-numbers after decimal point: works
+			-odd characters within the string: works
+		-unsigned numbers
+			-leading zeroes before the decimal point: works
+			-white space after decimal point: works
+			-non-numbers after decimal point: works
+			-odd characters within the string: works
+On exponents:
+	Accepted:
+		-Forms:
+			+inte+int: works
+			-inte-int: works
+			+inte-int: works
+			-inte+int: works
+			+intE+int: works
+			-intE-int: works
+			+intE-int: works
+			-intE+int: works
+			+floate+int: works
+			-floate-int: works
+			+floate-int: works
+			-floate+int: works
+			+floatE+int: works
+			-floatE-int: works
+			+floatE-int: works
+			-floatE+int: works
+	Rejected:
+		-Improper forms of any of the previous inputs: works
+		-floats in the exponent: works
+
+On octals:
+	Accepted:
+		-Normally expected forms of non-2 digit octals: works
+		-Normally expected forms of 2-digit octals: works
+		-The unique 00 case: works
+		-An extra unique -00 case: works
+	Rejected:
+		-Too many leading zeros: works
+		-Too high numbers mixed into two digits: works
+		-Too high numbers mixed into multiple digits: works
+
+On hexadecimal:
+	Accepted:
+		-Normally expected forms of multi-digit hexidecimal with all capitals: works
+		-0x0: works
+		--0x0: works
+		-0X0: works
+		--0X0: works
+	Rejected:
+		-Leading zeroes: works
+		-Lower-case: works
+		-Incorrect characters: works
+
+
+
