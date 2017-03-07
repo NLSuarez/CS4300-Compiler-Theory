@@ -482,12 +482,22 @@ int yy_flex_debug = 0;
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
 char *yytext;
-#line 1 "numRec.l"
-#line 4 "numRec.l"
+#line 1 "numbers.l"
+/*
+Spring 2017
+CS4300
+Project 1: Numbers
+Group Members and Roles:
+Thomas Ferguson - Programmer
+Manjinder Singh - Programmer
+Stefan Suarez - QA
+Timothy Viss - ???
+*/
+#line 16 "numbers.l"
 int input_size = 0;
 int number_count = 0;
 int not_number_count = 0;
-#line 491 "lex.yy.c"
+#line 501 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -705,10 +715,10 @@ YY_DECL
 		}
 
 	{
-#line 16 "numRec.l"
+#line 28 "numbers.l"
 
 
-#line 712 "lex.yy.c"
+#line 722 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -767,46 +777,46 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 18 "numRec.l"
+#line 30 "numbers.l"
 { ++input_size; ++number_count; printf("%s is a number\n", yytext); /*printf("%s\t\t-> pattern INT\n", yytext);*/ }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 19 "numRec.l"
+#line 31 "numbers.l"
 { ++input_size; ++number_count; printf("%s is a number\n", yytext); /*printf("%s\t\t-> pattern FLT\n", yytext);*/ }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 20 "numRec.l"
+#line 32 "numbers.l"
 { ++input_size; ++number_count; printf("%s is a number\n", yytext); /*printf("%s\t\t-> pattern POW\n", yytext);*/ }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 21 "numRec.l"
+#line 33 "numbers.l"
 { ++input_size; ++number_count; printf("%s is a number\n", yytext); /*printf("%s\t\t-> pattern OCT\n", yytext);*/ }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 22 "numRec.l"
+#line 34 "numbers.l"
 { ++input_size; ++number_count; printf("%s is a number\n", yytext); /*printf("%s\t\t-> pattern HEX\n", yytext);*/ }
 	YY_BREAK
 case 6:
 /* rule 6 can match eol */
 YY_RULE_SETUP
-#line 23 "numRec.l"
+#line 35 "numbers.l"
 { /* NO_OP */}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 24 "numRec.l"
+#line 36 "numbers.l"
 { ++input_size; ++not_number_count; printf("%s is not a number\n", yytext); /*printf("%s\t\t-> !! NO PATTERN !!\n", yytext);*/ }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 26 "numRec.l"
+#line 38 "numbers.l"
 ECHO;
 	YY_BREAK
-#line 810 "lex.yy.c"
+#line 820 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1807,7 +1817,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 26 "numRec.l"
+#line 38 "numbers.l"
 
 
 
