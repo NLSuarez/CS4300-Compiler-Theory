@@ -17,35 +17,38 @@ static char* lookup(struct symbol_node* symbol_table, char* symbol)
 	unsigned int hashKey = hash(symbol);
 	symbol_node* listPtr = &symbol_table[hashKey];
 
-	/* Look for symbol in table */
+/* Look for symbol in table */
 	
-		/* Check initial node */
+	/* Check initial node */
 	if (strcmp(symbol, listPtr->symbol) == 0)
 		return listPtr->symbol;
 	
-		/* Check additional nodes in list, if any */
+	/* Check additional nodes in list, if any */
 	while (listPtr->next != NULL)
 	{
+		listPtr = listPtr->next;
 		if (strcmp(symbol, listPtr->symbol) == 0)
 			return listPtr->symbol;
-		else
-			listPtr = listPtr->next;
 	}
 
-	/* Symbol not found in table - add new symbol */
+/* Symbol not found in table - add new symbol */
 	if (listPtr->symbol != NULL)
 	{
 		/* Node is occupied - create next one in list */
 		listPtr->next = (struct symbol_node*) malloc(sizeof(symbol_node));
+		
+		if (listPtr->next == NULL)
+			return NULL;	/* Couldn't allocate memory */
+			
 		listPtr = listPtr->next;
 	}
 
-	/* Copy string and set pointer to NULL */
+	/* Allocate space for new string */
 	listPtr->symbol = (char*) malloc(strlen(symbol) + 1);
-
-	if (listPtr->symbol == NULL) /* Couldn't allocate memory */
-		return NULL;
-
+	if (listPtr->symbol == NULL) 
+		return NULL;	/* Couldn't allocate memory */
+	
+	/* Copy string and set pointer to NULL */
 	strcpy_s(listPtr->symbol, strlen(symbol) + 1, symbol);
 	listPtr->next = NULL;
 
@@ -54,11 +57,14 @@ static char* lookup(struct symbol_node* symbol_table, char* symbol)
 
 static struct symbol_node* generateSymbolTable(unsigned int tableSize)
 {
-	/* Dynamically allocate symbol table */
+	/* Allocate memory for symbol table */
 	struct symbol_node* symbol_table = 
 		(struct symbol_node*) malloc(tableSize * sizeof(struct symbol_node));
+	
+	if (symbol_table == NULL)
+		return NULL;	/* Couldn't allocate memory */
 
-	/* Initialize all elements of fresh table to NULL */
+	/* Initialize all elements of new table to NULL */
 	for (unsigned int i = 0; i < tableSize; ++i)
 	{
 		symbol_table[i].symbol = NULL;
