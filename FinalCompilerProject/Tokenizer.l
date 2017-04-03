@@ -38,6 +38,7 @@ Header includes here
 
 INT -?(0|([1-9][0-9]*))
 FLT {INT}[.][0-9]+
+EXP (e|E){INT}
 POW ({INT}|{FLT})(e|E){INT}
 WHITE_SPACE [ \t]+
 NON_WHITE_SPACE [^ \t\n\v\f\r]+
@@ -70,47 +71,53 @@ NON_WHITE_SPACE [^ \t\n\v\f\r]+
 
  /* INCOP is one of += -= */
 
+"+=" { yylval.fn = 1; return INCOP; }
+"-=" { yylval.fn = 2; return INCOP; }
 
+ /* RELOP is one of < > <= >=  ==  != */
 
- /* RELOP is one of < > < = > =  ==  != */
-
-
+">"     { yylval.fn = 1; return RELOP; }
+"<"     { yylval.fn = 2; return RELOP; }
+"!="    { yylval.fn = 3; return RELOP; }
+"=="    { yylval.fn = 4; return RELOP; }
+">="    { yylval.fn = 5; return RELOP; }
+"<="    { yylval.fn = 6; return RELOP; }
 
  /* NOT stands for the lexeme ! */
 
-
+"!" { return NOT; }
 
  /* OR stands for the lexeme || */
 
-
+"||" { return OR; }
 
  /* AND stands for the lexeme && */
 
-
+"&&" { return AND; }
 
  /* FLT_LITERAL is a float constant without a sign
 (at least 1 digit before and after decimal pt.; possible exponent) */
 
-
+{FLT}{EXP}? { return FLT_LITERAL; }
 
  /* INT_LITERAL is an integer constant without a sign */
 
-
+{INT} { return INT_LITERAL; }
 
  /* STR_LITERAL is a string enclosed in quotes (”), not longer than 1 line */
 
-
+\"(\\.|[^\\"])*\" { return STR_LITERAL; } /*Need help with the regex here. */
 
  /* STREAMIN is >> */
 
-
+">>" { return STREAMIN; }
 
  /* STREAMOUT is << */
 
-
+"<<" { return STREAMOUT; }
 
  /* ID follows the usual rules for C++ identifiers, and may be any length */
-
+[a-zA-Z_][a-zA-Z_0-9]*  { yylval.s = lookup(yytext); return ID; }
 
 
  /* keywords CIN, COUT, ELSE, ENDL, FLOAT, IF, INT, RETURN, and WHILE */
@@ -134,11 +141,8 @@ NON_WHITE_SPACE [^ \t\n\v\f\r]+
  /* EOL catcher */
 "\n" { return EOL; }
 
- /* Example
-{INT} { return yytext; }
-*/
- //Example
-//{FLT} { ++input_size; ++number_count; printf("%s is a number\n", yytext); /*printf("%s\t\t-> pattern FLT\n", yytext);*/ }
+ /* Primitive error catcher */
+.	{ yyerror("Mystery character %c\n", *yytext); }
 
 
 %%
