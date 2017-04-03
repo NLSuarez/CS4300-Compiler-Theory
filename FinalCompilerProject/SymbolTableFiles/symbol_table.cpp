@@ -30,7 +30,7 @@ static char* lookup(struct symbol_node* symbol_table, char* symbol)
 			return listPtr->symbol;
 		else
 			listPtr = listPtr->next;
-	} while (listPtr != NULL);
+	}
 
 	/* Symbol not found in table - add new symbol */
 	if (listPtr->symbol != NULL)
