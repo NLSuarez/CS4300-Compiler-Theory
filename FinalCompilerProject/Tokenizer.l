@@ -34,6 +34,17 @@ comments to simplify the program.
 /*
 Header includes here
 */
+
+void yyerror(int errLevel, char *s, ...);
+
+/* handle locations */
+int yycolumn = 1;
+
+#define YY_USER_ACTION yylloc.filename = filename; \
+    yylloc.first_line = yylloc.last_line = yylineno; \
+    yylloc.first_column = yycolumn; yylloc.last_column = yycolumn+yyleng-1; \
+    yycolumn += yyleng;
+    
 %}
 
 INT -?(0|([1-9][0-9]*))
