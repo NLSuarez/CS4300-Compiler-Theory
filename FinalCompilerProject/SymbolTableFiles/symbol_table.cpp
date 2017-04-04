@@ -1,70 +1,75 @@
 #include "symbol_table.h"
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 
-static unsigned int hash(char* symbol)
+unsigned int hash(const char* symbol)
 {
-	/* Credit goes to Flex & Bison author John Levine for this function code */
 	unsigned int hashKey = 0;
-	unsigned c;
-	while (c = *symbol++) hashKey = hashKey * 9 ^ c;
+	int i;
+	for (i = 0; symbol[i] != 0; ++i)
+		hashKey += symbol[i];
+
+	// THIS VERSION IS INHERENTLY DEPENDENT ON TABLE SIZE BEING SET TO 9997.
+	// This will be adjusted in later version.
+	hashKey = hashKey % 9997;
 
 	return hashKey;
 }
 
-static char* lookup(struct symbol_node* symbol_table, char* symbol)
+char* lookup(struct symbol_node* symbol_table, const char* symbol)
 {
+	// Hash the key.
 	unsigned int hashKey = hash(symbol);
+
+	// Pointer to entry-point in symbol table.
 	symbol_node* listPtr = &symbol_table[hashKey];
 
-/* Look for symbol in table */
-	
-	/* Check initial node */
-	if (strcmp(symbol, listPtr->symbol) == 0)
-		return listPtr->symbol;
-	
-	/* Check additional nodes in list, if any */
-	while (listPtr->next != NULL)
+	if (listPtr->symbol == NULL)
 	{
-		listPtr = listPtr->next;
-		if (strcmp(symbol, listPtr->symbol) == 0)
-			return listPtr->symbol;
+		// New symbol AND current list is empty.
+		listPtr->symbol = (char*) malloc(strlen(symbol) + 1);
+		strcpy_s(listPtr->symbol, strlen(symbol) + 1, symbol);
 	}
-
-/* Symbol not found in table - add new symbol */
-	if (listPtr->symbol != NULL)
+	else
 	{
-		/* Node is occupied - create next one in list */
-		listPtr->next = (struct symbol_node*) malloc(sizeof(symbol_node));
-		
-		if (listPtr->next == NULL)
-			return NULL;	/* Couldn't allocate memory */
-			
-		listPtr = listPtr->next;
-	}
+		// Current list is not empty; new symbol status unknown.
+		while (listPtr->next != NULL)
+		{
+			if (strcmp(listPtr->symbol, symbol) == 0)
+				return listPtr->symbol;	// Symbol found, return address.
 
-	/* Allocate space for new string */
-	listPtr->symbol = (char*) malloc(strlen(symbol) + 1);
-	if (listPtr->symbol == NULL) 
-		return NULL;	/* Couldn't allocate memory */
-	
-	/* Copy string and set pointer to NULL */
-	strcpy_s(listPtr->symbol, strlen(symbol) + 1, symbol);
-	listPtr->next = NULL;
+			listPtr = listPtr->next;
+		}
+
+		// Check final node
+		if (strcmp(listPtr->symbol, symbol) == 0)
+			return listPtr->symbol;		// Symbol found, return address.
+		else
+		{
+			// New symbol, append to end of current list
+			listPtr->next = (struct symbol_node*) malloc(sizeof(symbol_node));
+			listPtr = listPtr->next;
+
+			listPtr->next = NULL;
+			listPtr->symbol = (char*) malloc(strlen(symbol) + 1);
+			strcpy_s(listPtr->symbol, strlen(symbol) + 1, symbol);
+		}
+	}
 
 	return listPtr->symbol;
 }
 
-static struct symbol_node* generateSymbolTable(unsigned int tableSize)
+struct symbol_node* generateSymbolTable(unsigned int tableSize)
 {
-	/* Allocate memory for symbol table */
-	struct symbol_node* symbol_table = 
+	// Allocate memory for symbol table
+	struct symbol_node* symbol_table =
 		(struct symbol_node*) malloc(tableSize * sizeof(struct symbol_node));
-	
-	if (symbol_table == NULL)
-		return NULL;	/* Couldn't allocate memory */
 
-	/* Initialize all elements of new table to NULL */
+	if (symbol_table == NULL)
+		return NULL;	// Couldn't allocate memory
+
+	// Initialize all elements of new table to NULL
 	for (unsigned int i = 0; i < tableSize; ++i)
 	{
 		symbol_table[i].symbol = NULL;
