@@ -1,5 +1,0 @@
-Timothy Viss - Status Report #1
-
-  I have been working on section 4, and so far I have created driver code that takes in a filename from stdin, opens the file, and derives the source file name into an object file name with a .q (chosen arbitrarily) extension. I have not yet completed the part of section 4 that performs initialization for the symbol table.
-  
-  Once I have completed section 4 I will likely move on to quality assurance or another section as needed.
