@@ -1,0 +1,22 @@
+For
+Dr. Tom Carter
+April 4th, 2017 - Tuesday
+CS 4300 - Compiler Theory
+Assignment
+Status Report 1
+
+Thomas Ferguson - Status Report #1
+	So far, I've completed part 1 of the project, and a bit of part 5.  Specifically, I've created a preliminary driver.cpp file that takes in input from stdin and inserts any strings into the symbol table.  Each string is inserted or found in the symbol table using a lookup function and the memory address (in hexadecimal form) of the symbol in the table is output to stdout.
+
+	The only bit of part 5 that has been fulfilled is that the symbol table has been implemented as hash table that uses linked listed to handle collision, and the lookup function for this type of implementation is working.  The symbol structs don’t yet have a “kind” field, however.  Part 4 has also not been improved to initialize the symbol table by inserting all C keywords.  Also, the hashing function is notably basic:  the hash key is created by (sumOfASCIIStringValues % tableSize).
+
+Manjinder Singh - Status Report #1
+	I've added the yyerror function similar to the one in Chapter 8 of the book to handle outputting compiler errors. I've also changed the default YYLTTYPE to include the filename and variable that will be used to keep track of the highest error level. I haven't tested the procedure yet as we don't have a parser yet. From what I've seen in the book the yyerror function needs to be defined in the bison parser.
+
+Stefan Suarez - Status Report #1
+	Up until this point, I've been working on the lexer skeleton. I have the basic skeleton complete, but the moment of truth for debugging will either require a complete replacement of the lex return statements to include debugging or a finished bison file. I'd prefer the latter, so my next step will be the grammar of the bison file which will hopefully be done by next week.
+
+	The sum total of my contributions to the project will likely be steps 3, 6 and 8, all revolving around bison and flex. Once I finish those, I will diverge to QA like in the NumbersProject.
+
+Timothy Viss - Status Report #1
+	Viss is currently working on step 4 in the project for a source file rename driver, and appears to have made some progress. Eventually, he will move into QA since we will need a lot of it and he offered, or take up another step in the project.
