@@ -5,4 +5,5 @@ CS 4300 - Compiler Theory
 
 Status Report #1
 
-I've added the yyerror function similar to the one in Chapter 8 of the book to handle outputting compiler errors. I've also changed the default YYLTTYPE to include the filename and variable that will be used to keep track of the highest error level. I haven't tested the procedure yet as we don't have a parser yet. From what I've seen in the book the yyerror function needs to be defined in the bison parser.
+I've added the yyerror function similar to the one in Chapter 8 of the book to handle outputting compiler errors. I've also changed the default YYLTTYPE to include the filename and variable that will be used to keep track of the highest error level. I haven't tested the procedure yet as we don't have a parser yet.
+
