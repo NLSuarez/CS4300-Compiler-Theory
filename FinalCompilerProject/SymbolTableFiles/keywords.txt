@@ -1,0 +1,9 @@
+cin
+cout
+else
+endl
+float
+if
+int
+return
+while
