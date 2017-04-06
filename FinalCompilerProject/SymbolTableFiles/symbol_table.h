@@ -5,6 +5,11 @@ extern const unsigned int TABLE_SIZE;
 
 /* Building block of the linked-list-based symbol table */
 /* The symbol table will be an array of pointers to struct symbol_record  */
+
+typedef struct symbol_record* SYMBOL_TABLE;
+
+extern const char* C_KEYWORD_ARRAY[];
+
 struct symbol_record
 {
         char* symbol;
@@ -16,7 +21,11 @@ struct symbol_record
 unsigned int hash(const char* symbol);
 
 /* Looks for symbol in table, adds if not there, returns address of record that contains symbol */
-struct symbol_record* lookup(struct symbol_record* symbol_table, const char* symbol);
+struct symbol_record* lookup(SYMBOL_TABLE symTab, const char* symbol);
 
 /* Generates a new, empty symbol table */
-struct symbol_record* generateSymbolTable(unsigned int table_size);
+SYMBOL_TABLE generateSymbolTable(unsigned int table_size);
+
+/* Populates passed symbol table with C keywords */
+void populateSymbolTable(SYMBOL_TABLE symTab);
+
