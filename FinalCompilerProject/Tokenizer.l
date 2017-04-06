@@ -35,12 +35,15 @@ comments to simplify the program.
 Header includes here
 */
 
-void yyerror(int errLevel, char *s, ...);
+#include "helperFunctions.h"
+#include <string.h>
+#include <stdarg.h>
 
 /* handle locations */
-int yycolumn = 1;
+int yycolumn = 1;	/*	Have to reset this to 1 every time a newline encoutered	*/
 
-#define YY_USER_ACTION yylloc.filename = filename; \
+/*	Changing the YY_USER_ACTION so that it can place the filename and the location, line & column, of each token in yyloc	*/
+#define YY_USER_ACTION yylloc.filename = filename; yylloc.highestErrorLevel = 0;\
     yylloc.first_line = yylloc.last_line = yylineno; \
     yylloc.first_column = yycolumn; yylloc.last_column = yycolumn+yyleng-1; \
     yycolumn += yyleng;
@@ -116,8 +119,12 @@ NON_WHITE_SPACE [^ \t\n\v\f\r]+
 {INT} { return INT_LITERAL; }
 
  /* STR_LITERAL is a string enclosed in quotes (”), not longer than 1 line */
+/*
+\"(\\.|[^\\"])*\" { return STR_LITERAL; } /*	Need help with the regex here. */ */
 
-\"(\\.|[^\\"])*\" { return STR_LITERAL; } /*Need help with the regex here. */
+\"[^\"\n]*\"	{ return STR_LITERAL; }	/*	This should grab a string	*/
+\"[^\"\n]*$		{ yyerror(warning, "Unterminated string");
+					yyval.string = yytext; return STR_LITERAL; }	/*	a string that wasn't ended with (")	*/
 
  /* STREAMIN is >> */
 
@@ -150,7 +157,7 @@ NON_WHITE_SPACE [^ \t\n\v\f\r]+
  /* ignore white space */
 {WHITE_SPACE}
  /* EOL catcher */
-"\n" { return EOL; }
+"\n" { /* reset the yycolumn */ yycolumn = 1; return EOL; }
 
  /* Primitive error catcher */
 .	{ yyerror("Mystery character %c\n", *yytext); }
@@ -161,6 +168,23 @@ NON_WHITE_SPACE [^ \t\n\v\f\r]+
 /* Eventually, there won't be a main as this will be covered in the other files */
 int main(int argc, char **argv)
 {
-yylex();
-return 0;
+	/*	Will grab the filename if a file was passed as input	*/
+	if(ac > 1)
+	{
+    	if((yyin = fopen(av[1], "r")) == NULL) /*	Check to see if the file can be opened	*/
+    	{
+    		/*	failed to open the file	*/
+      		perror(av[1]);
+      		exit(1);
+    	}
+    	filename = av[1];	/*	Grabbing the name of the first file	*/
+  	}
+  	else
+  	{
+  		/*	No file was passed as input so will set the filename as "stdin" for standard input	*/
+  		filename = "(stdin)";
+  	}
+  	
+	yylex();
+	return 0;
 }
