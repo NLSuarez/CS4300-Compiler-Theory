@@ -15,13 +15,13 @@ unsigned int hash(const char* symbol)
         return hashKey;
 }
 
-char* lookup(struct symbol_node* symbol_table, const char* symbol)
+struct symbol_record* lookup(struct symbol_record* symbol_table, const char* symbol)
 {
         // Hash the key.
         unsigned int hashKey = hash(symbol);
 
         // Pointer to entry-point in symbol table.
-        struct symbol_node* listPtr = &symbol_table[hashKey];
+        struct symbol_record* listPtr = &symbol_table[hashKey];
 
         if (listPtr->symbol == NULL)
         {
@@ -35,18 +35,18 @@ char* lookup(struct symbol_node* symbol_table, const char* symbol)
                 while (listPtr->next != NULL)
                 {
                         if (strcmp(listPtr->symbol, symbol) == 0)
-                                return listPtr->symbol; // Symbol found, return address.
+                                return listPtr;         // Symbol found, return pointer to record.
 
                         listPtr = listPtr->next;
                 }
 
                 // Check final node
                 if (strcmp(listPtr->symbol, symbol) == 0)
-                        return listPtr->symbol;         // Symbol found, return address.
+                        return listPtr;                 // Symbol found, return pointer to record.
                 else
                 {
                         // New symbol, append to end of current list
-                        listPtr->next = (struct symbol_node*) malloc(sizeof(struct symbol_node));
+                        listPtr->next = (struct symbol_record*) malloc(sizeof(struct symbol_record));
                         listPtr = listPtr->next;
 
                         listPtr->next = NULL;
@@ -55,14 +55,14 @@ char* lookup(struct symbol_node* symbol_table, const char* symbol)
                 }
         }
 
-        return listPtr->symbol;
+        return listPtr;
 }
 
-struct symbol_node* generateSymbolTable(unsigned int tableSize)
+struct symbol_record* generateSymbolTable(unsigned int tableSize)
 {
         // Allocate memory for symbol table
-        struct symbol_node* symbol_table =
-                (struct symbol_node*) malloc(tableSize * sizeof(struct symbol_node));
+        struct symbol_record* symbol_table =
+                (struct symbol_record*) malloc(tableSize * sizeof(struct symbol_record));
 
         if (symbol_table == NULL)
                 return NULL;    // Couldn't allocate memory
@@ -76,4 +76,3 @@ struct symbol_node* generateSymbolTable(unsigned int tableSize)
 
         return symbol_table;
 }
-
