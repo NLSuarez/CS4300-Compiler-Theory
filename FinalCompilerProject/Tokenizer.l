@@ -31,22 +31,19 @@ comments to simplify the program.
 %option noyywrap nodefault yylineno
 
 %{
-/*
-Header includes here
-*/
+	/*
+	Header includes here
+	*/
 
-#include "helperFunctions.h"
-#include <string.h>
-#include <stdarg.h>
+	#include "helperFunctions.h"
+	#include "Parser.tab.h"
 
-/* handle locations */
-int yycolumn = 1;	/*	Have to reset this to 1 every time a newline encoutered	*/
+	/* handle locations */
+	int yycolumn = 1;	/*	Have to reset this to 1 every time a newline encoutered	*/
 
-/*	Changing the YY_USER_ACTION so that it can place the filename and the location, line & column, of each token in yyloc	*/
-#define YY_USER_ACTION yylloc.filename = filename; yylloc.highestErrorLevel = 0;\
-    yylloc.first_line = yylloc.last_line = yylineno; \
-    yylloc.first_column = yycolumn; yylloc.last_column = yycolumn+yyleng-1; \
-    yycolumn += yyleng;
+	/*	Changing the YY_USER_ACTION so that it can place the highest severity level and the location, line & column, of each token in yyloc	*/
+	#define YY_USER_ACTION yylloc.hel = 0; yylloc.first_line = yylloc.last_line = yylineno; \
+    	yylloc.first_column = yycolumn; yylloc.last_column = yycolumn+yyleng-1; yycolumn += yyleng;
     
 %}
 

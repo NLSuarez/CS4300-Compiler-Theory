@@ -3,14 +3,24 @@
  * will need here.
 */
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdarg.h>
+#include <string.h>
+
 /*
  * Enum to pass to the yyerror function, making it easier to see 
  * the level of severity of the error.
  */
-typedef enum { warning = 1, error, fatal } errorLevel;
+typedef enum errorSeverity { warning = 1, error, fatal } errorLevel;
 
 /*	
- * Error function that can takes in a enum indictating the severity of the error
- * and also a string description of the error that will be outputted to User.
+ * Error function that can takes in a string description of the error that will be outputted to User.
  */
-void yyerror(errorLevel errlvl, char *s, ...);
+void yyerror(char *s, ...);
+
+/*
+ * Error function that takes in the enum indicating severity of the error and also
+ * a string description of the error.
+ */
+void myyyerror(errorLevel el, char *s, ...);
