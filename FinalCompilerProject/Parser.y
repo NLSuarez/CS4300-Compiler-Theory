@@ -46,11 +46,32 @@
     	while (0)
 }
 
-/*	union variables go here	*/
+ /* union variables go here */
 %union{
+  struct ast *a;
+  float <f>;
+  int <d>;
+  struct symbol *s;
+  int fn;
 }
 
-/*	Tokens go here; Names and Literal values	*/
+ /* Tokens go here; Names and Literal values */
+
+%token <d> INT_LITERAL
+%token <f> FLT_LITERAL
+%token <s> ID
+%token EOL
+
+%token IF CIN COUT ELSE ENDL WHILE FLOAT INT RETURN
+
+/* Precedence rules here. Could use some help. */
+%nonassoc <fn> RELOP
+%right '='
+%left '+' '-'
+%left '*' '/'
+%nonassoc '!' NOT
+
+%start program
 
 /*	Grammer rules go here?	*/
 %%

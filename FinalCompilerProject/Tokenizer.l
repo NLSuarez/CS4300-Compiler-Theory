@@ -116,8 +116,8 @@ NON_WHITE_SPACE [^ \t\n\v\f\r]+
 {INT} { return INT_LITERAL; }
 
  /* STR_LITERAL is a string enclosed in quotes (”), not longer than 1 line */
-/*
-\"(\\.|[^\\"])*\" { return STR_LITERAL; } /*	Need help with the regex here. */ */
+ /*
+\"(\\.|[^\\"])*\" { return STR_LITERAL; }  */
 
 \"[^\"\n]*\"	{ return STR_LITERAL; }	/*	This should grab a string	*/
 \"[^\"\n]*$		{ yyerror(warning, "Unterminated string");
