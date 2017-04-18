@@ -46,34 +46,13 @@
     	while (0)
 }
 
- /* union variables go here */
+/*	union variables go here	*/
 %union{
-  struct ast *a;
-  float <f>;
-  int <d>;
-  //Figure out how to include strings later
-  struct symbol *s;
-  int fn;
 }
 
- /* Tokens go here; Names and Literal values */
+/*	Tokens go here; Names and Literal values	*/
 
-%token <d> INT_LITERAL
-%token <f> FLT_LITERAL
-//Include when strings are in %token <str> STR_LITERAL
-%token <s> ID
-%token EOL
-
-%token IF CIN COUT ELSE ENDL WHILE FLOAT INT RETURN
-
-/* Precedence rules here. Could use some help. */
-%nonassoc <fn> RELOP
-%right ASSIGNOP
-%left <fn> ADDOP
-%left <fn> MULOP
-%nonassoc NOT
-
-%start program
+/*	Grammer rules go here?	*/
 %%
 
 	program:	/* Nothing */
@@ -124,8 +103,8 @@
 	statement:	expression ';'
 		| compound_statement
 		| RETURN expression ';'
-		| IF '(' bool_expression ')' statement ELSE statement	{ $$ = newflow('I', $3, $5, $7); }
-		| WHILE '(' bool_expression ')' statement		{ $$ = newflow('W', $3, $5, NULL); }
+		| IF '(' bool_expression ')' statement ELSE statement
+		| WHILE '(' bool_expression ') statement
 		| input_statement ';'
 		| output_statement ';'
 		;
@@ -155,18 +134,18 @@
 		| expressions ',' expression
 		;
 		
-	expression:	variable ASSIGNOP expression	{ $$ = newasgn($1, $3); }
-		| variable INCOP expression		{ $$ = newast($2, $1, $3); }
+	expression:	variable ASSIGNOP expression
+		| variable INCOP expression
 		| simple_expression
 		;
 		
 	simple_expression:	term
-		| ADDOP term				{ $$ = newast($1, $2); } //possible error
-		| simple_expression ADDOP term		{ $$ = newast($2, $1, $3); }
+		| ADDOP term
+		| simple_expression ADDOP term
 		;
 		
 	term:	factor
-		| term MULOP factor			{ $$ = newast($2, $1, $3); }
+		| term MULOP factor
 		;
 		
 	factor:	ID
@@ -190,7 +169,7 @@
 		
 	bool_factor:	NOT bool_factor
 		| '(' bool_expression ')'
-		| simple_expression RELOP simple_expression	{ $$ = newrel($2, $1, $3); }
+		| simple_expression RELOP simple_expression
 		;
 	
 %%
