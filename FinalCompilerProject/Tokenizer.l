@@ -120,7 +120,7 @@ NON_WHITE_SPACE [^ \t\n\v\f\r]+
 \"(\\.|[^\\"])*\" { return STR_LITERAL; } /*	Need help with the regex here. */ */
 
 \"[^\"\n]*\"	{ return STR_LITERAL; }	/*	This should grab a string	*/
-\"[^\"\n]*$		{ yyerror(warning, "Unterminated string");
+\"[^\"\n]*$		{ yyerror("Unterminated string");
 					yyval.string = yytext; return STR_LITERAL; }	/*	a string that wasn't ended with (")	*/
 
  /* STREAMIN is >> */
@@ -164,24 +164,7 @@ NON_WHITE_SPACE [^ \t\n\v\f\r]+
 
 /* Eventually, there won't be a main as this will be covered in the other files */
 int main(int argc, char **argv)
-{
-	/*	Will grab the filename if a file was passed as input	*/
-	if(ac > 1)
-	{
-    	if((yyin = fopen(av[1], "r")) == NULL) /*	Check to see if the file can be opened	*/
-    	{
-    		/*	failed to open the file	*/
-      		perror(av[1]);
-      		exit(1);
-    	}
-    	filename = av[1];	/*	Grabbing the name of the first file	*/
-  	}
-  	else
-  	{
-  		/*	No file was passed as input so will set the filename as "stdin" for standard input	*/
-  		filename = "(stdin)";
-  	}
-  	
+{ 	
 	yylex();
 	return 0;
 }
