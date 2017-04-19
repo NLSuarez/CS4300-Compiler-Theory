@@ -70,7 +70,13 @@
  	%right ASSIGNOP
  	%left <fn> ADDOP
  	%left <fn> MULOP
- 	%nonassoc NOT
+ 	%nonassoc NOT UNARY
+	/* UNARY is just a token that we'll use to give things the highest precedence, 
+	 * in order to use it we put %prec UNARY after the grammar but before the c code for it.
+	 * In the book, they used it for unary minus to recongize negative numbers. They didn't
+	 * put the negative sign in the regular expression for INT or FLOAT, they let the grammar
+	 * handle the negative numbers. For more details check out the fb3-2.l and fb3-2.y book examples.
+	 */
  
  	%start program
 
