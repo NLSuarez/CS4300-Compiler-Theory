@@ -101,11 +101,11 @@
 		| variable_definitions type identifier_list
 		;
 		
-	type:	INT
+	type:	INT													{ $$ = newast('I', $1, NULL) }
 		| FLOAT
 		;
 		
-	function_head:	type ID arguments
+	function_head:	type ID arguments							{ $$ = newfunc($1, $2, $3); } /* Can change it depending on how we implement newfunc */
 		;
 		
 	arguments:	'(' parameter_list ')'
@@ -167,36 +167,36 @@
 		| simple_expression
 		;
 		
-	simple_expression:	term
-		| ADDOP term							{ $$ = newast($1, $2); } //possible error
+	simple_expression:	term					{ $$ = $1; }
+		| ADDOP term							{ $$ = newast($1, $2, NULL); } //possible error; That should do the trick
 		| simple_expression ADDOP term			{ $$ = newast($2, $1, $3); }
 		;
 		
-	term:	factor
+	term:	factor								{ $$ = $1; }
 		| term MULOP factor						{ $$ = newast($2, $1, $3); }
 		;
 		
-	factor:	ID
-		| ID '(' expression_list ')'
-		| literal
-		| '(' expression ')'
-		| ID '[' expression ']'
+	factor:	ID									{ $$ = newref($1); }
+		| ID '(' expression_list ')'			{ }
+		| literal								{ }
+		| '(' expression ')'					{ $$ = $2; }
+		| ID '[' expression ']'					{ }
 		;
 		
-	literal:	INT_LITERAL
-		| FLOAT_LITERAL
+	literal:	INT_LITERAL						{ $$ = newnum($1); } // Might have to differentiate between inputting INT vs FLOAT
+		| FLOAT_LITERAL							{ $$ = newnum($1); }
 		;
 		
-	bool_expression:	bool_term
-		| bool_expression OR bool_term
+	bool_expression:	bool_term				{ $$ = $1; }
+		| bool_expression OR bool_term			{ $$ = newcmp($2, $1, $3); }
 		;
 		
-	bool_term:	bool_factor
-		| bool_term AND bool_factor
+	bool_term:	bool_factor						{ $$ = $1; }
+		| bool_term AND bool_factor				{ $$ = newcmp($2,$1, $3); }
 		;
 		
-	bool_factor:	NOT bool_factor
-		| '(' bool_expression ')'
+	bool_factor:	NOT bool_factor				{ $$ = newcmp($1, $2, NULL); }
+		| '(' bool_expression ')'				{ $$ = $2; }
 		| simple_expression RELOP simple_expression	{ $$ = newrel($2, $1, $3); }
 		;
 	
