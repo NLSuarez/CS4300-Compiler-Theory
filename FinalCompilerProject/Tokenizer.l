@@ -31,7 +31,6 @@ comments to simplify the program.
 %option noyywrap nodefault yylineno
 
 %{
-<<<<<<< HEAD
 	/*
 	Header includes here
 	*/
@@ -40,26 +39,11 @@ comments to simplify the program.
 	#include "Parser.tab.h"
 
 	/* handle locations */
-	int yycolumn = 1;	/*	Have to reset this to 1 every time a newline encoutered	*/
+	int yycolumn = 1;	/* Have to reset this to 1 every time a newline encoutered	*/
 
 	/*	Changing the YY_USER_ACTION so that it can place the highest severity level and the location, line & column, of each token in yyloc	*/
 	#define YY_USER_ACTION yylloc.hel = 0; yylloc.first_line = yylloc.last_line = yylineno; \
     	yylloc.first_column = yycolumn; yylloc.last_column = yycolumn+yyleng-1; yycolumn += yyleng;
-=======
-/*
-Header includes here
-*/
-
-void yyerror(int errLevel, char *s, ...);
-
-/* handle locations */
-int yycolumn = 1;
-
-#define YY_USER_ACTION yylloc.filename = filename; \
-    yylloc.first_line = yylloc.last_line = yylineno; \
-    yylloc.first_column = yycolumn; yylloc.last_column = yycolumn+yyleng-1; \
-    yycolumn += yyleng;
->>>>>>> b5030e61e0b658a5df382ab1b1d5bdf1a6a8cc85
     
 %}
 
@@ -132,16 +116,11 @@ NON_WHITE_SPACE [^ \t\n\v\f\r]+
 {INT} { return INT_LITERAL; }
 
  /* STR_LITERAL is a string enclosed in quotes (”), not longer than 1 line */
-/*
-\"(\\.|[^\\"])*\" { return STR_LITERAL; } */
 
-<<<<<<< HEAD
 \"[^\"\n]*\"	{ return STR_LITERAL; }	/*	This should grab a string	*/
 \"[^\"\n]*$		{ yyerror("Unterminated string");
-					yyval.string = yytext; return STR_LITERAL; }	/*	a string that wasn't ended with (")	*/
-=======
-\"(\\.|[^\\"])*\" { return STR_LITERAL; } /*Need help with the regex here. */
->>>>>>> b5030e61e0b658a5df382ab1b1d5bdf1a6a8cc85
+					yyval.string = yytext; return STR_LITERAL; }	
+ /* a string that wasn't ended with (")	*/
 
  /* STREAMIN is >> */
 
