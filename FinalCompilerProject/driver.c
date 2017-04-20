@@ -39,6 +39,7 @@ int main(int argc, char **argv)
 //	puts(outputFilename);
 		strcat(outputFilename, ".q");
 		puts(outputFilename);
+		FILE *fp = fopen(outputFilename, "w+");
 	}	
 	else puts("Error: no source file given");
 	return 0;
