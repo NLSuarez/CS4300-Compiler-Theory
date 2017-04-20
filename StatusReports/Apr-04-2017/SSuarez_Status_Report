@@ -1,0 +1,10 @@
+Stefan Suarez
+Dr. Tom Carter
+April 4th, 2017 - Tuesday
+CS 4300 - Compiler Theory
+
+Status Report #1
+
+	Up until this point, I've been working on the lexer skeleton. I have the basic skeleton complete, but the moment of truth for debugging will either require a complete replacement of the lex return statements to include debugging or a finished bison file. I'd prefer the latter, so my next step will be the grammar of the bison file which will hopefully be done by next week.
+
+	The sum total of my contributions to the project will likely be steps 3, 6 and 8, all revolving around bison and flex. Once I finish those, I will diverge to QA like in the NumbersProject.

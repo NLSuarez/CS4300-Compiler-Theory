@@ -1,0 +1,10 @@
+Thomas Ferguson
+Dr. Tom Carter
+April 4th, 2017 - Tuesday
+CS 4300 - Compiler Theory
+
+Status Report #1
+
+So far, I've completed part 1 of the project, and a bit of part 5.  Specifically, I've created a preliminary driver.cpp file that takes in input from stdin and inserts any strings into the symbol table.  Each string is inserted or found in the symbol table using a lookup function and the memory address (in hexadecimal form) of the symbol in the table is output to stdout.
+
+The only bit of part 5 that has been fulfilled is that the symbol table has been implemented as hash table that uses linked listed to handle collision, and the lookup function for this type of implementation is working.  The symbol structs don’t yet have a “kind” field, however.  Part 4 has also not been improved to initialize the symbol table by inserting all C keywords.  Also, the hashing function is notably basic:  the hash key is created by (sumOfASCIIStringValues % tableSize).

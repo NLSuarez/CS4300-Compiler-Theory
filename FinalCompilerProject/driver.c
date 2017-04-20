@@ -16,11 +16,11 @@ int main(int argc, char **argv)
 		int hasDot = dot != NULL;
 		if (hasDot) dotIndex = (int) (dot - filename);
 		else dotIndex = -1;
-	printf("dot found at %d\n", dotIndex);
+//	printf("dot found at %d\n", dotIndex);
 		int hasSlash = slash != NULL;
 		if (hasSlash) slashIndex = (int) (slash - filename);
 		else slashIndex = -1;
-	printf("slash found at %d\n", slashIndex);
+//	printf("slash found at %d\n", slashIndex);
 		char outputFilename[256];
 		memset(outputFilename, '\0', sizeof(outputFilename));		
 		/* if ((hasDot) && (dotIndex > slashIndex))
@@ -36,7 +36,7 @@ int main(int argc, char **argv)
 		{
 			strcpy(outputFilename, filename);
 		}
-		puts(outputFilename);
+//	puts(outputFilename);
 		strcat(outputFilename, ".q");
 		puts(outputFilename);
 	}	
