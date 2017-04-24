@@ -69,3 +69,39 @@ void yyerror(char *s, ...);
  */
 void pError(errorLevel el, char *s, ...);
 
+/*
+ * AST node types.
+ * There will be multiple types of ast nodes according to the specifications
+ * in the book. These are rough drafts.
+ */
+
+//Normal tree
+struct ast {
+ int nodetype;
+ struct ast *l;
+ struct ast *r;
+};
+
+//int literal
+struct intval {
+ int nodetype;
+ int number;
+};
+
+//float literal
+struct floatval {
+ int nodetype;
+ float number;
+};
+
+ /*
+  * functions to build the AST
+  */
+struct ast *newast(int nodetype, struct ast *l, struct ast *r);
+struct ast *newint(int num);
+struct ast *newfloat(float num);
+
+  /*
+   * FUnction to delete and free an AST
+   */
+ void treefree(struct ast *);

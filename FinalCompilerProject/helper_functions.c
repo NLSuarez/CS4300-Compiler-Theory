@@ -39,7 +39,7 @@
 int hel = 0;
 
 // This should be kept up-to-date if more keywords are added to the set.
-enum{KEYWORD_COUNT = 9997};
+enum { KEYWORD_COUNT = 9997 };
 
 char* C_KEYWORD_ARRAY[KEYWORD_COUNT] = { "cin", "cout", "else", "endl", "float",
 						"if", "int", "return", "while" };
@@ -232,3 +232,28 @@ void pError(errorLevel el, char* s, ...)
 	fprintf(stderr, "\n");
 	//printf("%s\n", s);
 }
+
+/*
+ * functions to build the AST
+ */
+ struct ast *
+ newast(int nodetype, struct ast *l, struct ast *r)
+ {
+   struct ast *a = malloc(sizeof(struct ast));
+
+   if(!a) {
+     yyerror("out of space");
+     exit(0);
+   }
+   a->nodetype = nodetype;
+   a->l = l;
+   a->r = r;
+   return a;
+ }
+ struct ast *newint(int num);
+ struct ast *newfloat(float num);
+
+ /*
+  * FUnction to delete and free an AST
+  */
+  void treefree(struct ast *);
