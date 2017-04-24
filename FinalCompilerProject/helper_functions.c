@@ -1,8 +1,10 @@
 
 
 #include "helper_functions.h"
+#include "parser.tab.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdarg.h>
 #include <string.h>
 
 // Useful for debugging and populating the symbol table - need a better, non-hack solution for this in the future.
@@ -35,9 +37,10 @@
 
 
 // This should be kept up-to-date if more keywords are added to the set.
-const unsigned int KEYWORD_COUNT = 9;
+enum {KEYWORD_COUNT = 9997};
+//const unsigned int KEYWORD_COUNT = 9;
 
-const char* C_KEYWORD_ARRAY[KEYWORD_COUNT] = { "cin", "cout", "else", "endl", "float",
+char* C_KEYWORD_ARRAY[KEYWORD_COUNT] = { "cin", "cout", "else", "endl", "float",
 						"if", "int", "return", "while" };
 
 unsigned int hash(const char* symbol)
@@ -168,7 +171,7 @@ char* kindToString(const int kind)
 	if (kind == WHILE)			return "WHILE";
 	if (kind == STR_LITERAL)	return "STR_LITERAL";
 	if (kind == ID)				return "ID";
-	
+
 	return "UNKNOWN";
 }
 
@@ -176,16 +179,16 @@ char* kindToString(const int kind)
 int main(int argc, char **argv)
 {
     extern unsigned int DEBUG;
-    
+
     if (argc > 1)
     {
         for (int i = 1; i < argc; ++i)
             if (strcmp(argv[i], "-d") == 0) DEBUG = 1;
     }
-	
+
 
 	if(DEBUG) printf("!!!DEBUG ON!!!\n\n");
-	
+
     symTab = generateSymbolTable(TABLE_SIZE);
     populateSymbolTable(symTab);
 
@@ -199,3 +202,27 @@ void yyerror(char* s, ...)
 	printf("\n%s\n", s);
 }
 
+/*
+ * functions to build the AST
+ */
+ struct ast *
+ newast(int nodetype, struct ast *l, struct ast *r)
+ {
+   struct ast *a = malloc(sizeof(struct ast));
+
+   if(!a) {
+     yyerror("out of space");
+     exit(0);
+   }
+   a->nodetype = nodetype;
+   a->l = l;
+   a->r = r;
+   return a;
+ }
+ struct ast *newint(int num);
+ struct ast *newfloat(float num);
+
+ /*
+  * FUnction to delete and free an AST
+  */
+  void treefree(struct ast *);
