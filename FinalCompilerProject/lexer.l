@@ -30,8 +30,8 @@ comments to simplify the program.
 %option noyywrap
 
 %{
-#include "parser.tab.h"
 #include "helper_functions.h"
+#include "parser.tab.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -101,11 +101,11 @@ COMMA (",")
 
 {AND} { yycolumn += strlen(yytext); return AND; }
 
-{FLT_LITERAL}/{ID} { yyerror("INVALID ID ENTERED!"); exit(0); }
+{FLT_LITERAL}/{ID} { pError(error, "INVALID ID ENTERED!"); }
 
 {FLT_LITERAL} { yycolumn += strlen(yytext); return FLT_LITERAL; }
 
-{INT_LITERAL}/{ID} { yyerror("INVALID ID ENTERED!"); exit(0); }
+{INT_LITERAL}/{ID} { pError(error, "INVALID ID ENTERED!"); }
 
 {INT_LITERAL} { yycolumn += strlen(yytext); return INT_LITERAL; }
 
@@ -145,7 +145,7 @@ COMMA (",")
 
 [ \t\v]+ { yycolumn += strlen(yytext); /* Ignore non-newline white-space */ }
 
-. { /* Call Scooby-Doo and the Gang, because we have a mystery on our hands... */ yycolumn += strlen(yytext); yyerror("Mystery char %c\n", *yytext); }
+. { /* Call Scooby-Doo and the Gang, because we have a mystery on our hands... */ yycolumn += strlen(yytext); pError(warning, "Mystery char %c\n", *yytext); }
 
 %%
 
