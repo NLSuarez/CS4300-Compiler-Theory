@@ -219,10 +219,40 @@ void yyerror(char* s, ...)
    a->r = r;
    return a;
  }
- struct ast *newint(int num);
- struct ast *newfloat(float num);
+
+ struct ast *
+ newint(int num)
+ {
+	 struct intval *a = malloc(sizeof(struct intval));
+	 if(!a) {
+		 yyerror("out of space");
+		 exit(0);
+	 }
+	 a->nodetype = 'f'; //VMQ defines an int using f
+	 a->number = num;
+	 return (struct ast *)a;
+ }
+
+ struct ast *
+ newfloat(int num)
+ {
+	 struct floatval *a = malloc(sizeof(struct floatval));
+	 if(!a) {
+		 yyerror("out of space");
+		 exit(0);
+	 }
+	 a->nodetype = 'F'; //VMQ defines an int using f
+	 a->number = num;
+	 return (struct ast *)a;
+ }
 
  /*
   * FUnction to delete and free an AST
   */
-  void treefree(struct ast *);
+  void
+	treefree(struct ast *a)
+	{
+		//switch(a->nodetype) {
+			/* cases here will be based on parser */
+		//}
+	}
