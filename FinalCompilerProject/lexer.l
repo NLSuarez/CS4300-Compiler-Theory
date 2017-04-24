@@ -1,3 +1,5 @@
+
+
 /*
 Spring 2017
 CS4300
@@ -16,7 +18,7 @@ AND stands for the lexeme &&
 FLT_LITERAL is a float constant without a sign
 (at least 1 digit before and after decimal pt.; possible exponent)
 INT_LITERAL is an integer constant without a sign
-STR_LITERAL is a string enclosed in quotes (”), not longer than 1 line
+STR_LITERAL is a string enclosed in quotes (â€), not longer than 1 line
 STREAMIN is >>
 STREAMOUT is <<
 ID follows the usual rules for C++ identifiers, and may be any length
@@ -27,7 +29,7 @@ Comments may be entered using either blocks or single lines using c syntax. Incl
 comments to simplify the program.
 */
 
-%option noyywrap
+%option noyywrap nodefault yylineno
 
 %{
 #include "helper_functions.h"
@@ -37,7 +39,6 @@ comments to simplify the program.
 #include <stdlib.h>
 
 unsigned int yycolumn = 1;
-
 
 extern unsigned int DEBUG;
 
@@ -115,11 +116,11 @@ COMMA (",")
 
 {STREAMOUT} { yycolumn += strlen(yytext); return STREAMOUT; }
 
-{KEYWORD} { if(DEBUG) printf("\n\nFLEX: KEYWORD(%s) = %s\n\n", yytext, kindToString(getKind(yytext))); yycolumn += strlen(yytext); yylval.s = lookup(symTab, yytext, getKind(yytext)); return getKind(yytext); }
+{KEYWORD} { if(DEBUG) printf("FLEX: KEYWORD = \"%s\", KIND = %s\n", yytext, kindToString(getKind(yytext))); yycolumn += strlen(yytext); yylval.s = lookup(symTab, yytext, getKind(yytext)); return getKind(yytext); }
 
 {END_STMT} { yycolumn += strlen(yytext); return yytext[0]; }
 
-{ID} { yycolumn += strlen(yytext); yylval.s = lookup(symTab, yytext, ID); if(DEBUG) printRecordData(yylval.s); return ID; }
+{ID} { if(DEBUG) printf("FLEX: ID = %s\n", yytext); yycolumn += strlen(yytext); yylval.s = lookup(symTab, yytext, ID); return ID; }
 
 {PRE_PROC}  { yycolumn += strlen(yytext); /* **IGNORE PREPROCESSOR DIRECTIVES** */ }
 
@@ -141,11 +142,12 @@ COMMA (",")
 
 {COMMA} { yycolumn += strlen(yytext); return yytext[0]; }
 
-{NEWLINE} { yycolumn = 1; return EOL; }
+{NEWLINE} { yylineno++; yycolumn = 1; /*return EOL*/ }
 
 [ \t\v]+ { yycolumn += strlen(yytext); /* Ignore non-newline white-space */ }
 
 . { /* Call Scooby-Doo and the Gang, because we have a mystery on our hands... */ yycolumn += strlen(yytext); pError(warning, "Mystery char %c\n", *yytext); }
 
 %%
+
 

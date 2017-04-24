@@ -14,6 +14,7 @@
 	#include "helper_functions.h"
 	#include "parser.tab.h"
 
+	extern unsigned int DEBUG;
 	int yylex();
 /*	Code that we need to make use of the custom yyerror function	
  *	%code requires makes sure that our code is placed before the default versions
@@ -53,128 +54,129 @@
 	 * handle the negative numbers. For more details check out the fb3-2.l and fb3-2.y book examples.
 	 */
 
-	%type <str> out_statement expression term factor simple_expression variable
-	%type <f> literal
+	%type <str> output_statement expression term factor simple_expression variable program function_definitions	function_head block identifier_list variable_definitions type arguments parameter_list parameters statements statement compound_statement bool_expression expressions input_statement expression_list literal bool_term bool_factor
+	//%type <f> literal
 
-	%start output_statement
+	%start program
 %%
 
-	program:	/* Nothing */
-		| variable_definitions function_definitions
+	program: variable_definitions function_definitions { if(DEBUG) printf("program PARSED\n"); }
 		;
 		
-	function_definitions:	function_head block
-		| function_definitions function_head block
+	function_definitions:	function_head block     { if(DEBUG) printf("function_definitions PARSED\n"); }
+		| function_definitions function_head block  { if(DEBUG) printf("function_definitions PARSED\n"); }
 		;
 		
-	identifier_list:	ID
-		| ID '[' INT_LITERAL ']'
-		| identifier_list ',' ID
-		| identifier_list ',' ID '[' INT_LITERAL ']'
+	identifier_list:	ID			{ if(DEBUG) printf("identifier_list PARSED\n"); }
+		| ID '[' INT_LITERAL ']'	{ if(DEBUG) printf("identifier_list PARSED\n"); }
+		| identifier_list ',' ID	{ if(DEBUG) printf("identifier_list PARSED\n"); }
+		| identifier_list ',' ID '[' INT_LITERAL ']' { if(DEBUG) printf("identifier_list PARSED\n"); } 
 		;
 		
-	variable_definitions:	/* I think that's the set symbol */
-		| variable_definitions type identifier_list
+	variable_definitions:			/* nothing */
+		| variable_definitions type identifier_list ';' { if(DEBUG) printf("variable_definitions PARSED\n"); }
 		;
 		
-	type:	INT
-		| FLOAT
+	type:	INT { if(DEBUG) printf("type(INT) PARSED\n"); }
+		| FLOAT { if(DEBUG) printf("type(FLOAT) PARSED\n"); }
 		;
 		
-	function_head:	type ID arguments
+	function_head:	type ID arguments { if(DEBUG) printf("function_head PARSED\n"); }
 		;
 		
-	arguments:	'(' parameter_list ')'
+	arguments:	'(' parameter_list ')' { if(DEBUG) printf("arguments PARSED\n"); }
 		;
 		
-	parameter_list:	/* I think that's the set symbol */
-		| parameters
+	parameter_list:						/* nothing */
+		| parameters									{ if(DEBUG) printf("parameter_list PARSED\n"); }
 		;
 		
-	parameters:	type ID
-		| type ID '[' ']'
-		| parameters ',' type ID
-		| parameters ',' type ID '[' ']'
+	parameters:	type ID						{ if(DEBUG) printf("parameters PARSED\n"); }
+		| type ID '[' ']'					{ if(DEBUG) printf("parameters PARSED\n"); }
+		| parameters ',' type ID			{ if(DEBUG) printf("parameters PARSED\n"); }
+		| parameters ',' type ID '[' ']'	{ if(DEBUG) printf("parameters PARSED\n"); }
 		;
 		
-	block:	'{' variable_definitions statements '}'
+	block:	'{' variable_definitions statements '}' { if(DEBUG) printf("block PARSED\n"); }
 		;
 		
-	statements:	/* I think that's the set symbol */
-		| statements statement
+	statements:					/* nothing */
+		| statements statement						{ if(DEBUG) printf("statements PARSED!\n"); }
 		;
 		
-	statement:	expression ';'
-		| compound_statement
-		| RETURN expression ';'
-		| IF '(' bool_expression ')' statement ELSE statement
-		| WHILE '(' bool_expression ')' statement
-		| input_statement ';'
-		| output_statement ';'
+	statement:	expression ';'									{ if(DEBUG) printf("statement PARSED!\n"); }
+		| compound_statement									{ if(DEBUG) printf("statement PARSED!\n"); }
+		| RETURN expression ';'									{ if(DEBUG) printf("statement PARSED!\n"); }
+		| IF '(' bool_expression ')' statement ELSE statement	{ if(DEBUG) printf("statement PARSED!\n"); }
+		| WHILE '(' bool_expression ')' statement				{ if(DEBUG) printf("statement PARSED!\n"); }
+		| input_statement ';'									{ if(DEBUG) printf("statement PARSED!\n"); }
+		| output_statement ';'									{ if(DEBUG) printf("statement PARSED!\n"); }
 		;
 		
-	input_statement:	CIN
-		| input_statement STREAMIN variable
+	input_statement:	CIN										{ if(DEBUG) printf("input_statement PARSED!\n"); }
+		| input_statement STREAMIN variable						{ if(DEBUG) printf("input_statement PARSED!\n"); }
 		;
 		
-	output_statement:	COUT						{ printf("%s ", $1->symbol); }
-		| output_statement STREAMOUT expression	{ printf("<< %s ", $3); }
-		| output_statement STREAMOUT STR_LITERAL	{ printf("<< %s ", $3->symbol); }
-		| output_statement STREAMOUT ENDL			{ printf("<< %s;\n", $3->symbol); }
+	output_statement:	COUT						{ if(DEBUG) printf("output_statement PARSED!\n"); }
+		| output_statement STREAMOUT expression		{ if(DEBUG) printf("output_statement PARSED!\n"); }
+		| output_statement STREAMOUT STR_LITERAL	{ if(DEBUG) printf("output_statement PARSED!\n"); }
+		| output_statement STREAMOUT ENDL			{ if(DEBUG) printf("output_statement PARSED!\n"); }
 		;
 		
-	compound_statement:	'{' statements '}'
+	compound_statement:	'{' statements '}'		{ if(DEBUG) printf("compound_statement PARSED!\n"); }
 		;
 		
-	variable:	ID								{ $$ = $1->symbol; }
-		| ID '[' expression ']'					{ $$ = $1->symbol; }
+	variable:	ID								{ if(DEBUG) printf("variable PARSED!\n"); }
+		| ID '[' expression ']'					{ if(DEBUG) printf("variable PARSED!\n"); }
 		;
 		
-	expression_list:	/* I think that's the set symbol */
-		| expressions
+	expression_list:			/* nothing */
+		| expressions							{ if(DEBUG) printf("expression_list PARSED!\n"); }
 		;
 		
-	expressions:	expression
-		| expressions ',' expression
+	expressions:	expression					{ if(DEBUG) printf("expressions PARSED!\n"); }
+		| expressions ',' expression			{ if(DEBUG) printf("expressions PARSED!\n"); }
 		;
 		
-	expression:	variable ASSIGNOP expression	{ strcpy($$, $1); strcat($$, $3);  }
-		| variable INCOP expression
-		| simple_expression				{ $$ = $1; }
+	expression:	variable ASSIGNOP expression	{ if(DEBUG) printf("expression PARSED!\n"); }
+		| variable INCOP expression				{ if(DEBUG) printf("expression PARSED!\n"); }
+		| simple_expression						{ if(DEBUG) printf("expression PARSED!\n"); }
 		;
 		
-	simple_expression:	term			{ $$ = $1; }
-		| ADDOP term		
-		| simple_expression ADDOP term
+	simple_expression:	term			{ if(DEBUG) printf("simple_expression PARSED!\n"); }
+		| ADDOP term					{ if(DEBUG) printf("simple_expression PARSED!\n"); }
+		| simple_expression ADDOP term	{ if(DEBUG) printf("simple_expression PARSED!\n"); } 
 		;
 		
-	term:	factor						{ $$ = $1; }
-		| term MULOP factor
+	term:	factor						{ if(DEBUG) printf("term PARSED!\n"); }
+		| term MULOP factor				{ if(DEBUG) printf("term PARSED!\n"); }
 		;
 		
-	factor:	ID							{ $$ = $1->symbol; }
-		| ID '(' expression_list ')'
-		| literal						
-		| '(' expression ')'
-		| ID '[' expression ']'
+	factor:	ID							{ if(DEBUG) printf("factor PARSED!\n"); }
+		| ID '(' expression_list ')'	{ if(DEBUG) printf("factor PARSED!\n"); }
+		| literal						{ if(DEBUG) printf("factor PARSED!\n"); }
+		| '(' expression ')'			{ if(DEBUG) printf("factor PARSED!\n"); }
+		| ID '[' expression ']'			{ if(DEBUG) printf("factor PARSED!\n"); }
 		;
 		
-	literal:	INT_LITERAL				{ $$ = $1; }
-		| FLT_LITERAL					{ $$ = $1; }
+	literal:	INT_LITERAL				{ if(DEBUG) printf("literal PARSED!\n"); }
+		| FLT_LITERAL					{ if(DEBUG) printf("literal PARSED!\n"); }
 		;
 		
-	bool_expression:	bool_term
-		| bool_expression OR bool_term
+	bool_expression:	bool_term			{ if(DEBUG) printf("bool_expression PARSED!\n"); }
+		| bool_expression OR bool_term		{ if(DEBUG) printf("bool_expression PARSED!\n"); }
 		;
 		
-	bool_term:	bool_factor
-		| bool_term AND bool_factor
+	bool_term:	bool_factor					{ if(DEBUG) printf("bool_term PARSED!\n"); }
+		| bool_term AND bool_factor			{ if(DEBUG) printf("bool_term PARSED!\n"); }
 		;
 		
-	bool_factor:	NOT bool_factor
-		| '(' bool_expression ')'
-		| simple_expression RELOP simple_expression
+	bool_factor:	NOT bool_factor						{ if(DEBUG) printf("bool_factor PARSED!\n"); }
+		| '(' bool_expression ')'						{ if(DEBUG) printf("bool_factor PARSED!\n"); }
+		| simple_expression RELOP simple_expression		{ if(DEBUG) printf("bool_factor PARSED!\n"); }
 		;
 	
 %%
+
+
 

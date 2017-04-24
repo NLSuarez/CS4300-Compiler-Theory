@@ -105,3 +105,4 @@ struct ast *newfloat(float num);
    * FUnction to delete and free an AST
    */
  void treefree(struct ast *);
+

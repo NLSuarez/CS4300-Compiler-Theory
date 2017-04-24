@@ -7,3 +7,4 @@ clean:
 	rm -f compiler output \
 	lexer.c parser.tab.c parser.tab.h
 	rm -f -r *.dSYM
+
