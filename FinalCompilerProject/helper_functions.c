@@ -241,7 +241,7 @@ void yyerror(char* s, ...)
 		 yyerror("out of space");
 		 exit(0);
 	 }
-	 a->nodetype = 'F'; //VMQ defines an int using f
+	 a->nodetype = 'F'; //VMQ defines a float using F
 	 a->number = num;
 	 return (struct ast *)a;
  }
