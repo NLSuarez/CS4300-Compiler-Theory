@@ -265,7 +265,7 @@ void pError(errorLevel el, char* s, ...)
  }
 
  struct ast *
- newfloat(int num)
+ newfloat(float num)
  {
 	 struct floatval *a = malloc(sizeof(struct floatval));
 	 if(!a) {
