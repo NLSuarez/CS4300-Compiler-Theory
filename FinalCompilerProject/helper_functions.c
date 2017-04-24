@@ -4,8 +4,8 @@
 #include "parser.tab.h"
 #include <stdlib.h>
 #include <stdio.h>
-#include <stdarg.h>
 #include <string.h>
+#include <stdarg.h>	// need it for va_list, va_start in the error functions
 
 // Useful for debugging and populating the symbol table - need a better, non-hack solution for this in the future.
 #define INT_LITERAL 258
@@ -35,10 +35,11 @@
 #define STREAMOUT 282
 #define UNARY 283
 
+// To keep track of the highest severity of error, 0 = no errors, 1 = warning, 2 = error, 3 = fatal
+int hel = 0;
 
 // This should be kept up-to-date if more keywords are added to the set.
-enum {KEYWORD_COUNT = 9997};
-//const unsigned int KEYWORD_COUNT = 9;
+enum { KEYWORD_COUNT = 9997 };
 
 char* C_KEYWORD_ARRAY[KEYWORD_COUNT] = { "cin", "cout", "else", "endl", "float",
 						"if", "int", "return", "while" };
@@ -199,7 +200,37 @@ int main(int argc, char **argv)
 
 void yyerror(char* s, ...)
 {
-	printf("\n%s\n", s);
+	va_list ap;
+	va_start(ap, s);
+
+	// print out where the error occurs
+	if(yylloc.first_line)
+	{
+		fprintf(stderr, "%d.%d-%d.%d: ", yylloc.first_line, yylloc.first_column,
+	    yylloc.last_line, yylloc.last_column);
+	}
+	vfprintf(stderr, s, ap);	// print out the error decription
+	fprintf(stderr, "\n");
+	//printf("%s\n", s);
+}
+
+void pError(errorLevel el, char* s, ...)
+{
+	va_list ap;
+	va_start(ap, s);
+	char *els[3] = {"Warning", "Error", "Fatal"};
+
+	// update the severity level countered
+	if (el > hel)
+	{
+		hel = el;
+	}
+
+	fprintf(stderr, "%s: %d.%d-%d.%d: ", els[el - 1], yylloc.first_line, yylloc.first_column,
+	    yylloc.last_line, yylloc.last_column);
+	vfprintf(stderr, s, ap);
+	fprintf(stderr, "\n");
+	//printf("%s\n", s);
 }
 
 /*

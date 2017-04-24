@@ -9,16 +9,17 @@ extern const unsigned int TABLE_SIZE;
 
 typedef struct symbol_record* SYMBOL_TABLE;
 
-//extern const char* C_KEYWORD_ARRAY[];
+extern char* C_KEYWORD_ARRAY[];
 
 unsigned int DEBUG;
+int hel;	// To keep track of the highest severity of error, 0 = no errors, 1 = warning, 2 = error, 3 = fatal
 
 /* Used in symbol_record, will hold the value of the given symbol if the symbol's kind is ID (a variable).*/
 union data
 {
 	int d;
 	double f;
-};
+};	
 
 struct symbol_record
 {
@@ -52,12 +53,12 @@ int getKind(char *str);
 char* kindToString(int kind);
 
 /*
- * Enum to pass to the yyerror function, making it easier to see
+ * Enum to pass to the yyerror function, making it easier to see 
  * the level of severity of the error.
  */
 typedef enum errorSeverity { warning = 1, error, fatal } errorLevel;
 
-/*
+/*	
  * Error function that can takes in a string description of the error that will be outputted to User.
  */
 void yyerror(char *s, ...);
@@ -66,7 +67,7 @@ void yyerror(char *s, ...);
  * Error function that takes in the enum indicating severity of the error and also
  * a string description of the error.
  */
-void myyyerror(errorLevel el, char *s, ...);
+void pError(errorLevel el, char *s, ...);
 
 /*
  * AST node types.

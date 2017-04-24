@@ -4,6 +4,9 @@
  *	Our parser.
 */
 
+/*	Directive to allow us to use the built in location tracking */
+%locations
+
 %{
 	#include <stdlib.h>
 	#include <stdio.h>
@@ -53,7 +56,7 @@
 	%type <str> out_statement expression term factor simple_expression variable
 	%type <f> literal
 
-	%start out_statement
+	%start output_statement
 %%
 
 	program:	/* Nothing */
@@ -107,17 +110,17 @@
 		| IF '(' bool_expression ')' statement ELSE statement
 		| WHILE '(' bool_expression ')' statement
 		| input_statement ';'
-		| out_statement ';'
+		| output_statement ';'
 		;
 		
 	input_statement:	CIN
 		| input_statement STREAMIN variable
 		;
 		
-	out_statement:	COUT						{ printf("%s ", $1->symbol); }
-		| out_statement STREAMOUT expression	{ printf("<< %s ", $3); }
-		| out_statement STREAMOUT STR_LITERAL	{ printf("<< %s ", $3->symbol); }
-		| out_statement STREAMOUT ENDL			{ printf("<< %s;\n", $3->symbol); }
+	output_statement:	COUT						{ printf("%s ", $1->symbol); }
+		| output_statement STREAMOUT expression	{ printf("<< %s ", $3); }
+		| output_statement STREAMOUT STR_LITERAL	{ printf("<< %s ", $3->symbol); }
+		| output_statement STREAMOUT ENDL			{ printf("<< %s;\n", $3->symbol); }
 		;
 		
 	compound_statement:	'{' statements '}'
