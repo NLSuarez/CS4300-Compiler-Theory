@@ -1,41 +1,26 @@
+// Sample program for C++ subset
+// Computes the GCD of two integers
+
+/* include statements are needed for real C++, but
+   are simply considered comments in our subset
+ */
 #include <iostream>
 
-/* 
+int x, y;	// The two values whose GCD is to be computed
 
-	This is a block comment			
-
-*/
-
-//	This is a line comment
+// In the subset, a and b are passed by reference, but in
+// real C++, they are passed by value.  It doesn't matter
+// in this program.
+int gcd ( int a, int b )
+{
+	if ( b == 0 ) return a;
+	else return gcd ( b, a % b );
+}
 
 int main()
 {
-
-/*
-
-        This is a block comment
-
-*/
-
-    int x = 5;		// This is a line comment
-    int y = 10;
-    float pi_3 = 3.14;
-
-    cout << pi_3 + x << endl;
-
-    cin >> x;
-    x += 1;
-    x -= 5;
-
-    cout << x * 10 << " " << x / y << " " << y % x << endl;
-
-    cout << "This is a literal string" << endl;
-
-    if (!(x >= 5) && y < 10 || x == y || pi_3 != 3.14 || x > 3 || y <= 125)
-        cout << "Whatever" << endl;
-    else
-	cout << "Also whatever" << endl;
-
-    return 0;
+	cout << "Enter two integers: ";
+	cin >> x >> y;
+	cout << "The GCD is " << gcd ( x, y ) << endl;
 }
 
