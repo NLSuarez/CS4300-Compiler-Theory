@@ -242,7 +242,7 @@ void pError(errorLevel el, char* s, ...)
    struct ast *a = malloc(sizeof(struct ast));
 
    if(!a) {
-     yyerror("out of space");
+     pError(fatal, "out of space");
      exit(0);
    }
    a->nodetype = nodetype;
@@ -256,7 +256,7 @@ void pError(errorLevel el, char* s, ...)
  {
 	 struct intval *a = malloc(sizeof(struct intval));
 	 if(!a) {
-		 yyerror("out of space");
+		 pError(fatal, "out of space");
 		 exit(0);
 	 }
 	 a->nodetype = 'f'; //VMQ defines an int using f
@@ -269,7 +269,7 @@ void pError(errorLevel el, char* s, ...)
  {
 	 struct floatval *a = malloc(sizeof(struct floatval));
 	 if(!a) {
-		 yyerror("out of space");
+		 pError(fatal, "out of space");
 		 exit(0);
 	 }
 	 a->nodetype = 'F'; //VMQ defines a float using F
