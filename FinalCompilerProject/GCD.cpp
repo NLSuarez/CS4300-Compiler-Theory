@@ -7,6 +7,7 @@
 #include <iostream>
 
 int x, y;	// The two values whose GCD is to be computed
+int z;
 
 // In the subset, a and b are passed by reference, but in
 // real C++, they are passed by value.  It doesn't matter
@@ -19,6 +20,7 @@ int gcd ( int a, int b )
 
 int main()
 {
+	z = 1.5235;
 	cout << "Enter two integers: ";
 	cin >> x >> y;
 	cout << "The GCD is " << gcd ( x, y ) << endl;

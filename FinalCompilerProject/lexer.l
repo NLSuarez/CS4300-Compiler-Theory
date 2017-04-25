@@ -38,6 +38,8 @@ comments to simplify the program.
 
 unsigned int yycolumn = 1;
 
+#define YY_USER_ACTION yylloc.first_line = yylloc.last_line = yylineno;	yylloc.first_column = yycolumn; yylloc.last_column = yycolumn+yyleng-1; yycolumn += yyleng;
+
 extern unsigned int DEBUG;
 
 const unsigned int TABLE_SIZE = 9997;
@@ -107,7 +109,7 @@ COMMA (",")
 
 {INT_LITERAL}/{ID} { pError(error, "INVALID ID ENTERED!"); }
 
-{INT_LITERAL} { yycolumn += strlen(yytext); return INT_LITERAL; }
+{INT_LITERAL} { yycolumn += strlen(yytext); pError(warning, "Testing"); return INT_LITERAL; }
 
 {STR_LITERAL} { yycolumn += strlen(yytext); yylval.s = lookup(symTab, yytext, STR_LITERAL); if(DEBUG) printf("\n\nSTR_LITERAL(%s)\n\n", yytext); return STR_LITERAL; }
 
