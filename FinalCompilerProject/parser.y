@@ -1,5 +1,3 @@
-
-
 /*
  *	Our parser.
 */
@@ -43,7 +41,7 @@
  
 	/* Precedence rules here. Could use some help. */
 	%nonassoc RELOP
-	%right ASSIGNOP
+	%right ASSIGNOP VAR_DEF
 	%left ADDOP
 	%left MULOP
 	%nonassoc NOT UNARY
@@ -73,8 +71,8 @@
 		| identifier_list ',' ID '[' INT_LITERAL ']' { if(DEBUG) printf("identifier_list PARSED\n"); } 
 		;
 		
-	variable_definitions:			/* nothing */
-		| variable_definitions type identifier_list ';' { if(DEBUG) printf("variable_definitions PARSED\n"); }
+	variable_definitions:											  { /* nothing */ }
+		| variable_definitions type identifier_list ';' %prec VAR_DEF { if(DEBUG) printf("variable_definitions PARSED\n"); }
 		;
 		
 	type:	INT { if(DEBUG) printf("type(INT) PARSED\n"); }
@@ -87,20 +85,20 @@
 	arguments:	'(' parameter_list ')' { if(DEBUG) printf("arguments PARSED\n"); }
 		;
 		
-	parameter_list:						/* nothing */
+	parameter_list:										{ /* nothing */ }
 		| parameters									{ if(DEBUG) printf("parameter_list PARSED\n"); }
 		;
 		
-	parameters:	type ID						{ if(DEBUG) printf("parameters PARSED\n"); }
-		| type ID '[' ']'					{ if(DEBUG) printf("parameters PARSED\n"); }
-		| parameters ',' type ID			{ if(DEBUG) printf("parameters PARSED\n"); }
-		| parameters ',' type ID '[' ']'	{ if(DEBUG) printf("parameters PARSED\n"); }
+	parameters:	type ID										{ if(DEBUG) printf("parameters PARSED\n"); }
+		| type ID '[' ']'									{ if(DEBUG) printf("parameters PARSED\n"); }
+		| parameters ',' type ID		 %prec ASSIGNOP		{ if(DEBUG) printf("parameters PARSED\n"); }
+		| parameters ',' type ID '[' ']' %prec ASSIGNOP		{ if(DEBUG) printf("parameters PARSED\n"); }
 		;
 		
 	block:	'{' variable_definitions statements '}' { if(DEBUG) printf("block PARSED\n"); }
 		;
 		
-	statements:					/* nothing */
+	statements:										{ /* nothing */ }
 		| statements statement						{ if(DEBUG) printf("statements PARSED!\n"); }
 		;
 		
@@ -114,13 +112,13 @@
 		;
 		
 	input_statement:	CIN										{ if(DEBUG) printf("input_statement PARSED!\n"); }
-		| input_statement STREAMIN variable						{ if(DEBUG) printf("input_statement PARSED!\n"); }
+		| input_statement STREAMIN variable		 %prec ASSIGNOP	{ if(DEBUG) printf("input_statement PARSED!\n"); }
 		;
 		
-	output_statement:	COUT						{ if(DEBUG) printf("output_statement PARSED!\n"); }
-		| output_statement STREAMOUT expression		{ if(DEBUG) printf("output_statement PARSED!\n"); }
-		| output_statement STREAMOUT STR_LITERAL	{ if(DEBUG) printf("output_statement PARSED!\n"); }
-		| output_statement STREAMOUT ENDL			{ if(DEBUG) printf("output_statement PARSED!\n"); }
+	output_statement:	COUT										{ if(DEBUG) printf("output_statement PARSED!\n"); }
+		| output_statement STREAMOUT expression	 %prec ASSIGNOP		{ if(DEBUG) printf("output_statement PARSED!\n"); }
+		| output_statement STREAMOUT STR_LITERAL %prec ASSIGNOP		{ if(DEBUG) printf("output_statement PARSED!\n"); }
+		| output_statement STREAMOUT ENDL		 %prec ASSIGNOP		{ if(DEBUG) printf("output_statement PARSED!\n"); }
 		;
 		
 	compound_statement:	'{' statements '}'		{ if(DEBUG) printf("compound_statement PARSED!\n"); }
@@ -130,12 +128,12 @@
 		| ID '[' expression ']'					{ if(DEBUG) printf("variable PARSED!\n"); }
 		;
 		
-	expression_list:			/* nothing */
+	expression_list:							{ /* nothing */ }
 		| expressions							{ if(DEBUG) printf("expression_list PARSED!\n"); }
 		;
 		
-	expressions:	expression					{ if(DEBUG) printf("expressions PARSED!\n"); }
-		| expressions ',' expression			{ if(DEBUG) printf("expressions PARSED!\n"); }
+	expressions:	expression								{ if(DEBUG) printf("expressions PARSED!\n"); }
+		| expressions ',' expression	%prec ASSIGNOP		{ if(DEBUG) printf("expressions PARSED!\n"); }
 		;
 		
 	expression:	variable ASSIGNOP expression	{ if(DEBUG) printf("expression PARSED!\n"); }
