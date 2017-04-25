@@ -1,5 +1,3 @@
-
-
 #include "helper_functions.h"
 #include "parser.tab.h"
 #include <stdlib.h>
@@ -33,7 +31,8 @@
 #define AND 280
 #define STREAMIN 281
 #define STREAMOUT 282
-#define UNARY 283
+#define VAR_DEF 283
+#define UNARY 284
 
 // To keep track of the highest severity of error, 0 = no errors, 1 = warning, 2 = error, 3 = fatal
 int hel = 0;
@@ -66,38 +65,38 @@ struct symbol_record* lookup(SYMBOL_TABLE symTab, const char* symbol, int kind)
 
 	if (listPtr->symbol == NULL)
 	{
-			// New symbol AND current list is empty.
-			listPtr->symbol = (char*) malloc(strlen(symbol) + 1);
-			strcpy(listPtr->symbol, symbol);
-			listPtr->kind = kind;
-			if(kind == INT)		listPtr->val.d = 0;
-			if(kind == FLOAT)	listPtr->val.f = 0.0;
+				// New symbol AND current list is empty.
+				listPtr->symbol = (char*) malloc(strlen(symbol) + 1);
+				strcpy(listPtr->symbol, symbol);
+				listPtr->kind = kind;
+				if(kind == INT)		listPtr->val.d = 0;
+				if(kind == FLOAT)	listPtr->val.f = 0.0;
 	}
 	else
 	{
-			// Current list is not empty; new symbol status unknown.
-			while (listPtr->next != NULL)
-			{
-						if (strcmp(listPtr->symbol, symbol) == 0)
-							return listPtr;		// Symbol found, return pointer to record.
+				// Current list is not empty; new symbol status unknown.
+				while (listPtr->next != NULL)
+				{
+										if (strcmp(listPtr->symbol, symbol) == 0)
+											return listPtr;		// Symbol found, return pointer to record.
 
-						listPtr = listPtr->next;
-			}
+										listPtr = listPtr->next;
+				}
 
-			// Check final node
-			if (strcmp(listPtr->symbol, symbol) == 0)
-				return listPtr;			// Symbol found, return pointer to record.
-			else
-			{
-						// New symbol, append to end of current list
-						listPtr->next = (struct symbol_record*) malloc(sizeof(struct symbol_record));
-						listPtr = listPtr->next;
+				// Check final node
+				if (strcmp(listPtr->symbol, symbol) == 0)
+					return listPtr;			// Symbol found, return pointer to record.
+				else
+				{
+										// New symbol, append to end of current list
+										listPtr->next = (struct symbol_record*) malloc(sizeof(struct symbol_record));
+										listPtr = listPtr->next;
 
-						listPtr->next = NULL;
-						listPtr->symbol = (char*) malloc(strlen(symbol) + 1);
-						strcpy(listPtr->symbol, symbol);
-						listPtr->kind = kind;
-			}
+										listPtr->next = NULL;
+										listPtr->symbol = (char*) malloc(strlen(symbol) + 1);
+										strcpy(listPtr->symbol, symbol);
+										listPtr->kind = kind;
+				}
 	}
 
 	return listPtr;
@@ -114,9 +113,9 @@ SYMBOL_TABLE generateSymbolTable(unsigned int tableSize)
 	// Initialize all elements of new table to NULL
 	for (unsigned int i = 0; i < tableSize; ++i)
 	{
-			symTab[i].symbol = NULL;
-			symTab[i].next = NULL;
-			symTab[i].kind = 0;
+				symTab[i].symbol = NULL;
+				symTab[i].next = NULL;
+				symTab[i].kind = 0;
 	}
 	
 	extern unsigned int DEBUG;
@@ -139,11 +138,11 @@ void populateSymbolTable(SYMBOL_TABLE symTab)
 	struct symbol_record* recordPtr = NULL;
 	for (int i = 0; i < KEYWORD_COUNT; ++i)
 	{
-		recordPtr = lookup(symTab, C_KEYWORD_ARRAY[i], CIN + i);
-		/*if(DEBUG)	{	printf("!!KEYWORD \"%s\" ADDED, PRINTING RECORD:\n", C_KEYWORD_ARRAY[i]);
-						printRecordData(recordPtr); 
-						printf("\n\n"); }
-		*/
+			recordPtr = lookup(symTab, C_KEYWORD_ARRAY[i], CIN + i);
+			/*if(DEBUG)	{	printf("!!KEYWORD \"%s\" ADDED, PRINTING RECORD:\n", C_KEYWORD_ARRAY[i]);
+									printRecordData(recordPtr); 
+									printf("\n\n"); }
+			*/
 	}
 	
 	//if(DEBUG) printf("\n\n!!ALL C KEYWORDS ADDED, CONTROL EXITING populateSymbolTable!!\n\n");
@@ -168,8 +167,8 @@ int getKind(char *str)
 {
 	for(int i = 0; i < KEYWORD_COUNT; ++i)
 	{
-			if (strcmp(str, C_KEYWORD_ARRAY[i]) == 0)
-				return (CIN + i);
+				if (strcmp(str, C_KEYWORD_ARRAY[i]) == 0)
+					return (CIN + i);
 	}
 	extern unsigned int DEBUG;
 
@@ -231,8 +230,8 @@ void yyerror(char* s, ...)
 	// print out where the error occurs
 	if(yylloc.first_line)
 	{
-			fprintf(stderr, "%d.%d-%d.%d: ", yylloc.first_line, yylloc.first_column,
-					    yylloc.last_line, yylloc.last_column);
+				fprintf(stderr, "%d.%d-%d.%d: ", yylloc.first_line, yylloc.first_column,
+										    yylloc.last_line, yylloc.last_column);
 	}
 	vfprintf(stderr, s, ap);	// print out the error decription
 	fprintf(stderr, "\n");
@@ -249,11 +248,11 @@ void pError(errorLevel el, char* s, ...)
 	// update the severity level countered
 	if (el > hel)
 	{
-			hel = el;
+				hel = el;
 	}
 
 	fprintf(stderr, "%s: %d.%d-%d.%d: ", els[el - 1], yylloc.first_line, yylloc.first_column,
-			    yylloc.last_line, yylloc.last_column);
+					    yylloc.last_line, yylloc.last_column);
 	vfprintf(stderr, s, ap);
 	fprintf(stderr, "\n");
 	//printf("%s\n", s);
@@ -282,8 +281,8 @@ void pError(errorLevel el, char* s, ...)
  {
 	 struct intval *a = malloc(sizeof(struct intval));
 	 if(!a) {
-			 pError(fatal, "out of space");
-			 exit(0);
+				 pError(fatal, "out of space");
+				 exit(0);
 	 }
 	 a->nodetype = 'f'; //VMQ defines an int using f
 	 a->number = num;
@@ -295,8 +294,8 @@ void pError(errorLevel el, char* s, ...)
  {
 	 struct floatval *a = malloc(sizeof(struct floatval));
 	 if(!a) {
-			 pError(fatal, "out of space");
-			 exit(0);
+				 pError(fatal, "out of space");
+				 exit(0);
 	 }
 	 a->nodetype = 'F'; //VMQ defines a float using F
 	 a->number = num;
@@ -309,8 +308,8 @@ void pError(errorLevel el, char* s, ...)
   void
 	treefree(struct ast *a)
 	{
-			//switch(a->nodetype) {
-						/* cases here will be based on parser */
-					//}
+				//switch(a->nodetype) {
+										/* cases here will be based on parser */
+									//}
 	}
 
