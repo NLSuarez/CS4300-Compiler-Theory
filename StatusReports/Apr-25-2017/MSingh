@@ -1,0 +1,5 @@
+Since the last status report, I've worked on the project by adding in the grammar rules in the parser. I've also put in time
+to get the previously coded error routines to be properly compiled on the older version of bison on the lab machines. I was trying to the
+%code requires block to redefine the YYLTYPE struct to include the filename and highest error level encountered so far, but it turns out
+this doesn't work in bison 2.3. Instead I've now implemented a global variable to keep track of the highest error level encountered
+and decided not keep track of the filename as it isn't necessary.
