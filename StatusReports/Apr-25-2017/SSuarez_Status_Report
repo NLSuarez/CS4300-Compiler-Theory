@@ -1,0 +1,8 @@
+Stefan Suarez
+Dr. Tom Carter
+April 25th, 2017 - Tuesday
+CS 4300 - Compiler Theory
+
+Status Report #2
+
+	Due to less than optimal group mates in other classes, I have not been able to contribute as much to this project as I would like. I've done some bits of the parser, particularly in the form of token declaration, and have also written some of the node types/ast structures that we will need. I will be helping as much as I can afford to on the AST code, parser and eventually translation to VMQ. Right now, I mainly just work on what I can as time allows.
