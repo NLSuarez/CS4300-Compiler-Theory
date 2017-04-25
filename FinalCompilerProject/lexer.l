@@ -58,6 +58,7 @@ AND ("&&")
 FLT_LITERAL ({UINT}"."[0-9]+)
 INT_LITERAL ({UINT})
 STR_LITERAL (\"[^\"\n]*\")
+UNTERMINATED_STR_LITERAL (\"[^\"\n]*$)
 STREAMIN (">>")
 STREAMOUT ("<<")
 ID ([A-Za-z_][A-Za-z_0-9]*)
@@ -109,6 +110,8 @@ COMMA (",")
 {INT_LITERAL} { yycolumn += strlen(yytext); return INT_LITERAL; }
 
 {STR_LITERAL} { yycolumn += strlen(yytext); yylval.s = lookup(symTab, yytext, STR_LITERAL); if(DEBUG) printf("\n\nSTR_LITERAL(%s)\n\n", yytext); return STR_LITERAL; }
+
+{UNTERMINATED_STR_LITERAL} {pError(error, "Unterminated string.");}
 
 {STREAMIN} { yycolumn += strlen(yytext); return STREAMIN; }
 
