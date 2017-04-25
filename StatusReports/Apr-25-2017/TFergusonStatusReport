@@ -1,0 +1,21 @@
+Thomas Ferguson
+Dr. Tom Carter
+April 4th, 2017 - Tuesday
+CS 4300 - Compiler Theory
+
+Status Report #2
+
+Since last status report, I’ve been keeping busy.  In order to test and debug the integration of the symbol table 
+and lexer I ended up writing my own version that would tokenize properly, as the group’s version of the lexer was 
+broken at the time.  After debugging the new lexer, I worked on integrating the new lexer with the parser.  
+The main goal was just to get it to successfully compile, which I was eventually able to do, but a number of issues 
+crept up during this step.  A few of the issues had to do with typos in the parser file, but the main issue was 
+realizing that the version of yacc/bison the school machines use is too old to support some of the error-checking 
+functionality we were trying to incorporate (from the book) – this has since been fixed.  At this point, the next 
+step is to fix some bugs in the parser and then move on to implementing scope, which I have some ideas on how to do 
+it.  The current major bug the parser has is that it will not parse through a C++ program that features multiple 
+variable declarations in a row.  It can handle one variable declaration in the global space and in the function 
+space, but any more and yyerror is called and it returns a syntax error.  This likely has something to do with the 
+recursive variable_definitions grammar rule not being set up properly.  In short, project step 7 is complete and 
+project step 8 is nearly complete – just have to work out some final kinks.
+
