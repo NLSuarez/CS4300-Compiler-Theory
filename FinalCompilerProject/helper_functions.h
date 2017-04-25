@@ -1,5 +1,3 @@
-
-
 #pragma once
 
 extern const unsigned int TABLE_SIZE;
