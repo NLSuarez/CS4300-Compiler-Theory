@@ -1,5 +1,3 @@
-
-
 /*
 Spring 2017
 CS4300
@@ -18,7 +16,7 @@ AND stands for the lexeme &&
 FLT_LITERAL is a float constant without a sign
 (at least 1 digit before and after decimal pt.; possible exponent)
 INT_LITERAL is an integer constant without a sign
-STR_LITERAL is a string enclosed in quotes (â€), not longer than 1 line
+STR_LITERAL is a string enclosed in quotes (Ã¢â‚¬Â), not longer than 1 line
 STREAMIN is >>
 STREAMOUT is <<
 ID follows the usual rules for C++ identifiers, and may be any length
