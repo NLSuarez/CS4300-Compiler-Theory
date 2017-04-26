@@ -157,8 +157,8 @@
 		| ID '[' expression ']'			{ if(DEBUG) printf("factor PARSED!\n"); }
 		;
 		
-	literal:	INT_LITERAL				{ if(DEBUG) printf("literal PARSED!\n"); }
-		| FLT_LITERAL					{ if(DEBUG) printf("literal PARSED!\n"); }
+	literal:	INT_LITERAL				{ $$ = newint($1); if(DEBUG) printf("literal PARSED!\n"); }
+		| FLT_LITERAL					{ $$ = newfloat($1); if(DEBUG) printf("literal PARSED!\n"); }
 		;
 		
 	bool_expression:	bool_term			{ if(DEBUG) printf("bool_expression PARSED!\n"); }

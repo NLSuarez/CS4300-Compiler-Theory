@@ -109,7 +109,7 @@ COMMA (",")
 
 {INT_LITERAL}/{ID} { pError(error, "INVALID ID ENTERED!"); }
 
-{INT_LITERAL} { yycolumn += strlen(yytext); pError(warning, "Testing"); return INT_LITERAL; }
+{INT_LITERAL} { yycolumn += strlen(yytext); return INT_LITERAL; }
 
 {STR_LITERAL} { yycolumn += strlen(yytext); yylval.s = lookup(symTab, yytext, STR_LITERAL); if(DEBUG) printf("\n\nSTR_LITERAL(%s)\n\n", yytext); return STR_LITERAL; }
 
