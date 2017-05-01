@@ -73,7 +73,7 @@ void pError(errorLevel el, char *s, ...);
  * in the book. These are rough drafts.
  */
 
-//Normal tree
+//Base tree node
 struct ast {
  int nodetype;
  struct ast *l;
@@ -92,12 +92,34 @@ struct floatval {
  float number;
 };
 
+//flow node
+struct flow {
+ int nodetype; /* Should accept type I(f), W(while) and F(or) */
+ struct ast *cond; /* pointer to bool condition */
+ struct ast *tl; /* if true, parse this tree */
+ struct ast *el; /* else parse this tree */
+};
+
+//reference node(i.e. if you need to call a variable)
+struct symref {
+ int nodetype;	/* Potentially type N like the calculator */
+ struct symbol_record *s;
+}
+//assignment node
+struct symasgn {
+ int nodetype;	/* type = */
+ struct symbol_record *s;
+ struct ast *v; /* value */
+};
  /*
   * functions to build the AST
   */
 struct ast *newast(int nodetype, struct ast *l, struct ast *r);
 struct ast *newint(int num);
 struct ast *newfloat(float num);
+struct ast *newflow(int nodetype, struct ast *cond, struct ast *tl, struct ast *tr);
+struct ast *newref(struct symbol_record *s);
+struct ast *newasgn(struct symbol_record *s, struct ast *v);
 
   /*
    * FUnction to delete and free an AST
