@@ -55,14 +55,14 @@ struct scope_node* pushScope()
 	newScope->symTab = generateSymbolTable(TABLE_SIZE);
 	newScope->next = NULL;
 	newScope->is_new_scope = 1;
-		
+
 	fflush(stdout);
 	// If global_scope is uninitialized, then set global_scope to equal the new scope and return.
 	if (global_scope == NULL)
 		global_scope = current_scope = newScope;
-	 
+
 	current_scope->next = newScope;
-	
+
 	current_scope = newScope;
 
 	if(DEBUG) printf("\tDone!\n");
@@ -109,7 +109,7 @@ unsigned int hash(const char* symbol)
 }
 
 struct symbol_node* lookup(const char* symbol)
-{	
+{
 	if(DEBUG) printf("ENTERED lookup: symbol = %s\n", symbol);
 	// Hash the key.
 	unsigned int hashKey = hash(symbol);
@@ -122,7 +122,7 @@ struct symbol_node* lookup(const char* symbol)
 	while(symNode == NULL)
 	{
 		struct symbol_node* ptr = &tablePtr[hashKey];
-		
+
 		/* Check for symbols in linked list of hash table entry */
 		while(ptr != NULL)
 		{
@@ -184,7 +184,7 @@ SYMBOL_TABLE generateSymbolTable(unsigned int tableSize)
 {
 	// Allocate memory for symbol table
 	SYMBOL_TABLE symTab = (SYMBOL_TABLE) malloc(tableSize * sizeof(struct symbol_node));
-	
+
 	if (symTab == NULL)
 		return NULL;	// Couldn't allocate memory
 
@@ -348,6 +348,7 @@ void pError(errorLevel el, char* s, ...)
 	 }
 	 a->nodetype = 's';
 	 a->strval = strliteral;
+	 return (struct ast *)a;
  }
 
  struct ast *
@@ -377,7 +378,7 @@ void pError(errorLevel el, char* s, ...)
  }
 
  struct ast *
- newflow(int nodetype, struct ast *cond, struct ast *tl, struct ast *tr) {
+ newflow(int nodetype, struct ast *cond, struct ast *tl, struct ast *el) {
 	 struct flow *a = malloc(sizeof(struct flow));
 
 	 if(!a) {
@@ -390,8 +391,8 @@ void pError(errorLevel el, char* s, ...)
 	 a->el = el;
 	 return (struct ast *)a;
  }
- struct ast *newref(struct symbol_node *s);
- struct ast *newasgn(struct symbol_node *s, struct ast *v);
+ //struct ast *newref(struct symbol_node *s);
+ //struct ast *newasgn(struct symbol_node *s, struct ast *v);
  /*
   * FUnction to delete and free an AST
   */
@@ -401,5 +402,4 @@ void pError(errorLevel el, char* s, ...)
 				//switch(a->nodetype) {
 										/* cases here will be based on parser */
 									//}
-}
-
+	}

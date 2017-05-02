@@ -38,7 +38,7 @@ struct scope_node
 	scopes will be checked.  If the variable is not found, then we have two basic options:
 
 	1)	Declare it an error, in violation of C++ rules.
-	
+
 							OR
 
 	2)	Add it to the symbol table and work under the assumption that it is an integer intialized to 0.
@@ -78,12 +78,12 @@ int getKind(char *str);
 char* kindToString(int kind);
 
 /*
- * Enum to pass to the yyerror function, making it easier to see 
+ * Enum to pass to the yyerror function, making it easier to see
  * the level of severity of the error.
  */
 typedef enum errorSeverity { warning = 1, error, fatal } errorLevel;
 
-/*	
+/*
  * Error function that can takes in a string description of the error that will be outputted to User.
  */
 void yyerror(char *s, ...);
@@ -111,7 +111,7 @@ struct ast {
 struct stringval {
 	int nodetype;
 	char* strval;
-}
+};
 
 //int literal
 struct intval {
@@ -137,7 +137,7 @@ struct flow {
 struct symref {
  int nodetype;	/* Potentially type N like the calculator */
  struct symbol_node *s;
-}
+};
 
 //assignment node
 struct symasgn {
@@ -162,4 +162,3 @@ struct ast *newasgn(struct symbol_node *s, struct ast *v);
    * Function to delete and free an AST
    */
 void treefree(struct ast *);
-
