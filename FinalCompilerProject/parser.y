@@ -92,10 +92,10 @@
 		| parameters									{ if(DEBUG) printf("parameter_list PARSED\n"); }
 		;
 		
-	parameters:	type ID										{ if(DEBUG) printf("parameters PARSED\n"); }
-		| type ID '[' ']'									{ if(DEBUG) printf("parameters PARSED\n"); }
-		| parameters ',' type ID		 %prec ASSIGNOP		{ if(DEBUG) printf("parameters PARSED\n"); }
-		| parameters ',' type ID '[' ']' %prec ASSIGNOP		{ if(DEBUG) printf("parameters PARSED\n"); }
+	parameters:	type ID										{ $$ = newast($2); if(DEBUG) printf("parameters PARSED\n"); }
+		| type ID '[' ']'									{ $$ = newast($2); if(DEBUG) printf("parameters PARSED\n"); }
+		| parameters ',' type ID		 %prec ASSIGNOP		{ $$ = newast($4); if(DEBUG) printf("parameters PARSED\n"); }
+		| parameters ',' type ID '[' ']' %prec ASSIGNOP		{ $$ = newast($4); if(DEBUG) printf("parameters PARSED\n"); }
 		;
 		
 	block:	'{' variable_definitions statements '}' { if(DEBUG) printf("block PARSED\n"); }
@@ -108,8 +108,8 @@
 	statement:	expression ';'									{ if(DEBUG) printf("statement PARSED!\n"); }
 		| compound_statement									{ if(DEBUG) printf("statement PARSED!\n"); }
 		| RETURN expression ';'									{ if(DEBUG) printf("statement PARSED!\n"); }
-		| IF '(' bool_expression ')' statement ELSE statement	{ if(DEBUG) printf("statement PARSED!\n"); }
-		| WHILE '(' bool_expression ')' statement				{ if(DEBUG) printf("statement PARSED!\n"); }
+		| IF '(' bool_expression ')' statement ELSE statement	{ $$ = newflow('I', $3, $5, $7); if(DEBUG) printf("statement PARSED!\n"); }
+		| WHILE '(' bool_expression ')' statement				{ $$ = newflow('W', $3, $5, NULL); if(DEBUG) printf("statement PARSED!\n"); }
 		| input_statement ';'									{ if(DEBUG) printf("statement PARSED!\n"); }
 		| output_statement ';'									{ if(DEBUG) printf("statement PARSED!\n"); }
 		;
@@ -145,12 +145,12 @@
 		;
 		
 	simple_expression:	term			{ if(DEBUG) printf("simple_expression PARSED!\n"); }
-		| ADDOP term					{ if(DEBUG) printf("simple_expression PARSED!\n"); }
-		| simple_expression ADDOP term	{ if(DEBUG) printf("simple_expression PARSED!\n"); } 
+		| ADDOP term					{ $$ = newast($1, $2, NULL); if(DEBUG) printf("simple_expression PARSED!\n"); }
+		| simple_expression ADDOP term	{ $$ = newast($2, $1, $3); if(DEBUG) printf("simple_expression PARSED!\n"); } 
 		;
 		
 	term:	factor						{ if(DEBUG) printf("term PARSED!\n"); }
-		| term MULOP factor				{ if(DEBUG) printf("term PARSED!\n"); }
+		| term MULOP factor				{ $$ = newast($2, $1, $3); if(DEBUG) printf("term PARSED!\n"); }
 		;
 		
 	factor:	ID							{ if(DEBUG) printf("factor PARSED!\n"); }
@@ -165,16 +165,16 @@
 		;
 		
 	bool_expression:	bool_term			{ if(DEBUG) printf("bool_expression PARSED!\n"); }
-		| bool_expression OR bool_term		{ if(DEBUG) printf("bool_expression PARSED!\n"); }
+		| bool_expression OR bool_term		{ $$ = newast($2, $1, $3); if(DEBUG) printf("bool_expression PARSED!\n"); }
 		;
 		
 	bool_term:	bool_factor					{ if(DEBUG) printf("bool_term PARSED!\n"); }
-		| bool_term AND bool_factor			{ if(DEBUG) printf("bool_term PARSED!\n"); }
+		| bool_term AND bool_factor			{ $$ = newast($2, $1, $3); if(DEBUG) printf("bool_term PARSED!\n"); }
 		;
 		
-	bool_factor:	NOT bool_factor						{ if(DEBUG) printf("bool_factor PARSED!\n"); }
+	bool_factor:	NOT bool_factor						{ $$ = newast($1, $2, NULL); if(DEBUG) printf("bool_factor PARSED!\n"); }
 		| '(' bool_expression ')'						{ if(DEBUG) printf("bool_factor PARSED!\n"); }
-		| simple_expression RELOP simple_expression		{ if(DEBUG) printf("bool_factor PARSED!\n"); }
+		| simple_expression RELOP simple_expression		{ $$ = newast($2, $1, $3); if(DEBUG) printf("bool_factor PARSED!\n"); }
 		;
 	
 %%
