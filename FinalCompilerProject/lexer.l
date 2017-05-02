@@ -44,7 +44,7 @@ extern unsigned int DEBUG;
 
 const unsigned int TABLE_SIZE = 9997;
 extern SYMBOL_TABLE symTab;
-struct symbol_record* recordPtr = NULL;
+struct symbol_node* recordPtr = NULL;
 %}
 
 UINT (0|([1-9][0-9]*))
@@ -152,5 +152,3 @@ COMMA (",")
 . { /* Call Scooby-Doo and the Gang, because we have a mystery on our hands... */ yycolumn += strlen(yytext); pError(warning, "Mystery char %c\n", *yytext); }
 
 %%
-
-

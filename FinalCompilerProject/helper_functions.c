@@ -55,13 +55,13 @@ unsigned int hash(const char* symbol)
 	return hashKey;
 }
 
-struct symbol_record* lookup(SYMBOL_TABLE symTab, const char* symbol, int kind)
+struct symbol_node* lookup(SYMBOL_TABLE symTab, const char* symbol, int kind)
 {
 	// Hash the key.
 	unsigned int hashKey = hash(symbol);
 
 	// Pointer to entry-point in symbol table.
-	struct symbol_record* listPtr = &symTab[hashKey];
+	struct symbol_node* listPtr = &symTab[hashKey];
 
 	if (listPtr->symbol == NULL)
 	{
@@ -89,7 +89,7 @@ struct symbol_record* lookup(SYMBOL_TABLE symTab, const char* symbol, int kind)
 				else
 				{
 										// New symbol, append to end of current list
-										listPtr->next = (struct symbol_record*) malloc(sizeof(struct symbol_record));
+										listPtr->next = (struct symbol_node*) malloc(sizeof(struct symbol_node));
 										listPtr = listPtr->next;
 
 										listPtr->next = NULL;
@@ -105,7 +105,7 @@ struct symbol_record* lookup(SYMBOL_TABLE symTab, const char* symbol, int kind)
 SYMBOL_TABLE generateSymbolTable(unsigned int tableSize)
 {
 	// Allocate memory for symbol table
-	SYMBOL_TABLE symTab = (SYMBOL_TABLE) malloc(tableSize * sizeof(struct symbol_record));
+	SYMBOL_TABLE symTab = (SYMBOL_TABLE) malloc(tableSize * sizeof(struct symbol_node));
 
 	if (symTab == NULL)
 		return NULL;	// Couldn't allocate memory
@@ -117,11 +117,11 @@ SYMBOL_TABLE generateSymbolTable(unsigned int tableSize)
 				symTab[i].next = NULL;
 				symTab[i].kind = 0;
 	}
-	
+
 	extern unsigned int DEBUG;
 
 	//if(DEBUG) printf("\n\n!!SYMBOL TABLE ALLOCATED - INITIALIZED TO NULL!!\n\n");
-	
+
 	populateSymbolTable(symTab);
 
 	return symTab;
@@ -135,23 +135,23 @@ void populateSymbolTable(SYMBOL_TABLE symTab)
 
 
 	//if(DEBUG) printf("\n\n!! symTab != NULL !!\n\n");
-	struct symbol_record* recordPtr = NULL;
+	struct symbol_node* recordPtr = NULL;
 	for (int i = 0; i < KEYWORD_COUNT; ++i)
 	{
 			recordPtr = lookup(symTab, C_KEYWORD_ARRAY[i], CIN + i);
 			/*if(DEBUG)	{	printf("!!KEYWORD \"%s\" ADDED, PRINTING RECORD:\n", C_KEYWORD_ARRAY[i]);
-									printRecordData(recordPtr); 
+									printRecordData(recordPtr);
 									printf("\n\n"); }
 			*/
 	}
-	
+
 	//if(DEBUG) printf("\n\n!!ALL C KEYWORDS ADDED, CONTROL EXITING populateSymbolTable!!\n\n");
-	
+
 	return;
 }
 
 
-void printRecordData(struct symbol_record* record)
+void printRecordData(struct symbol_node* record)
 {
 	printf("Address of record:\t0x%llX\n", (unsigned long long)record);
 	printf("Symbol of record:\t%s\n", record->symbol);
@@ -210,9 +210,9 @@ int main(int argc, char **argv)
 	#if YYDEBUG
 		yydebug = 1;
 	#endif
-    
+
 	symTab = generateSymbolTable(TABLE_SIZE);
-    
+
 	yyparse();
 
 	if(DEBUG) printf("\n\nPROGRAM EXIT\n\n");
@@ -277,6 +277,17 @@ void pError(errorLevel el, char* s, ...)
  }
 
  struct ast *
+ newstr(char* strliteral) {
+	 struct stringval *a = malloc(sizeof(struct stringval));
+	 if(!a) {
+		 pError(fatal, "out of space");
+		 exit(0);
+	 }
+	 a->nodetype = 's';
+	 a->strval = strliteral;
+ }
+
+ struct ast *
  newint(int num)
  {
 	 struct intval *a = malloc(sizeof(struct intval));
@@ -302,6 +313,22 @@ void pError(errorLevel el, char* s, ...)
 	 return (struct ast *)a;
  }
 
+ struct ast *
+ newflow(int nodetype, struct ast *cond, struct ast *tl, struct ast *tr) {
+	 struct flow *a = malloc(sizeof(struct flow));
+
+	 if(!a) {
+		 pError(fatal, "out of space");
+		 exit(0);
+	 }
+	 a->nodetype = nodetype;
+	 a->cond = cond;
+	 a->tl = tl;
+	 a->el = el;
+	 return (struct ast *)a;
+ }
+ struct ast *newref(struct symbol_node *s);
+ struct ast *newasgn(struct symbol_node *s, struct ast *v);
  /*
   * FUnction to delete and free an AST
   */
@@ -312,4 +339,3 @@ void pError(errorLevel el, char* s, ...)
 										/* cases here will be based on parser */
 									//}
 	}
-
