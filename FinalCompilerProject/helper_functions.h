@@ -1,18 +1,11 @@
 #pragma once
 
-extern const unsigned int TABLE_SIZE;
-
-/* Building block of the linked-list-based symbol table */
-/* The symbol table will be an array of pointers to struct symbol_node  */
-
-typedef struct symbol_node* SYMBOL_TABLE;
-
-extern char* C_KEYWORD_ARRAY[];
+extern char* C_KEYWORD_ARRAY[];	//	size of 9 at the moment
 
 unsigned int DEBUG;
 int hel;	// To keep track of the highest severity of error, 0 = no errors, 1 = warning, 2 = error, 3 = fatal
 
-/* Used in symbol_node, will hold the value of the given symbol if the symbol's kind is ID (a variable).*/
+/* Used in symbol_record, will hold the value of the given symbol if the symbol's kind is ID (a variable).*/
 union data
 {
 	int d;
@@ -21,19 +14,53 @@ union data
 
 struct symbol_node
 {
-    char* symbol;
-		union data val;
-    int kind;
-    struct symbol_node* next;
+	char* symbol;
+	union data val;
+	int kind;
+	struct symbol_node* next;
 };
 
-SYMBOL_TABLE symTab;
+/* symbol tables are a dynamically allocated array of symbol_node structs */
+typedef struct symbol_node* SYMBOL_TABLE;
+
+struct scope_node
+{
+	SYMBOL_TABLE symTab;
+	struct scope_node* next;
+	int is_new_scope;
+};
+
+/*
+	Scope node will be used to keep track of the existing variables within the "live" scopes.
+	Global scope will always exist, and as the parser enters new functions and blocks "deeper"
+	scopes will come into existance.  A pointer will be kept that points to the global scope_node.
+	Variables will be checked to see if they exist in global scope first and if not found then subsequent
+	scopes will be checked.  If the variable is not found, then we have two basic options:
+
+	1)	Declare it an error, in violation of C++ rules.
+	
+							OR
+
+	2)	Add it to the symbol table and work under the assumption that it is an integer intialized to 0.
+*/
+
+/* Deletes current_scope struct, sets current_scope struct to correct scope post-pop */
+void popScope();
+
+/* Generates and initializes new scope struct, returns scope struct pointer of new scope */
+struct scope_node* pushScope();
 
 /* Generates hash key for given symbol */
 unsigned int hash(const char* symbol);
 
-/* Looks for symbol in table, adds if not there, returns address of record that contains symbol */
-struct symbol_node* lookup(SYMBOL_TABLE symTab, const char* symbol, int kind);
+/* Looks for symbol in tables, returns address of record that contains symbol (NULL, if not found) */
+struct symbol_node* lookup(const char* symbol);
+
+/* Adds symbol to current table, in the current scope.  Returns the address of the symbol_node. */
+struct symbol_node* addSymbol(SYMBOL_TABLE symTab, char* symbol, int kind);
+
+/* Generates a new scope_node struct and initilizes its symbol table. */
+struct scope_node* initializeScope();
 
 /* Generates a new, empty symbol table */
 SYMBOL_TABLE generateSymbolTable(unsigned int table_size);
@@ -41,8 +68,8 @@ SYMBOL_TABLE generateSymbolTable(unsigned int table_size);
 /* Populates passed symbol table with C keywords */
 void populateSymbolTable(SYMBOL_TABLE symTab);
 
-/* Prints value of passed symbol_node ptr, as well as info about the record pointed to. */
-void printRecordData(struct symbol_node* record);
+/* Prints value of passed symbol_record ptr, as well as info about the record pointed to. */
+void printSymbolData(struct symbol_node* sym);
 
 /* Returns the correct symbol_type of a string that is a C keyword for the project */
 int getKind(char *str);
@@ -51,12 +78,12 @@ int getKind(char *str);
 char* kindToString(int kind);
 
 /*
- * Enum to pass to the yyerror function, making it easier to see
+ * Enum to pass to the yyerror function, making it easier to see 
  * the level of severity of the error.
  */
 typedef enum errorSeverity { warning = 1, error, fatal } errorLevel;
 
-/*
+/*	
  * Error function that can takes in a string description of the error that will be outputted to User.
  */
 void yyerror(char *s, ...);
@@ -134,4 +161,5 @@ struct ast *newasgn(struct symbol_node *s, struct ast *v);
   /*
    * Function to delete and free an AST
    */
- void treefree(struct ast *);
+void treefree(struct ast *);
+

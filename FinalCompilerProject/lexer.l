@@ -16,7 +16,7 @@ AND stands for the lexeme &&
 FLT_LITERAL is a float constant without a sign
 (at least 1 digit before and after decimal pt.; possible exponent)
 INT_LITERAL is an integer constant without a sign
-STR_LITERAL is a string enclosed in quotes (Ã¢â‚¬Â), not longer than 1 line
+STR_LITERAL is a string enclosed in quotes (ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â), not longer than 1 line
 STREAMIN is >>
 STREAMOUT is <<
 ID follows the usual rules for C++ identifiers, and may be any length
@@ -41,10 +41,9 @@ unsigned int yycolumn = 1;
 #define YY_USER_ACTION yylloc.first_line = yylloc.last_line = yylineno;	yylloc.first_column = yycolumn; yylloc.last_column = yycolumn+yyleng-1; yycolumn += yyleng;
 
 extern unsigned int DEBUG;
-
-const unsigned int TABLE_SIZE = 9997;
-extern SYMBOL_TABLE symTab;
-struct symbol_node* recordPtr = NULL;
+extern struct scope_node* global_scope;
+extern struct scope_node* current_scope;
+int addNextIDToken = 0;
 %}
 
 UINT (0|([1-9][0-9]*))
@@ -111,7 +110,7 @@ COMMA (",")
 
 {INT_LITERAL} { yycolumn += strlen(yytext); return INT_LITERAL; }
 
-{STR_LITERAL} { yycolumn += strlen(yytext); yylval.s = lookup(symTab, yytext, STR_LITERAL); if(DEBUG) printf("\n\nSTR_LITERAL(%s)\n\n", yytext); return STR_LITERAL; }
+{STR_LITERAL} { yycolumn += strlen(yytext); if(lookup(yytext) == NULL) yylval.str = strdup(addSymbol(global_scope->symTab, yytext, STR_LITERAL)->symbol); else yylval.str = yytext; return STR_LITERAL; }
 
 {UNTERMINATED_STR_LITERAL} {pError(error, "Unterminated string.");}
 
@@ -119,19 +118,19 @@ COMMA (",")
 
 {STREAMOUT} { yycolumn += strlen(yytext); return STREAMOUT; }
 
-{KEYWORD} { if(DEBUG) printf("FLEX: KEYWORD = \"%s\", KIND = %s\n", yytext, kindToString(getKind(yytext))); yycolumn += strlen(yytext); yylval.s = lookup(symTab, yytext, getKind(yytext)); return getKind(yytext); }
+{KEYWORD} { if(DEBUG) printf("Matched keyword: %s\n", yytext); fflush(stdout); if(strcmp(yytext, "int") == 0) addNextIDToken = 1;  yycolumn += strlen(yytext); /*yylval.s = lookup(yytext); if(DEBUG) printf("Completed lookup function call\n");*/ fflush(stdout); /*if(yylval.s == NULL) pError(error, "\nLexer matched a keyword not found in symbol table\n");*/ return getKind(yytext); }
 
 {END_STMT} { yycolumn += strlen(yytext); return yytext[0]; }
 
-{ID} { if(DEBUG) printf("FLEX: ID = %s\n", yytext); yycolumn += strlen(yytext); yylval.s = lookup(symTab, yytext, ID); return ID; }
+{ID} { if(DEBUG) printf("Matched ID: %s\n", yytext); fflush(stdout); if(addNextIDToken == 1) addSymbol(current_scope->symTab, yytext, ID); yycolumn += strlen(yytext); yylval.str = yytext; if(lookup(yytext) == NULL && DEBUG) printf("!!!%s NOT FOUND IN SYMBOL TABLE(S)!!!\n", yytext); return ID; }
 
-{PRE_PROC}  { yycolumn += strlen(yytext); /* **IGNORE PREPROCESSOR DIRECTIVES** */ }
+{PRE_PROC}  { if(DEBUG) printf("Matched preprocessor statement\n"); fflush(stdout); yycolumn += strlen(yytext); /* **IGNORE PREPROCESSOR DIRECTIVES** */ }
 
 {COMMENT_LINE} { yycolumn += strlen(yytext); /* **IGNORE COMMENTS** */ }
 
 {COMMENT_BLOCK} { yycolumn += strlen(yytext); /* **IGNORE COMMENTS** */ }
 
-{O_PAREN} { yycolumn += strlen(yytext); return yytext[0]; }
+{O_PAREN} { if(global_scope != NULL && global_scope == current_scope) pushScope(); yycolumn += strlen(yytext); return yytext[0]; }
 
 {C_PAREN} { yycolumn += strlen(yytext); return yytext[0]; }
 
@@ -139,16 +138,18 @@ COMMA (",")
 
 {C_SUBSCRIPT} { yycolumn += strlen(yytext); return yytext[0]; }
 
-{O_BRACE} { yycolumn += strlen(yytext); return yytext[0]; }
+{O_BRACE} { yycolumn += strlen(yytext); if(current_scope != NULL) { if(current_scope->is_new_scope == 0) pushScope(); else current_scope->is_new_scope = 0; } return yytext[0]; }
 
-{C_BRACE} { yycolumn += strlen(yytext); return yytext[0]; }
+{C_BRACE} { yycolumn += strlen(yytext); if(current_scope != NULL) popScope(); return yytext[0]; }
 
 {COMMA} { yycolumn += strlen(yytext); return yytext[0]; }
 
-{NEWLINE} { yylineno++; yycolumn = 1; /*return EOL*/ }
+{NEWLINE} { yylineno++; yycolumn = 1; /*return EOL*/ addNextIDToken = 0; }
 
 [ \t\v]+ { yycolumn += strlen(yytext); /* Ignore non-newline white-space */ }
 
 . { /* Call Scooby-Doo and the Gang, because we have a mystery on our hands... */ yycolumn += strlen(yytext); pError(warning, "Mystery char %c\n", *yytext); }
 
 %%
+
+

@@ -40,8 +40,61 @@ int hel = 0;
 // This should be kept up-to-date if more keywords are added to the set.
 enum { KEYWORD_COUNT = 9 };
 
+enum { TABLE_SIZE = 9997};
+
 char* C_KEYWORD_ARRAY[KEYWORD_COUNT] = { "cin", "cout", "else", "endl", "float",
 						"if", "int", "return", "while" };
+
+struct scope_node* global_scope;
+struct scope_node* current_scope;
+
+struct scope_node* pushScope()
+{
+	if(DEBUG) printf("\n\tPushing scope...");
+	struct scope_node* newScope = (struct scope_node*) malloc(sizeof(struct scope_node));
+	newScope->symTab = generateSymbolTable(TABLE_SIZE);
+	newScope->next = NULL;
+	newScope->is_new_scope = 1;
+		
+	fflush(stdout);
+	// If global_scope is uninitialized, then set global_scope to equal the new scope and return.
+	if (global_scope == NULL)
+		global_scope = current_scope = newScope;
+	 
+	current_scope->next = newScope;
+	
+	current_scope = newScope;
+
+	if(DEBUG) printf("\tDone!\n");
+	if(DEBUG) printf("current_scope = %llX; global_scope = %llX\n", (unsigned long long)current_scope, (unsigned long long)global_scope);
+	return current_scope;
+}
+
+void popScope()
+{
+	if(DEBUG) printf("Popping scope... freeing memory...");
+	fflush(stdout);
+
+	struct scope_node* ptr = global_scope;
+
+	while(ptr->next != current_scope) ptr = ptr->next;
+
+	ptr->next = NULL;
+
+	//for(int i = 0; i < TABLE_SIZE; i++)
+	//	free(current_scope->symTab[i].symbol);
+	free(current_scope->symTab);
+	free(current_scope);
+
+	if(DEBUG) printf("\tDone!\n");
+	fflush(stdout);
+
+	current_scope = global_scope;
+	while(current_scope->next != NULL)
+		current_scope = current_scope->next;
+
+    if(DEBUG) printf("current_scope = %llX; global_scope = %llX\n", (unsigned long long)current_scope, (unsigned long long)global_scope);
+}
 
 unsigned int hash(const char* symbol)
 {
@@ -50,63 +103,88 @@ unsigned int hash(const char* symbol)
 	for (i = 0; symbol[i] != 0; ++i)
 		hashKey += symbol[i];
 
-	hashKey = hashKey % 9997;
+	hashKey = hashKey % TABLE_SIZE;
 
 	return hashKey;
 }
 
-struct symbol_node* lookup(SYMBOL_TABLE symTab, const char* symbol, int kind)
-{
+struct symbol_node* lookup(const char* symbol)
+{	
+	if(DEBUG) printf("ENTERED lookup: symbol = %s\n", symbol);
 	// Hash the key.
 	unsigned int hashKey = hash(symbol);
 
-	// Pointer to entry-point in symbol table.
-	struct symbol_node* listPtr = &symTab[hashKey];
+	// Current scope starts at global, works towards deepest scope.
+	struct scope_node* scopePtr = global_scope;
+	SYMBOL_TABLE tablePtr = scopePtr->symTab;
+	struct symbol_node* symNode = NULL;
 
-	if (listPtr->symbol == NULL)
+	while(symNode == NULL)
 	{
-				// New symbol AND current list is empty.
-				listPtr->symbol = (char*) malloc(strlen(symbol) + 1);
-				strcpy(listPtr->symbol, symbol);
-				listPtr->kind = kind;
-				if(kind == INT)		listPtr->val.d = 0;
-				if(kind == FLOAT)	listPtr->val.f = 0.0;
-	}
-	else
-	{
-				// Current list is not empty; new symbol status unknown.
-				while (listPtr->next != NULL)
-				{
-										if (strcmp(listPtr->symbol, symbol) == 0)
-											return listPtr;		// Symbol found, return pointer to record.
+		struct symbol_node* ptr = &tablePtr[hashKey];
+		
+		/* Check for symbols in linked list of hash table entry */
+		while(ptr != NULL)
+		{
+			if(ptr->symbol != NULL && strcmp(symbol, ptr->symbol) == 0)
+			{
+				if(DEBUG && scopePtr == global_scope) printf("\n\tFound symbol %s in global scope!\n", symbol);
+				return ptr;
+			}
+			else
+				ptr = ptr->next;
+		}
+		/* Symbol not found, check deeper scopes */
+		if (ptr == NULL)
+		{
+			scopePtr = scopePtr->next;
 
-										listPtr = listPtr->next;
-				}
+			/* Symbol not found - ran out of scope */
+			if (scopePtr == NULL)
+				return (struct symbol_node*)NULL;
 
-				// Check final node
-				if (strcmp(listPtr->symbol, symbol) == 0)
-					return listPtr;			// Symbol found, return pointer to record.
-				else
-				{
-										// New symbol, append to end of current list
-										listPtr->next = (struct symbol_node*) malloc(sizeof(struct symbol_node));
-										listPtr = listPtr->next;
+			tablePtr = scopePtr->symTab;
+		}
 
-										listPtr->next = NULL;
-										listPtr->symbol = (char*) malloc(strlen(symbol) + 1);
-										strcpy(listPtr->symbol, symbol);
-										listPtr->kind = kind;
-				}
 	}
 
-	return listPtr;
+	fflush(stdout);
+
+	return symNode;
+}
+
+struct symbol_node* addSymbol(SYMBOL_TABLE symTab, char* str, int kind)
+{
+	unsigned int hashKey = hash(str);
+
+	if(DEBUG) printf("\n\tAdding symbol \"%s\"\n", str);
+
+	// Case 1: No entry at hash table index.
+	if (symTab[hashKey].symbol == NULL && symTab[hashKey].next == NULL)
+	{
+		symTab[hashKey].symbol = strdup(str);
+		symTab[hashKey].kind = kind;
+		return &(symTab[hashKey]);
+	}
+
+	// Case 2: Existing entry at hash table index.  Find end of list and append.
+	struct symbol_node* ptr = &symTab[hashKey];
+
+	while(ptr->next != NULL)
+		ptr = ptr->next;
+
+	ptr = ptr->next = (struct symbol_node*) malloc(sizeof(struct symbol_node));
+
+	ptr->symbol = strdup(str); ptr->kind = kind; ptr-> next = NULL;
+
+	return ptr;
 }
 
 SYMBOL_TABLE generateSymbolTable(unsigned int tableSize)
 {
 	// Allocate memory for symbol table
 	SYMBOL_TABLE symTab = (SYMBOL_TABLE) malloc(tableSize * sizeof(struct symbol_node));
-
+	
 	if (symTab == NULL)
 		return NULL;	// Couldn't allocate memory
 
@@ -118,49 +196,31 @@ SYMBOL_TABLE generateSymbolTable(unsigned int tableSize)
 				symTab[i].kind = 0;
 	}
 
-	extern unsigned int DEBUG;
-
-	//if(DEBUG) printf("\n\n!!SYMBOL TABLE ALLOCATED - INITIALIZED TO NULL!!\n\n");
-
-	populateSymbolTable(symTab);
+	// Only populate global_scope with C++ keywords (might not even need to do this anymore...)
+	if (global_scope == NULL)	populateSymbolTable(symTab);
 
 	return symTab;
 }
 
 void populateSymbolTable(SYMBOL_TABLE symTab)
 {
-	//if(DEBUG) printf("\n\n!!CONTROL ENTERED populateSymbolTable!!\n\n");
-	if (symTab == NULL)
-		return;
+	if(symTab == NULL)	return;
 
-
-	//if(DEBUG) printf("\n\n!! symTab != NULL !!\n\n");
-	struct symbol_node* recordPtr = NULL;
-	for (int i = 0; i < KEYWORD_COUNT; ++i)
-	{
-			recordPtr = lookup(symTab, C_KEYWORD_ARRAY[i], CIN + i);
-			/*if(DEBUG)	{	printf("!!KEYWORD \"%s\" ADDED, PRINTING RECORD:\n", C_KEYWORD_ARRAY[i]);
-									printRecordData(recordPtr);
-									printf("\n\n"); }
-			*/
-	}
-
-	//if(DEBUG) printf("\n\n!!ALL C KEYWORDS ADDED, CONTROL EXITING populateSymbolTable!!\n\n");
+	for (int i = 0; i < KEYWORD_COUNT; ++i)	addSymbol(symTab, C_KEYWORD_ARRAY[i], CIN + i);
 
 	return;
 }
 
 
-void printRecordData(struct symbol_node* record)
+void printSymbolData(struct symbol_node* sym)
 {
-	printf("Address of record:\t0x%llX\n", (unsigned long long)record);
-	printf("Symbol of record:\t%s\n", record->symbol);
-	printf("Symbol kind:\t\t%s\n", kindToString(record->kind));
-	if(record->kind == INT) printf("Symbol value:\t\t%d\n", record->val.d);
-	if(record->kind == FLOAT) printf("Symbol value:\t\t%f\n", record->val.f);
+	printf("Address of symbol:\t0x%llX\n", (unsigned long long)sym);
+	printf("Contained string:\t%s\n", sym->symbol);
+	printf("Symbol kind:\t\t%s\n", kindToString(sym->kind));
+	if(sym->kind == INT) printf("Symbol value:\t\t%d\n", sym->val.d);
+	if(sym->kind == FLOAT) printf("Symbol value:\t\t%f\n", sym->val.f);
 	printf("\n");
 }
-
 
 
 int getKind(char *str)
@@ -210,8 +270,11 @@ int main(int argc, char **argv)
 	#if YYDEBUG
 		yydebug = 1;
 	#endif
+    global_scope = current_scope = NULL;
+	global_scope = pushScope();
 
-	symTab = generateSymbolTable(TABLE_SIZE);
+	if(DEBUG) printf("ENTERING yyparse\n");
+	fflush(stdout);
 
 	yyparse();
 
@@ -338,4 +401,5 @@ void pError(errorLevel el, char* s, ...)
 				//switch(a->nodetype) {
 										/* cases here will be based on parser */
 									//}
-	}
+}
+
