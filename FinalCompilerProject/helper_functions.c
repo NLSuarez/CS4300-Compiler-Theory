@@ -331,7 +331,7 @@ void pError(errorLevel el, char* s, ...)
 
    if(!a) {
      pError(fatal, "out of space");
-     exit(0);
+     exit(-1);
    }
    a->nodetype = nodetype;
    a->l = l;
@@ -344,7 +344,7 @@ void pError(errorLevel el, char* s, ...)
 	 struct stringval *a = malloc(sizeof(struct stringval));
 	 if(!a) {
 		 pError(fatal, "out of space");
-		 exit(0);
+		 exit(-1);
 	 }
 	 a->nodetype = 's';
 	 a->strval = strliteral;
@@ -357,7 +357,7 @@ void pError(errorLevel el, char* s, ...)
 	 struct intval *a = malloc(sizeof(struct intval));
 	 if(!a) {
 				 pError(fatal, "out of space");
-				 exit(0);
+				 exit(-1);
 	 }
 	 a->nodetype = 'f'; //VMQ defines an int using f
 	 a->number = num;
@@ -370,7 +370,7 @@ void pError(errorLevel el, char* s, ...)
 	 struct floatval *a = malloc(sizeof(struct floatval));
 	 if(!a) {
 				 pError(fatal, "out of space");
-				 exit(0);
+				 exit(-1);
 	 }
 	 a->nodetype = 'F'; //VMQ defines a float using F
 	 a->number = num;
@@ -383,7 +383,7 @@ void pError(errorLevel el, char* s, ...)
 
 	 if(!a) {
 		 pError(fatal, "out of space");
-		 exit(0);
+		 exit(-1);
 	 }
 	 a->nodetype = nodetype;
 	 a->cond = cond;
