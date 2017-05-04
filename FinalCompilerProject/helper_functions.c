@@ -1,3 +1,5 @@
+
+
 #include "helper_functions.h"
 #include "parser.tab.h"
 #include <stdlib.h>
@@ -8,17 +10,17 @@
 // Useful for debugging and populating the symbol table - need a better, non-hack solution for this in the future.
 #define INT_LITERAL 258
 #define FLT_LITERAL 259
-#define ID 260
-#define STR_LITERAL 261
-#define CIN 262
-#define COUT 263
-#define ELSE 264
-#define ENDL 265
-#define FLOAT 266
-#define IF 267
-#define INT 268
-#define RETURN 269
-#define WHILE 270
+#define STR_LITERAL 260
+#define CIN 261
+#define COUT 262
+#define ELSE 263
+#define ENDL 264
+#define FLOAT 265
+#define IF 266
+#define INT 267
+#define RETURN 268
+#define WHILE 269
+#define ID 270
 #define FUNC 271
 #define EOL 272
 #define ASSIGNOP 273
@@ -47,6 +49,42 @@ char* C_KEYWORD_ARRAY[KEYWORD_COUNT] = { "cin", "cout", "else", "endl", "float",
 
 struct scope_node* global_scope;
 struct scope_node* current_scope;
+STRLIT_LIST str_list_head;
+
+struct strlit_node* appendToStrList(char* str)
+{
+	struct strlit_node* ptr = str_list_head;
+
+	if(ptr != NULL && lookup(str) != NULL)
+		while(ptr != NULL && ptr->str != str) ptr = ptr->next;
+	if (ptr == NULL)
+	{
+		if(LEX_DEBUG) printf("\tAdding %s to STRLIT_LIST\n", str);
+		
+		struct strlit_node* ptr = str_list_head;
+
+		if (ptr == NULL)
+		{
+			ptr = str_list_head = (struct strlit_node*)malloc(sizeof(struct strlit_node));
+			ptr->str = strdup(str);
+			ptr->loc = 0;			// This assumes no global variables!
+			ptr->next = NULL;
+		}
+		else
+		{
+			while (ptr->next != NULL) ptr = ptr->next;
+
+			struct strlit_node* prev = ptr;
+			ptr = ptr->next = (struct strlit_node*)malloc(sizeof(struct strlit_node));
+	
+			ptr->str = strdup(str);
+			ptr->loc = prev->loc + strlen(prev->str) - 1;
+			ptr->next = NULL;
+		}
+	}
+	
+	return ptr;
+}
 
 struct scope_node* pushScope()
 {
@@ -55,14 +93,14 @@ struct scope_node* pushScope()
 	newScope->symTab = generateSymbolTable(TABLE_SIZE);
 	newScope->next = NULL;
 	newScope->is_new_scope = 1;
-
+		
 	fflush(stdout);
 	// If global_scope is uninitialized, then set global_scope to equal the new scope and return.
 	if (global_scope == NULL)
 		global_scope = current_scope = newScope;
-
+	 
 	current_scope->next = newScope;
-
+	
 	current_scope = newScope;
 
 	if(DEBUG) printf("\tDone!\n");
@@ -109,7 +147,7 @@ unsigned int hash(const char* symbol)
 }
 
 struct symbol_node* lookup(const char* symbol)
-{
+{	
 	if(DEBUG) printf("ENTERED lookup: symbol = %s\n", symbol);
 	// Hash the key.
 	unsigned int hashKey = hash(symbol);
@@ -121,30 +159,30 @@ struct symbol_node* lookup(const char* symbol)
 
 	while(symNode == NULL)
 	{
-		struct symbol_node* ptr = &tablePtr[hashKey];
-
-		/* Check for symbols in linked list of hash table entry */
-		while(ptr != NULL)
-		{
-			if(ptr->symbol != NULL && strcmp(symbol, ptr->symbol) == 0)
+			struct symbol_node* ptr = &tablePtr[hashKey];
+			
+			/* Check for symbols in linked list of hash table entry */
+			while(ptr != NULL)
 			{
-				if(DEBUG && scopePtr == global_scope) printf("\n\tFound symbol %s in global scope!\n", symbol);
-				return ptr;
+						if(ptr->symbol != NULL && strcmp(symbol, ptr->symbol) == 0)
+						{
+										if(DEBUG && scopePtr == global_scope) printf("\n\tFound symbol %s in global scope!\n", symbol);
+										return ptr;
+						}
+						else
+							ptr = ptr->next;
 			}
-			else
-				ptr = ptr->next;
-		}
-		/* Symbol not found, check deeper scopes */
-		if (ptr == NULL)
-		{
-			scopePtr = scopePtr->next;
+			/* Symbol not found, check deeper scopes */
+			if (ptr == NULL)
+			{
+						scopePtr = scopePtr->next;
 
-			/* Symbol not found - ran out of scope */
-			if (scopePtr == NULL)
-				return (struct symbol_node*)NULL;
+						/* Symbol not found - ran out of scope */
+						if (scopePtr == NULL)
+							return (struct symbol_node*)NULL;
 
-			tablePtr = scopePtr->symTab;
-		}
+						tablePtr = scopePtr->symTab;
+			}
 
 	}
 
@@ -162,9 +200,9 @@ struct symbol_node* addSymbol(SYMBOL_TABLE symTab, char* str, int kind)
 	// Case 1: No entry at hash table index.
 	if (symTab[hashKey].symbol == NULL && symTab[hashKey].next == NULL)
 	{
-		symTab[hashKey].symbol = strdup(str);
-		symTab[hashKey].kind = kind;
-		return &(symTab[hashKey]);
+			symTab[hashKey].symbol = strdup(str);
+			symTab[hashKey].kind = kind;
+			return &(symTab[hashKey]);
 	}
 
 	// Case 2: Existing entry at hash table index.  Find end of list and append.
@@ -184,16 +222,16 @@ SYMBOL_TABLE generateSymbolTable(unsigned int tableSize)
 {
 	// Allocate memory for symbol table
 	SYMBOL_TABLE symTab = (SYMBOL_TABLE) malloc(tableSize * sizeof(struct symbol_node));
-
+	
 	if (symTab == NULL)
 		return NULL;	// Couldn't allocate memory
 
 	// Initialize all elements of new table to NULL
 	for (unsigned int i = 0; i < tableSize; ++i)
 	{
-				symTab[i].symbol = NULL;
-				symTab[i].next = NULL;
-				symTab[i].kind = 0;
+					symTab[i].symbol = NULL;
+					symTab[i].next = NULL;
+					symTab[i].kind = 0;
 	}
 
 	// Only populate global_scope with C++ keywords (might not even need to do this anymore...)
@@ -227,8 +265,8 @@ int getKind(char *str)
 {
 	for(int i = 0; i < KEYWORD_COUNT; ++i)
 	{
-				if (strcmp(str, C_KEYWORD_ARRAY[i]) == 0)
-					return (CIN + i);
+					if (strcmp(str, C_KEYWORD_ARRAY[i]) == 0)
+						return (CIN + i);
 	}
 	extern unsigned int DEBUG;
 
@@ -260,25 +298,45 @@ char* kindToString(const int kind)
 int main(int argc, char **argv)
 {
     extern unsigned int DEBUG;
+	extern unsigned int PAR_DEBUG;
+	extern unsigned int LEX_DEBUG;
+	extern int yyparse();
+	DEBUG = PAR_DEBUG = LEX_DEBUG = 0;
 
     if (argc > 1)
     {
         for (int i = 1; i < argc; ++i)
+		{
             if (strcmp(argv[i], "-d") == 0) DEBUG = 1;
+			if (strcmp(argv[i], "-pd") == 0) PAR_DEBUG = 1;
+			if (strcmp(argv[i], "-ld") == 0) LEX_DEBUG = 1;
+		}
 	}
-
 	#if YYDEBUG
 		yydebug = 1;
 	#endif
     global_scope = current_scope = NULL;
+	str_list_head = NULL;
+
 	global_scope = pushScope();
 
-	if(DEBUG) printf("ENTERING yyparse\n");
+	if(PAR_DEBUG) printf("ENTERING yyparse\n");
 	fflush(stdout);
 
 	yyparse();
 
-	if(DEBUG) printf("\n\nPROGRAM EXIT\n\n");
+	if(DEBUG || LEX_DEBUG) 
+	{
+		printf("\n!! Dumping string literal list !!\n");
+		struct strlit_node* ptr = str_list_head;
+		while(ptr != NULL)
+		{
+			printf("\tString = %s\t\t\t| VMQ Loc = %d\n", ptr->str, ptr->loc);
+			ptr = ptr->next;
+		}
+	}
+
+	if(DEBUG || LEX_DEBUG || PAR_DEBUG) printf("\n\nPROGRAM EXIT\n\n");
 
 	return 0;
 }
@@ -293,8 +351,8 @@ void yyerror(char* s, ...)
 	// print out where the error occurs
 	if(yylloc.first_line)
 	{
-				fprintf(stderr, "%d.%d-%d.%d: ", yylloc.first_line, yylloc.first_column,
-										    yylloc.last_line, yylloc.last_column);
+					fprintf(stderr, "%d.%d-%d.%d: ", yylloc.first_line, yylloc.first_column,
+																    yylloc.last_line, yylloc.last_column);
 	}
 	vfprintf(stderr, s, ap);	// print out the error decription
 	fprintf(stderr, "\n");
@@ -311,11 +369,11 @@ void pError(errorLevel el, char* s, ...)
 	// update the severity level countered
 	if (el > hel)
 	{
-				hel = el;
+					hel = el;
 	}
 
 	fprintf(stderr, "%s: %d.%d-%d.%d: ", els[el - 1], yylloc.first_line, yylloc.first_column,
-					    yylloc.last_line, yylloc.last_column);
+							    yylloc.last_line, yylloc.last_column);
 	vfprintf(stderr, s, ap);
 	fprintf(stderr, "\n");
 	//printf("%s\n", s);
@@ -340,15 +398,16 @@ void pError(errorLevel el, char* s, ...)
  }
 
  struct ast *
- newstr(char* strliteral) {
+ newstr(struct strlit_node* strliteral) {
 	 struct stringval *a = malloc(sizeof(struct stringval));
 	 if(!a) {
-		 pError(fatal, "out of space");
-		 exit(-1);
+			 pError(fatal, "out of space");
+			 exit(-1);
 	 }
 	 a->nodetype = 's';
-	 a->strval = strliteral;
-	 return (struct ast *)a;
+	 a->str = strliteral;
+
+	return (struct ast*)a;
  }
 
  struct ast *
@@ -356,8 +415,8 @@ void pError(errorLevel el, char* s, ...)
  {
 	 struct intval *a = malloc(sizeof(struct intval));
 	 if(!a) {
-				 pError(fatal, "out of space");
-				 exit(-1);
+					 pError(fatal, "out of space");
+					 exit(-1);
 	 }
 	 a->nodetype = 'f'; //VMQ defines an int using f
 	 a->number = num;
@@ -369,21 +428,22 @@ void pError(errorLevel el, char* s, ...)
  {
 	 struct floatval *a = malloc(sizeof(struct floatval));
 	 if(!a) {
-				 pError(fatal, "out of space");
-				 exit(-1);
+					 pError(fatal, "out of space");
+					 exit(-1);
 	 }
 	 a->nodetype = 'F'; //VMQ defines a float using F
 	 a->number = num;
 	 return (struct ast *)a;
  }
 
+/*
  struct ast *
  newflow(int nodetype, struct ast *cond, struct ast *tl, struct ast *el) {
 	 struct flow *a = malloc(sizeof(struct flow));
 
 	 if(!a) {
-		 pError(fatal, "out of space");
-		 exit(-1);
+			 pError(fatal, "out of space");
+			 exit(-1);
 	 }
 	 a->nodetype = nodetype;
 	 a->cond = cond;
@@ -391,15 +451,18 @@ void pError(errorLevel el, char* s, ...)
 	 a->el = el;
 	 return (struct ast *)a;
  }
- //struct ast *newref(struct symbol_node *s);
- //struct ast *newasgn(struct symbol_node *s, struct ast *v);
+*/
+ struct ast *newref(struct symbol_node *s);
+ struct ast *newasgn(struct symbol_node *s, struct ast *v);
  /*
   * FUnction to delete and free an AST
   */
   void
 	treefree(struct ast *a)
 	{
-				//switch(a->nodetype) {
-										/* cases here will be based on parser */
-									//}
+		//switch(a->nodetype) {	
+	  	/* cases here will be based on parser */
+		//}
 	}
+
+
