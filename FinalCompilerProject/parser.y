@@ -22,6 +22,7 @@
 
     extern struct scope_node* global_scope;
     extern struct scope_node* current_scope;
+    extern struct ast* ast_root;
 %}
 
 /*    union variables go here    */
@@ -65,7 +66,7 @@
     %start program
 %%
 
-    program: variable_definitions function_definitions { printf("!!PROGRAM PARSED!!\n"); $$ = newast(('h'), $1, $2); printAST($$); }
+    program: variable_definitions function_definitions { if(DEBUG || PAR_DEBUG) printf("!!PROGRAM PARSED!!\n"); $$ = ast_root = newast(('h'), $1, $2); if(DEBUG || PAR_DEBUG) printAST($$); }
         ;
         
     function_definitions:    function_head block     { $$ = newast('f'+'d', $1, $2); }
@@ -78,7 +79,7 @@
         | identifier_list ',' ID '[' INT_LITERAL ']'    { $$ = newast('I'+'D'+'L', $1, newref($3)); } 
         ;
         
-    variable_definitions:                                              { $$ = newast('v'+'a'+'r', NULL, NULL); }
+    variable_definitions:                                              { /*$$ = newast('v'+'a'+'r', NULL, NULL);*/ $$ = NULL;}
         | variable_definitions type identifier_list ';'               { $$ = newast('v'+'a'+'r', $1, $3); }
         ;
         
@@ -92,7 +93,7 @@
     arguments:    '(' parameter_list ')' { $$ = newast('a'+'r'+'g', $2, NULL); }
         ;
         
-    parameter_list:                                        { $$ = newast('p'+'l', NULL, NULL); }
+    parameter_list:                                        { /*$$ = newast('p'+'l', NULL, NULL);*/ $$ = NULL; }
         | parameters                                    { $$ = newast('p'+'l', $1, NULL); }
         ;
         
@@ -105,13 +106,13 @@
     block:    '{' variable_definitions statements '}' { fflush(stdout); $$ = newast(('b'+'l'+'k'), $2, $3); }
         ;
         
-    statements:                                        { $$ = newast('s'+'t'+'m'+'t'+'s', NULL, NULL); }
+    statements:                                        { /*$$ = newast('s'+'t'+'m'+'t'+'s', NULL, NULL);*/ $$ = NULL;}
         | statements statement                        { $$ = newast('s'+'t'+'m'+'t'+'s', $1, $2); }
         ;
         
     statement:    expression ';'                                    { if(DEBUG || PAR_DEBUG) printf("statement PARSED!\n"); }
         | compound_statement                                    { if(DEBUG || PAR_DEBUG) printf("statement PARSED!\n"); }
-        | RETURN expression ';'                                    { $$ = newast(RETURN, NULL, NULL); }
+        | RETURN expression ';'                                    { $$ = NULL; }
         | IF '(' bool_expression ')' statement ELSE statement    { if(DEBUG || PAR_DEBUG) printf("statement PARSED!\n"); }
         | WHILE '(' bool_expression ')' statement                { if(DEBUG || PAR_DEBUG) printf("statement PARSED!\n"); }
         | input_statement ';'                                    { if(DEBUG || PAR_DEBUG) printf("statement PARSED!\n"); }
@@ -182,7 +183,6 @@
         ;
     
 %%
-
 
 
 

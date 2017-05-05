@@ -34,10 +34,9 @@
 #define UNARY 283
 
 
-// To keep track of the highest severity of error, 0 = no errors, 1 = warning, 2 = error, 3 = fatal
+    /* GLOBAL VARIABLES */
 int hel = 0;
 
-// This should be kept up-to-date if more keywords are added to the set.
 enum { KEYWORD_COUNT = 9 };
 
 enum { TABLE_SIZE = 9997};
@@ -47,57 +46,59 @@ char* C_KEYWORD_ARRAY[KEYWORD_COUNT] = { "cin", "cout", "else", "endl", "float",
 
 struct scope_node* global_scope;
 struct scope_node* current_scope;
+
 STRLIT_LIST str_list_head;
+STRLIT_LIST VMQ_list;
+
 struct ast* ast_root;
 
-struct strlit_node* appendToStrList(char* str)
-{
-    struct strlit_node* ptr = str_list_head;
+struct eval_data* val;
 
-    if(ptr != NULL && lookup(str) != NULL)
+    /* FUNCTION DEFINITIONS */
+
+struct strlit_node* appendToStrList(STRLIT_LIST* head, char* str, int eval_state)
+{
+    STRLIT_LIST ptr = *head;
+
+    if(*head != NULL && !eval_state)
     {
         while(ptr != NULL && ptr->str != str) 
         {
             if (strcmp(ptr->str, str) == 0)
-            {
-                printf("\tappend: string already in list, ptr->str = %s\tptr->loc = %d\n", ptr->str, ptr->loc);
                 return ptr;
-            }
             else
                 ptr = ptr->next;
         }
     }
-    if (ptr == NULL)
-    {
-        if(LEX_DEBUG) printf("\tAdding %s to STRLIT_LIST\n", str);
-        
-        ptr = str_list_head;
-
-        if (ptr == NULL)
-        {
-            if(LEX_DEBUG) printf("\tStarting new STRLIT_LIST...");
-            ptr = (struct strlit_node*)malloc(sizeof(struct strlit_node));
-            ptr->str = strdup(str);
-            ptr->loc = 0;            // This assumes no global variables!
-            ptr->next = NULL;
-            str_list_head = ptr;
-            if(LEX_DEBUG) printf("\tNew node allocated and initialized\n");
-            fflush(stdout);
-        }
-        else
-        {
-            while (ptr->next != NULL) ptr = ptr->next;
-
-            struct strlit_node* prev = ptr;
-            ptr = ptr->next = (struct strlit_node*)malloc(sizeof(struct strlit_node));
     
-            ptr->str = strdup(str);
-            ptr->loc = prev->loc + strlen(prev->str) - 1;
-            ptr->next = NULL;
-        }
+    if(LEX_DEBUG) printf("\tAdding %s to STRLIT_LIST\n", str);
+        
+    if (*head == NULL)
+    {
+        if(LEX_DEBUG) printf("\tStarting new STRLIT_LIST...");
+        *head = (struct strlit_node*)malloc(sizeof(struct strlit_node));
+        (*head)->str = strdup(str);
+        (*head)->loc = 0;            // This assumes no global variables!
+        (*head)->next = NULL;
+        if(LEX_DEBUG) printf("\tNew node allocated and initialized\n");
+        fflush(stdout);
+        ptr = *head;
+    }
+    else
+    {
+        ptr = *head;
+        while(ptr->next != NULL) ptr = ptr->next;
+        STRLIT_LIST prev = ptr;
+        ptr = ptr->next = (struct strlit_node*)malloc(sizeof(struct strlit_node));
+        ptr->str = strdup(str);
+        if (!eval_state) ptr->loc = prev->loc + strlen(prev->str) - 1;
+        else             ptr->loc = 0;
+        if (strcmp(prev->str, "\\n") == 0) ptr->loc++;
+        ptr->next = NULL;
     }
     
     if(LEX_DEBUG) printf("append: ptr->str = %s\tptr->loc = %d\n", ptr->str, ptr->loc);
+    
     return ptr;
 }
 
@@ -333,28 +334,31 @@ int main(int argc, char **argv)
 
     global_scope = current_scope = NULL;
     str_list_head = NULL;
+    VMQ_list = NULL;
     ast_root = NULL;
-
+    val = NULL;
     global_scope = pushScope();
 
     yyparse();
 
-    if(DEBUG || LEX_DEBUG) 
+    eval(ast_root);
+
+    STRLIT_LIST ptr = str_list_head;
+
+    while(ptr != NULL)
     {
-        printf("\n!! Dumping string literal list !!\n");
-        struct strlit_node* ptr = str_list_head;
-        while(ptr != NULL)
-        {
-            printf("\tString = %s\t\t\t| VMQ Loc = %d\n", ptr->str, ptr->loc);
-            ptr = ptr->next;
-        }
+        if(strcmp(ptr->str, "\\n") == 0) printf("%d \"%s\"\n", ptr->loc, ptr->str);
+        else                             printf("%d %s\n", ptr->loc, ptr->str);
+        if(ptr->next == NULL) printf("$ 1 %lu\n", ptr->loc + strlen(ptr->str) - 2); // Just hacking this in for now.
+        ptr = ptr->next;
     }
 
-    // ast_root now points to root of AST tree
-
-    // Set up VMQ program's global memory using strlit_nodes in str_list_head linked list
-    
-    // Evaluate the AST, print results to VMQ file.
+    ptr = VMQ_list;
+    while(ptr != NULL)
+    {
+        printf("%s\n", ptr->str);
+        ptr = ptr->next;
+    }
 
     if(DEBUG || LEX_DEBUG || PAR_DEBUG) printf("\n\nPROGRAM EXIT\n\n");
 
@@ -495,11 +499,106 @@ void pError(errorLevel el, char* s, ...)
     treefree(struct ast *a)
     {
         //switch(a->nodetype) {
-                /* cases here will be based on parser */
+            /* cases here will be basod on parser */
         //}
     }
 
 
+void eval(struct ast *a)
+{
+    if(a == NULL) { return; }
+
+    switch (a->nodetype)
+    {
+        /* TERMINAL CASES */
+
+        case COUT:            break;
+        case RETURN:        break;
+        case STR_LITERAL:    (void)0; char* VMQ_push_stmt = (char*)malloc(20);
+                            STRLIT_LIST ptr = str_list_head; char* str = strdup(((struct stringval*)a)->str->str);
+                            while(ptr != NULL) { if(strcmp(ptr->str, str)== 0) break; else ptr = ptr->next; }
+                            sprintf(VMQ_push_stmt, "p #%d", ptr->loc);
+                            appendToStrList(&VMQ_list, VMQ_push_stmt, 1);
+                            appendToStrList(&VMQ_list, "c 0 -11", 1);
+                            appendToStrList(&VMQ_list, "^ 2", 1);
+                            break;
+
+        // output_statement
+        case 'o':                    if(a->l != NULL) eval(a->l);  
+                                    if(a->r->nodetype == STR_LITERAL) eval(a->r); break;
+
+        // statement
+        case ('s'+'t'+'m'+'t'):         eval(a->l); break;
+        
+        // statements
+        case ('s'+'t'+'m'+'t'+'s'):     if(a->l != NULL) eval(a->l); 
+                                     if(a->r != NULL) eval(a->r); break;
+
+        // block
+        case ('b'+'l'+'k'):            /* eval(a->l) eventually for var_defs */ eval(a->r); break;
+
+        case ('f'+'d'):                /* eval(a->l) eventually for func_head */ eval(a->r); break;
+
+        case 'h':                    eval(a->r); appendToStrList(&VMQ_list, "h", 1); break;
+
+        default:                    if(a->l != NULL) eval(a->l); if(a->r != NULL) eval(a->r);
+    }
+
+}
+/*
+void transferStack(VMQ_STACK dest, VMQ_STACK src)
+{
+    if (src == NULL) return;
+
+    VMQ_STACK temp = (VMQ_STACK)malloc(sizeof(struct strlit_node));
+
+    printf("\nSTACK TRANSFER IN PROCESS!\n");
+    while(src != NULL)
+    {
+        pushToStrStack(temp, strdup(src->str));
+        popStrStack(src);
+    }
+
+    while(temp != NULL)
+    {
+        pushToStrStack(dest, strdup(temp->str));
+        printf("\tString transfered = %s\n", temp->str);
+        popStrStack(temp);
+    }
+
+    return;
+}
+
+void pushToStrStack(VMQ_STACK stk, char* str)
+{
+    if(val->stack_head == NULL) 
+    {
+        printf("\n\tStack is empty, pushing %s...", str);
+        val->stack_head = (struct strlit_node*)malloc(sizeof(struct strlit_node));
+        val->stack_head->str = strdup(str);
+        val->stack_head->next = NULL;
+        printf("Done!\n");
+    }
+    else
+    {
+        printf("\n\tStack is not empty, pushing %s...", str);
+        struct strlit_node* ptr = (struct strlit_node*)malloc(sizeof(struct strlit_node));
+        ptr->str = strdup(str);
+        ptr->next = stk;
+        val->stack_head = ptr;
+        printf("Done!\n");
+    }
+}
+
+void popStrStack(VMQ_STACK stk)
+{
+    if(stk == NULL) return;
+
+    VMQ_STACK ptr = stk->next;
+    free(stk);
+    stk = ptr;
+}
+*/
 void printAST(struct ast *a)
 {
     struct ast *ptr = a;
@@ -507,18 +606,19 @@ void printAST(struct ast *a)
 
     if(ptr->nodetype == STR_LITERAL)
     {
-        printf("\tSTRINGVAL NODE");
-        printf("\tstr = %s\tVMQ Loc = %d\n", ((struct stringval*)ptr)->str->str, ((struct stringval*)ptr)->str->loc);
-        fflush(stdout);
+        printf("\tSTRINGVAL NODE\n");
+        //printf("\tstr = %s\tVMQ Loc = %d\n", ((struct stringval*)ptr)->str->str, ((struct stringval*)ptr)->str->loc);
+        //fflush(stdout);
     }
     else if(ptr->nodetype == ID)
     {
         printf("\tSYMREF NODE\n");
-        printSymbolData(((struct symref*)ptr)->s);
+        //printSymbolData(((struct symref*)ptr)->s);
     }
     else
     {
         //printf("\n\t!!ptr->nodetype != STR_LITERAL\n");
+        printAST(ptr->l);
         if (ptr->nodetype == 's'+'t'+'m'+'t')   printf("\tSTATEMENT NODE\n");
         else if (ptr->nodetype == 'o')          printf("\tOUTSTMT NODE (o)\n");
         else if (ptr->nodetype == COUT)            printf("\tCOUT NODE\n");
@@ -534,8 +634,7 @@ void printAST(struct ast *a)
         else if (ptr->nodetype == RETURN)        printf("\tRETURN NODE\n");
         else                                    printf("\tOTHER NODE (%d)\n", ptr->nodetype);
         
-        printAST(ptr->l);
+        //printAST(ptr->l);
         printAST(ptr->r);
     }
 }
-

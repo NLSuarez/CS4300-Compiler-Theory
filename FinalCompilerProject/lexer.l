@@ -16,7 +16,7 @@ AND stands for the lexeme &&
 FLT_LITERAL is a float constant without a sign
 (at least 1 digit before and after decimal pt.; possible exponent)
 INT_LITERAL is an integer constant without a sign
-STR_LITERAL is a string enclosed in quotes (ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â), not longer than 1 line
+STR_LITERAL is a string enclosed in quotes, not longer than 1 line
 STREAMIN is >>
 STREAMOUT is <<
 ID follows the usual rules for C++ identifiers, and may be any length
@@ -112,7 +112,7 @@ COMMA (",")
 
 {INT_LITERAL} { yycolumn += strlen(yytext); return INT_LITERAL; }
 
-{STR_LITERAL} { yycolumn += strlen(yytext); if(lookup(yytext) == NULL) { addSymbol(global_scope->symTab, yytext, STR_LITERAL); } yylval.sln = appendToStrList(yytext); return STR_LITERAL; }
+{STR_LITERAL} { yycolumn += strlen(yytext); if(lookup(yytext) == NULL) { addSymbol(global_scope->symTab, yytext, STR_LITERAL); } yylval.sln = appendToStrList(&str_list_head, yytext, 0); return STR_LITERAL; }
 
 {UNTERMINATED_STR_LITERAL} {pError(error, "Unterminated string.");}
 
@@ -120,7 +120,7 @@ COMMA (",")
 
 {STREAMOUT} { yycolumn += strlen(yytext); return STREAMOUT; }
 
-{KEYWORD} { if(DEBUG || LEX_DEBUG) printf("Matched keyword: %s\n", yytext); fflush(stdout); if(strcmp(yytext, "int") == 0 || strcmp(yytext, "float") == 0) addNextIDToken = 1;  yycolumn += strlen(yytext); if(getKind(yytext) == ENDL && lookup("\\n") == NULL) { addSymbol(global_scope->symTab, "\\n", STR_LITERAL); yylval.sln = appendToStrList("\\n"); } else yylval.s = lookup(yytext); return getKind(yytext); }
+{KEYWORD} { if(DEBUG || LEX_DEBUG) printf("Matched keyword: %s\n", yytext); fflush(stdout); if(strcmp(yytext, "int") == 0 || strcmp(yytext, "float") == 0) addNextIDToken = 1;  yycolumn += strlen(yytext); if(getKind(yytext) == ENDL && lookup("\\n") == NULL) { addSymbol(global_scope->symTab, "\\n", STR_LITERAL); }  yylval.sln = appendToStrList(&str_list_head, "\\n", 0); if(strcmp(yytext, "endl") != 0) yylval.s = lookup(yytext); return getKind(yytext); }
 
 {END_STMT} { yycolumn += strlen(yytext); return yytext[0]; }
 
@@ -153,6 +153,5 @@ COMMA (",")
 . { /* Call Scooby-Doo and the Gang, because we have a mystery on our hands... */ yycolumn += strlen(yytext); pError(warning, "Mystery char %c\n", *yytext); }
 
 %%
-
 
 
