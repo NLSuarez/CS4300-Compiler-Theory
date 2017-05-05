@@ -16,7 +16,7 @@ AND stands for the lexeme &&
 FLT_LITERAL is a float constant without a sign
 (at least 1 digit before and after decimal pt.; possible exponent)
 INT_LITERAL is an integer constant without a sign
-STR_LITERAL is a string enclosed in quotes (ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â), not longer than 1 line
+STR_LITERAL is a string enclosed in quotes (ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â), not longer than 1 line
 STREAMIN is >>
 STREAMOUT is <<
 ID follows the usual rules for C++ identifiers, and may be any length
@@ -38,11 +38,13 @@ comments to simplify the program.
 
 unsigned int yycolumn = 1;
 
-#define YY_USER_ACTION yylloc.first_line = yylloc.last_line = yylineno;	yylloc.first_column = yycolumn; yylloc.last_column = yycolumn+yyleng-1; yycolumn += yyleng;
+#define YY_USER_ACTION yylloc.first_line = yylloc.last_line = yylineno;    yylloc.first_column = yycolumn; yylloc.last_column = yycolumn+yyleng-1; yycolumn += yyleng;
 
 extern unsigned int DEBUG;
+extern unsigned int LEX_DEBUG;
 extern struct scope_node* global_scope;
 extern struct scope_node* current_scope;
+extern STRLIT_LIST str_list_head;
 int addNextIDToken = 0;
 %}
 
@@ -110,7 +112,7 @@ COMMA (",")
 
 {INT_LITERAL} { yycolumn += strlen(yytext); return INT_LITERAL; }
 
-{STR_LITERAL} { yycolumn += strlen(yytext); if(lookup(yytext) == NULL) yylval.str = strdup(addSymbol(global_scope->symTab, yytext, STR_LITERAL)->symbol); else yylval.str = yytext; return STR_LITERAL; }
+{STR_LITERAL} { yycolumn += strlen(yytext); if(lookup(yytext) == NULL) { addSymbol(global_scope->symTab, yytext, STR_LITERAL); } yylval.sln = appendToStrList(yytext); return STR_LITERAL; }
 
 {UNTERMINATED_STR_LITERAL} {pError(error, "Unterminated string.");}
 
@@ -118,13 +120,13 @@ COMMA (",")
 
 {STREAMOUT} { yycolumn += strlen(yytext); return STREAMOUT; }
 
-{KEYWORD} { if(DEBUG) printf("Matched keyword: %s\n", yytext); fflush(stdout); if(strcmp(yytext, "int") == 0) addNextIDToken = 1;  yycolumn += strlen(yytext); /*yylval.s = lookup(yytext); if(DEBUG) printf("Completed lookup function call\n");*/ fflush(stdout); /*if(yylval.s == NULL) pError(error, "\nLexer matched a keyword not found in symbol table\n");*/ return getKind(yytext); }
+{KEYWORD} { if(DEBUG || LEX_DEBUG) printf("Matched keyword: %s\n", yytext); fflush(stdout); if(strcmp(yytext, "int") == 0 || strcmp(yytext, "float") == 0) addNextIDToken = 1;  yycolumn += strlen(yytext); if(getKind(yytext) == ENDL && lookup("\\n") == NULL) { addSymbol(global_scope->symTab, "\\n", STR_LITERAL); yylval.sln = appendToStrList("\\n"); } else yylval.s = lookup(yytext); return getKind(yytext); }
 
 {END_STMT} { yycolumn += strlen(yytext); return yytext[0]; }
 
-{ID} { if(DEBUG) printf("Matched ID: %s\n", yytext); fflush(stdout); if(addNextIDToken == 1) addSymbol(current_scope->symTab, yytext, ID); yycolumn += strlen(yytext); yylval.str = yytext; if(lookup(yytext) == NULL && DEBUG) printf("!!!%s NOT FOUND IN SYMBOL TABLE(S)!!!\n", yytext); return ID; }
+{ID} { if(DEBUG || LEX_DEBUG) printf("Matched ID: %s\n", yytext); fflush(stdout); if(addNextIDToken == 1) addSymbol(current_scope->symTab, yytext, ID); yycolumn += strlen(yytext); yylval.s = lookup(yytext); if(lookup(yytext) == NULL && (DEBUG || LEX_DEBUG)) printf("!!!%s NOT FOUND IN SYMBOL TABLE(S)!!!\n", yytext); return ID; }
 
-{PRE_PROC}  { if(DEBUG) printf("Matched preprocessor statement\n"); fflush(stdout); yycolumn += strlen(yytext); /* **IGNORE PREPROCESSOR DIRECTIVES** */ }
+{PRE_PROC}  { if(DEBUG || LEX_DEBUG) printf("Matched preprocessor statement\n"); fflush(stdout); yycolumn += strlen(yytext); /* **IGNORE PREPROCESSOR DIRECTIVES** */ }
 
 {COMMENT_LINE} { yycolumn += strlen(yytext); /* **IGNORE COMMENTS** */ }
 
@@ -151,5 +153,6 @@ COMMA (",")
 . { /* Call Scooby-Doo and the Gang, because we have a mystery on our hands... */ yycolumn += strlen(yytext); pError(warning, "Mystery char %c\n", *yytext); }
 
 %%
+
 
 
