@@ -133,6 +133,84 @@ struct ast {
  struct ast *r;
 };
 
+/* 
+    Tom:  Here's the plan for having this compiler push out a Hello World program.
+
+    This would be much simpler if we couldn't nest output statements (e.g., cout << "str" << endl;
+    is technically two output statements).  Due to this, we'll need to track how many things to
+    output so we can make the correct calls in VMQ.  Best(ish) way to do this is a stack.  
+    
+    The parser will end up parsing output statements precisely how they are read ...
+
+    cout << "str" << (x + 5) << endl; will trigger the output_statement syntax rule actions from left to right order:
+
+    COUT rule -> outstmt STREAMOUT STR_LIT rule -> outstmt STREAMOUT expr rule -> outstmt STREAMOUT ENDL rule
+
+    This greatly simplifies the process from my previous understanding of how the parser deals with output statements.
+    
+
+    I've already taken care of calculating the VMQ addresses of string literals (see the appendToStrList() 
+    and strlit_node function and data structure for more info).  Essentially, after the lexer passes through 
+    the .cpp, all of the string literals (along with their VMQ global memory addresses) will be in a linked 
+    list, the head of which is available globally.  Each of the stringval AST's the parser creates will 
+    contain a pointer to the respective list element contained in the global string literal linked list.
+
+    So, let's go over how the pre-cout node stack will work.  Each of the statements leading up to the
+    cout node will be evaluated, the result of which (a struct containing the type of data and its VMQ mem loc)
+    will be pushed onto the stack.  Once we reach the cout node, the stack will contain all of the data we need
+    to make the appropriate VMQ output function calls.  Here's what a block of VMQ code looks like for a string
+    output function call:
+
+        p #4            ; Push a two-byte value (integer) onto the stack, in this case the str literal stored at loc 4.
+        c 0 -11            ; calls str output function (-11 is the op-code for this, 0 just tosses the function output).
+        ^ 2                ; Pop the two-bytes we pushed onto the stack (clean up).
+
+    So once we hit the cout node and evaluate it, the evaluation function can perform the following actions:
+
+    0) Check to see if the stack is empty, if no proceed to 1, if yes proceed to 7.
+    1) Peek the top of the stack (remember, the stack contains the data type and VMQ address of the evaluated statements).
+    2) Write the VMQ push statement using the data-type and VMQ address info from the struct on the top of the stack.
+    3) Write the appropriate function (<c 0 -11> is for str output, <c 0 -9> is for int output - see documentation).
+    4) Write the VMQ pop statement.
+    5) Pop the top of the stack.
+    6) Jump to 0.
+    7) Free the cout AST node.
+
+    That will take care of the output statements.
+
+    There is a bit of trickiness in this, which is that the initial VMQ setup code (setting up global memory space and
+    initializing the runtime environment) will need to be inserted above the existing function code that the evaluation
+    function outputs.  I'm unfamiliar with C file I/O, so I don't know if there will be an easy way to insert into a file
+    above pre-existing text.  
+
+    If there isn't an easy way to do the above, then alternatively we could just store all of the VMQ code lines in a linked
+    list of strings, then write the initial VMQ setup code to a file, then dump the linked list of strings into the file after.
+
+    Another method we could use is to just have the lexer perform a single scan over the file to grab all of the string
+    literals, write the initial VMQ setup to the file, and then run the parser through the file as normal to get the rest
+    of the VMQ code generated.
+
+    I'll have to see what method would work best once I get there.
+
+    In summary:  How to generate output statements.
+
+    Example:    cout << "Hello, world!" << endl;
+
+                    (nodetype = 345, str = 0xwhatever) -> (nodetype = 345, str = 0xwhatev3r) -> (output node)
+
+    
+    First node is evaluated (the node pertaining to endl), result pushed onto stack:    (str = "\n", loc = 0) <- stack top
+    Second node is evaluated (node for "Hello, world!"), result pushed onto stack:        (str = "\n", loc = 0), (str = "Hello, world!", loc = 3) <- stack top
+
+    Output node is evaluated.  The stack we were just populating is processed using the (0) - (7) steps above.
+    
+    If we opt to write directly to the file, then this part is simple.  If we're going to put it all in at the end, then we need to store
+    generated VMQ lines somewhere until the file is completely parsed.
+
+    That's it I suppose.  Hit me up on Skype if you have any questions.  I'm also usually in the CS lab on Monday/Wednesday/Friday from about 12 to 3.
+
+*/
+
 //string literal
 struct stringval {
     int nodetype;    //    = 's' + 't' + 'r' = 115 + 116 + 114 = 345
@@ -212,4 +290,5 @@ void popStrStack(VMQ_STACK stk);
 
 // DEBUG print statement for AST's
 void printAST(struct ast *a);
+
 

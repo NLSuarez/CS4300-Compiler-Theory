@@ -1,3 +1,5 @@
+
+
 #include "helper_functions.h"
 #include "parser.tab.h"
 #include <stdlib.h>
@@ -53,6 +55,8 @@ STRLIT_LIST VMQ_list;
 struct ast* ast_root;
 
 struct eval_data* val;
+
+FILE* source_file;
 
     /* FUNCTION DEFINITIONS */
 
@@ -318,14 +322,19 @@ int main(int argc, char **argv)
     extern unsigned int LEX_DEBUG;
     extern int yyparse();
     DEBUG = PAR_DEBUG = LEX_DEBUG = 0;
-
+    
+    extern FILE* yyin;
+    
     if (argc > 1)
     {
-        for (int i = 1; i < argc; ++i)
+        // Assuming file is last argument in command line, to allow for DEBUG flags.
+        char* ptr = argv[argc-1]; ptr = ptr+strlen(ptr) - 4;
+        if(strcmp(ptr, ".cpp") == 0) yyin = fopen(argv[argc-1], "r");
+        for (int i = 2; i < argc; ++i)
         {
-            if (strcmp(argv[i], "-d") == 0) DEBUG = 1;
-            if (strcmp(argv[i], "-pd") == 0) PAR_DEBUG = 1;
-            if (strcmp(argv[i], "-ld") == 0) LEX_DEBUG = 1;
+            if (strcmp(argv[i], "-d") == 0)        DEBUG = 1;
+            if (strcmp(argv[i], "-pd") == 0)    PAR_DEBUG = 1;
+            if (strcmp(argv[i], "-ld") == 0)    LEX_DEBUG = 1;
         }
     }
     #if YYDEBUG
@@ -338,27 +347,55 @@ int main(int argc, char **argv)
     ast_root = NULL;
     val = NULL;
     global_scope = pushScope();
-
+    
     yyparse();
+    
+    fclose(yyin);
 
     eval(ast_root);
 
-    STRLIT_LIST ptr = str_list_head;
+    STRLIT_LIST list_ptr = str_list_head;
 
-    while(ptr != NULL)
+    char* filename = strdup(argv[argc-1]);
+    
+    char* str_ptr = filename + strlen(filename) - 3;
+    *str_ptr = 'q'; str_ptr++;
+    *str_ptr = '\0';
+
+    FILE* VMQ_file = fopen(filename, "w");
+
+    while(list_ptr != NULL)
     {
-        if(strcmp(ptr->str, "\\n") == 0) printf("%d \"%s\"\n", ptr->loc, ptr->str);
-        else                             printf("%d %s\n", ptr->loc, ptr->str);
-        if(ptr->next == NULL) printf("$ 1 %lu\n", ptr->loc + strlen(ptr->str) - 2); // Just hacking this in for now.
-        ptr = ptr->next;
+        if(strcmp(list_ptr->str, "\\n") == 0) 
+        { 
+            sprintf(str_ptr, "%d \"%s\"\n", list_ptr->loc, list_ptr->str);
+            fputs(str_ptr, VMQ_file);
+        }
+        else
+        {
+            sprintf(str_ptr, "%d %s\n", list_ptr->loc, list_ptr->str);
+            fputs(str_ptr, VMQ_file);
+        }
+
+        if(list_ptr->next == NULL) 
+        {
+            // It's a hack, but it works for now.
+            sprintf(str_ptr, "$ 1 %lu\n", list_ptr->loc + strlen(list_ptr->str) - 2); 
+            fputs(str_ptr, VMQ_file);
+        }
+
+        list_ptr = list_ptr->next;
     }
 
-    ptr = VMQ_list;
-    while(ptr != NULL)
+    list_ptr = VMQ_list;
+    while(list_ptr != NULL)
     {
-        printf("%s\n", ptr->str);
-        ptr = ptr->next;
+        fputs(list_ptr->str, VMQ_file);
+        fputs("\n", VMQ_file);
+        list_ptr = list_ptr->next;
     }
+
+    fclose(VMQ_file);
 
     if(DEBUG || LEX_DEBUG || PAR_DEBUG) printf("\n\nPROGRAM EXIT\n\n");
 
@@ -638,3 +675,4 @@ void printAST(struct ast *a)
         printAST(ptr->r);
     }
 }
+
