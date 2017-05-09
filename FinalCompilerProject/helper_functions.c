@@ -66,7 +66,7 @@ struct strlit_node* appendToStrList(STRLIT_LIST* head, char* str, int eval_state
 
     if(*head != NULL && !eval_state)
     {
-        while(ptr != NULL && ptr->str != str) 
+        while(ptr != NULL && ptr->str != str)
         {
             if (strcmp(ptr->str, str) == 0)
                 return ptr;
@@ -74,9 +74,9 @@ struct strlit_node* appendToStrList(STRLIT_LIST* head, char* str, int eval_state
                 ptr = ptr->next;
         }
     }
-    
+
     if(LEX_DEBUG) printf("\tAdding %s to STRLIT_LIST\n", str);
-        
+
     if (*head == NULL)
     {
         if(LEX_DEBUG) printf("\tStarting new STRLIT_LIST...");
@@ -100,9 +100,9 @@ struct strlit_node* appendToStrList(STRLIT_LIST* head, char* str, int eval_state
         if (strcmp(prev->str, "\\n") == 0) ptr->loc++;
         ptr->next = NULL;
     }
-    
+
     if(LEX_DEBUG) printf("append: ptr->str = %s\tptr->loc = %d\n", ptr->str, ptr->loc);
-    
+
     return ptr;
 }
 
@@ -113,14 +113,14 @@ struct scope_node* pushScope()
     newScope->symTab = generateSymbolTable(TABLE_SIZE);
     newScope->next = NULL;
     newScope->is_new_scope = 1;
-        
+
     fflush(stdout);
     // If global_scope is uninitialized, then set global_scope to equal the new scope and return.
     if (global_scope == NULL)
         global_scope = current_scope = newScope;
-     
+
     current_scope->next = newScope;
-    
+
     current_scope = newScope;
 
     if(DEBUG) printf("\tDone!\n");
@@ -167,7 +167,7 @@ unsigned int hash(const char* symbol)
 }
 
 struct symbol_node* lookup(const char* symbol)
-{    
+{
     if(DEBUG) printf("ENTERED lookup: symbol = %s\n", symbol);
     // Hash the key.
     unsigned int hashKey = hash(symbol);
@@ -180,7 +180,7 @@ struct symbol_node* lookup(const char* symbol)
     while(symNode == NULL)
     {
             struct symbol_node* ptr = &tablePtr[hashKey];
-            
+
             /* Check for symbols in linked list of hash table entry */
             while(ptr != NULL)
             {
@@ -242,7 +242,7 @@ SYMBOL_TABLE generateSymbolTable(unsigned int tableSize)
 {
     // Allocate memory for symbol table
     SYMBOL_TABLE symTab = (SYMBOL_TABLE) malloc(tableSize * sizeof(struct symbol_node));
-    
+
     if (symTab == NULL)
         return NULL;    // Couldn't allocate memory
 
@@ -322,9 +322,9 @@ int main(int argc, char **argv)
     extern unsigned int LEX_DEBUG;
     extern int yyparse();
     DEBUG = PAR_DEBUG = LEX_DEBUG = 0;
-    
+
     extern FILE* yyin;
-    
+
     if (argc > 1)
     {
         // Assuming file is last argument in command line, to allow for DEBUG flags.
@@ -347,9 +347,9 @@ int main(int argc, char **argv)
     ast_root = NULL;
     val = NULL;
     global_scope = pushScope();
-    
+
     yyparse();
-    
+
     fclose(yyin);
 
     eval(ast_root);
@@ -357,7 +357,7 @@ int main(int argc, char **argv)
     STRLIT_LIST list_ptr = str_list_head;
 
     char* filename = strdup(argv[argc-1]);
-    
+
     char* str_ptr = filename + strlen(filename) - 3;
     *str_ptr = 'q'; str_ptr++;
     *str_ptr = '\0';
@@ -366,8 +366,8 @@ int main(int argc, char **argv)
 
     while(list_ptr != NULL)
     {
-        if(strcmp(list_ptr->str, "\\n") == 0) 
-        { 
+        if(strcmp(list_ptr->str, "\\n") == 0)
+        {
             sprintf(str_ptr, "%d \"%s\"\n", list_ptr->loc, list_ptr->str);
             fputs(str_ptr, VMQ_file);
         }
@@ -377,10 +377,10 @@ int main(int argc, char **argv)
             fputs(str_ptr, VMQ_file);
         }
 
-        if(list_ptr->next == NULL) 
+        if(list_ptr->next == NULL)
         {
             // It's a hack, but it works for now.
-            sprintf(str_ptr, "$ 1 %lu\n", list_ptr->loc + strlen(list_ptr->str) - 2); 
+            sprintf(str_ptr, "$ 1 %lu\n", list_ptr->loc + strlen(list_ptr->str) - 2);
             fputs(str_ptr, VMQ_file);
         }
 
@@ -458,8 +458,23 @@ void pError(errorLevel el, char* s, ...)
    a->l = l;
    a->r = r;
    //printf("Done!\n");
-    
+
    return a;
+ }
+
+ struct ast *
+ newrel(int reltype, struct ast *l, struct ast *r)
+ {
+   struct ast *a = malloc(sizeof(struct ast));
+
+   if(!a) {
+     pError(fatal, "out of space");
+     exit(-1);
+   }
+
+   a->nodetype = reltype;
+   a->l = l;
+   a->r = r;
  }
 
  struct ast *
@@ -519,7 +534,7 @@ void pError(errorLevel el, char* s, ...)
  struct ast *
  newref(struct symbol_node *s) {
     struct symref *a = malloc(sizeof(struct symref));
-    
+
     if(!a) {
             pError(fatal, "out of space");
             exit(-1);
@@ -561,14 +576,14 @@ void eval(struct ast *a)
                             break;
 
         // output_statement
-        case 'o':                    if(a->l != NULL) eval(a->l);  
+        case 'o':                    if(a->l != NULL) eval(a->l);
                                     if(a->r->nodetype == STR_LITERAL) eval(a->r); break;
 
         // statement
         case ('s'+'t'+'m'+'t'):         eval(a->l); break;
-        
+
         // statements
-        case ('s'+'t'+'m'+'t'+'s'):     if(a->l != NULL) eval(a->l); 
+        case ('s'+'t'+'m'+'t'+'s'):     if(a->l != NULL) eval(a->l);
                                      if(a->r != NULL) eval(a->r); break;
 
         // block
@@ -608,7 +623,7 @@ void transferStack(VMQ_STACK dest, VMQ_STACK src)
 
 void pushToStrStack(VMQ_STACK stk, char* str)
 {
-    if(val->stack_head == NULL) 
+    if(val->stack_head == NULL)
     {
         printf("\n\tStack is empty, pushing %s...", str);
         val->stack_head = (struct strlit_node*)malloc(sizeof(struct strlit_node));
@@ -670,9 +685,8 @@ void printAST(struct ast *a)
         else if (ptr->nodetype == 's'+'t'+'m'+'t'+'s') printf("\tSTATEMENTS NODE\n");
         else if (ptr->nodetype == RETURN)        printf("\tRETURN NODE\n");
         else                                    printf("\tOTHER NODE (%d)\n", ptr->nodetype);
-        
+
         //printAST(ptr->l);
         printAST(ptr->r);
     }
 }
-

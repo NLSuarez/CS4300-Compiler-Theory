@@ -35,7 +35,7 @@ struct scope_node
     int is_new_scope;
 };
 
-/* 
+/*
  * Used to track string literals found by the lexer, length will effectively be the starting memory address of
  * the string in VMQ's global memory space.  NOTE: THIS ASSUMES NO GLOBAL VARIABLES IN THE C++ FILE BEING COMPILED.
 */
@@ -61,7 +61,7 @@ struct strlit_node* appendToStrList(STRLIT_LIST* head, char* str, int eval_state
     scopes will be checked.  If the variable is not found, then we have two basic options:
 
     1)    Declare it an error, in violation of C++ rules.
-    
+
                             OR
 
     2)    Add it to the symbol table and work under the assumption that it is an integer intialized to 0.
@@ -104,12 +104,12 @@ int getKind(char *str);
 char* kindToString(int kind);
 
 /*
- * Enum to pass to the yyerror function, making it easier to see 
+ * Enum to pass to the yyerror function, making it easier to see
  * the level of severity of the error.
  */
 typedef enum errorSeverity { warning = 1, error, fatal } errorLevel;
 
-/*    
+/*
  * Error function that can takes in a string description of the error that will be outputted to User.
  */
 void yyerror(char *s, ...);
@@ -133,13 +133,13 @@ struct ast {
  struct ast *r;
 };
 
-/* 
+/*
     Tom:  Here's the plan for having this compiler push out a Hello World program.
 
     This would be much simpler if we couldn't nest output statements (e.g., cout << "str" << endl;
     is technically two output statements).  Due to this, we'll need to track how many things to
-    output so we can make the correct calls in VMQ.  Best(ish) way to do this is a stack.  
-    
+    output so we can make the correct calls in VMQ.  Best(ish) way to do this is a stack.
+
     The parser will end up parsing output statements precisely how they are read ...
 
     cout << "str" << (x + 5) << endl; will trigger the output_statement syntax rule actions from left to right order:
@@ -147,12 +147,12 @@ struct ast {
     COUT rule -> outstmt STREAMOUT STR_LIT rule -> outstmt STREAMOUT expr rule -> outstmt STREAMOUT ENDL rule
 
     This greatly simplifies the process from my previous understanding of how the parser deals with output statements.
-    
 
-    I've already taken care of calculating the VMQ addresses of string literals (see the appendToStrList() 
-    and strlit_node function and data structure for more info).  Essentially, after the lexer passes through 
-    the .cpp, all of the string literals (along with their VMQ global memory addresses) will be in a linked 
-    list, the head of which is available globally.  Each of the stringval AST's the parser creates will 
+
+    I've already taken care of calculating the VMQ addresses of string literals (see the appendToStrList()
+    and strlit_node function and data structure for more info).  Essentially, after the lexer passes through
+    the .cpp, all of the string literals (along with their VMQ global memory addresses) will be in a linked
+    list, the head of which is available globally.  Each of the stringval AST's the parser creates will
     contain a pointer to the respective list element contained in the global string literal linked list.
 
     So, let's go over how the pre-cout node stack will work.  Each of the statements leading up to the
@@ -181,7 +181,7 @@ struct ast {
     There is a bit of trickiness in this, which is that the initial VMQ setup code (setting up global memory space and
     initializing the runtime environment) will need to be inserted above the existing function code that the evaluation
     function outputs.  I'm unfamiliar with C file I/O, so I don't know if there will be an easy way to insert into a file
-    above pre-existing text.  
+    above pre-existing text.
 
     If there isn't an easy way to do the above, then alternatively we could just store all of the VMQ code lines in a linked
     list of strings, then write the initial VMQ setup code to a file, then dump the linked list of strings into the file after.
@@ -198,12 +198,12 @@ struct ast {
 
                     (nodetype = 345, str = 0xwhatever) -> (nodetype = 345, str = 0xwhatev3r) -> (output node)
 
-    
+
     First node is evaluated (the node pertaining to endl), result pushed onto stack:    (str = "\n", loc = 0) <- stack top
     Second node is evaluated (node for "Hello, world!"), result pushed onto stack:        (str = "\n", loc = 0), (str = "Hello, world!", loc = 3) <- stack top
 
     Output node is evaluated.  The stack we were just populating is processed using the (0) - (7) steps above.
-    
+
     If we opt to write directly to the file, then this part is simple.  If we're going to put it all in at the end, then we need to store
     generated VMQ lines somewhere until the file is completely parsed.
 
@@ -260,8 +260,7 @@ struct ast *newfloat(float num);
 struct ast *newflow(int nodetype, struct ast *cond, struct ast *tl, struct ast *tr);
 struct ast *newref(struct symbol_node *s);
 struct ast *newasgn(struct symbol_node *s, struct ast *v);
-//struct ast *newrel(int reltype, struct ast *l, struct ast *r);
-//Add later.
+struct ast *newrel(int reltype, struct ast *l, struct ast *r);
   /*
    * Function to delete and free an AST
    */
@@ -290,5 +289,3 @@ void popStrStack(VMQ_STACK stk);
 
 // DEBUG print statement for AST's
 void printAST(struct ast *a);
-
-
