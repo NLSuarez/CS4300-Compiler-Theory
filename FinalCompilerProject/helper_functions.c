@@ -7,7 +7,7 @@
 #include <string.h>
 #include <stdarg.h>    // need it for va_list, va_start in the error functions
 
-// Useful for debugging and populating the symbol table - need a better, non-hack solution for this in the future.
+// Useful for debugging and populating the symbol table - may need a better, non-hack solution for this in the future.
 #define INT_LITERAL 258
 #define FLT_LITERAL 259
 #define STR_LITERAL 260
@@ -64,19 +64,20 @@ struct strlit_node* appendToStrList(STRLIT_LIST* head, char* str, int eval_state
 {
     STRLIT_LIST ptr = *head;
 
+
+	// Look for existing string, so we don't make duplicates.
     if(*head != NULL && !eval_state)
     {
-        while(ptr != NULL && ptr->str != str)
+        while(ptr != NULL && ptr->str != str) 
         {
             if (strcmp(ptr->str, str) == 0)
                 return ptr;
             else
                 ptr = ptr->next;
-        }
-    }
-
-    if(LEX_DEBUG) printf("\tAdding %s to STRLIT_LIST\n", str);
-
+		}
+	}
+    
+	// List is empty, initialize with new string
     if (*head == NULL)
     {
         if(LEX_DEBUG) printf("\tStarting new STRLIT_LIST...");
@@ -87,8 +88,8 @@ struct strlit_node* appendToStrList(STRLIT_LIST* head, char* str, int eval_state
         if(LEX_DEBUG) printf("\tNew node allocated and initialized\n");
         fflush(stdout);
         ptr = *head;
-    }
-    else
+	}
+    else	// List is not empty, append string to end of list.
     {
         ptr = *head;
         while(ptr->next != NULL) ptr = ptr->next;
@@ -99,10 +100,10 @@ struct strlit_node* appendToStrList(STRLIT_LIST* head, char* str, int eval_state
         else             ptr->loc = 0;
         if (strcmp(prev->str, "\\n") == 0) ptr->loc++;
         ptr->next = NULL;
-    }
-
+	}
+    
     if(LEX_DEBUG) printf("append: ptr->str = %s\tptr->loc = %d\n", ptr->str, ptr->loc);
-
+    
     return ptr;
 }
 
@@ -113,14 +114,14 @@ struct scope_node* pushScope()
     newScope->symTab = generateSymbolTable(TABLE_SIZE);
     newScope->next = NULL;
     newScope->is_new_scope = 1;
-
+        
     fflush(stdout);
     // If global_scope is uninitialized, then set global_scope to equal the new scope and return.
     if (global_scope == NULL)
         global_scope = current_scope = newScope;
-
+     
     current_scope->next = newScope;
-
+    
     current_scope = newScope;
 
     if(DEBUG) printf("\tDone!\n");
@@ -167,7 +168,7 @@ unsigned int hash(const char* symbol)
 }
 
 struct symbol_node* lookup(const char* symbol)
-{
+{    
     if(DEBUG) printf("ENTERED lookup: symbol = %s\n", symbol);
     // Hash the key.
     unsigned int hashKey = hash(symbol);
@@ -180,7 +181,7 @@ struct symbol_node* lookup(const char* symbol)
     while(symNode == NULL)
     {
             struct symbol_node* ptr = &tablePtr[hashKey];
-
+            
             /* Check for symbols in linked list of hash table entry */
             while(ptr != NULL)
             {
@@ -188,10 +189,10 @@ struct symbol_node* lookup(const char* symbol)
                         {
                                         if(DEBUG && scopePtr == global_scope) printf("\n\tFound symbol %s in global scope!\n", symbol);
                                         return ptr;
-                        }
+						}
                         else
                             ptr = ptr->next;
-            }
+			}
             /* Symbol not found, check deeper scopes */
             if (ptr == NULL)
             {
@@ -202,9 +203,9 @@ struct symbol_node* lookup(const char* symbol)
                             return (struct symbol_node*)NULL;
 
                         tablePtr = scopePtr->symTab;
-            }
+			}
 
-    }
+	}
 
     fflush(stdout);
 
@@ -223,7 +224,7 @@ struct symbol_node* addSymbol(SYMBOL_TABLE symTab, char* str, int kind)
             symTab[hashKey].symbol = strdup(str);
             symTab[hashKey].kind = kind;
             return &(symTab[hashKey]);
-    }
+	}
 
     // Case 2: Existing entry at hash table index.  Find end of list and append.
     struct symbol_node* ptr = &symTab[hashKey];
@@ -242,7 +243,7 @@ SYMBOL_TABLE generateSymbolTable(unsigned int tableSize)
 {
     // Allocate memory for symbol table
     SYMBOL_TABLE symTab = (SYMBOL_TABLE) malloc(tableSize * sizeof(struct symbol_node));
-
+    
     if (symTab == NULL)
         return NULL;    // Couldn't allocate memory
 
@@ -252,7 +253,7 @@ SYMBOL_TABLE generateSymbolTable(unsigned int tableSize)
                     symTab[i].symbol = NULL;
                     symTab[i].next = NULL;
                     symTab[i].kind = 0;
-    }
+	}
 
     // Only populate global_scope with C++ keywords (might not even need to do this anymore...)
     if (global_scope == NULL)    populateSymbolTable(symTab);
@@ -287,7 +288,7 @@ int getKind(char *str)
     {
                     if (strcmp(str, C_KEYWORD_ARRAY[i]) == 0)
                         return (CIN + i);
-    }
+	}
     extern unsigned int DEBUG;
 
     if(DEBUG) printf("!!getKind: -1 return on str = %s\n\n", str);
@@ -322,9 +323,9 @@ int main(int argc, char **argv)
     extern unsigned int LEX_DEBUG;
     extern int yyparse();
     DEBUG = PAR_DEBUG = LEX_DEBUG = 0;
-
+    
     extern FILE* yyin;
-
+    
     if (argc > 1)
     {
         // Assuming file is last argument in command line, to allow for DEBUG flags.
@@ -335,8 +336,13 @@ int main(int argc, char **argv)
             if (strcmp(argv[i], "-d") == 0)        DEBUG = 1;
             if (strcmp(argv[i], "-pd") == 0)    PAR_DEBUG = 1;
             if (strcmp(argv[i], "-ld") == 0)    LEX_DEBUG = 1;
-        }
-    }
+		}
+	}
+	else if (argc == 1)
+	{
+		pError(fatal, "No file provided.");
+		exit(-1);
+	}
     #if YYDEBUG
         yydebug = 1;
     #endif
@@ -347,9 +353,9 @@ int main(int argc, char **argv)
     ast_root = NULL;
     val = NULL;
     global_scope = pushScope();
-
+    
     yyparse();
-
+    
     fclose(yyin);
 
     eval(ast_root);
@@ -357,7 +363,7 @@ int main(int argc, char **argv)
     STRLIT_LIST list_ptr = str_list_head;
 
     char* filename = strdup(argv[argc-1]);
-
+    
     char* str_ptr = filename + strlen(filename) - 3;
     *str_ptr = 'q'; str_ptr++;
     *str_ptr = '\0';
@@ -366,26 +372,26 @@ int main(int argc, char **argv)
 
     while(list_ptr != NULL)
     {
-        if(strcmp(list_ptr->str, "\\n") == 0)
-        {
+        if(strcmp(list_ptr->str, "\\n") == 0) 
+        { 
             sprintf(str_ptr, "%d \"%s\"\n", list_ptr->loc, list_ptr->str);
             fputs(str_ptr, VMQ_file);
-        }
+		}
         else
         {
             sprintf(str_ptr, "%d %s\n", list_ptr->loc, list_ptr->str);
             fputs(str_ptr, VMQ_file);
-        }
+		}
 
-        if(list_ptr->next == NULL)
+        if(list_ptr->next == NULL) 
         {
             // It's a hack, but it works for now.
-            sprintf(str_ptr, "$ 1 %lu\n", list_ptr->loc + strlen(list_ptr->str) - 2);
+            sprintf(str_ptr, "$ 1 %lu\n", list_ptr->loc + strlen(list_ptr->str) - 2); 
             fputs(str_ptr, VMQ_file);
-        }
+		}
 
         list_ptr = list_ptr->next;
-    }
+	}
 
     list_ptr = VMQ_list;
     while(list_ptr != NULL)
@@ -393,7 +399,7 @@ int main(int argc, char **argv)
         fputs(list_ptr->str, VMQ_file);
         fputs("\n", VMQ_file);
         list_ptr = list_ptr->next;
-    }
+	}
 
     fclose(VMQ_file);
 
@@ -414,7 +420,7 @@ void yyerror(char* s, ...)
     {
                     fprintf(stderr, "%d.%d-%d.%d: ", yylloc.first_line, yylloc.first_column,
                                                                     yylloc.last_line, yylloc.last_column);
-    }
+	}
     vfprintf(stderr, s, ap);    // print out the error decription
     fprintf(stderr, "\n");
     //printf("%s\n", s);
@@ -431,7 +437,7 @@ void pError(errorLevel el, char* s, ...)
     if (el > hel)
     {
                     hel = el;
-    }
+	}
 
     fprintf(stderr, "%s: %d.%d-%d.%d: ", els[el - 1], yylloc.first_line, yylloc.first_column,
                                 yylloc.last_line, yylloc.last_column);
@@ -458,23 +464,22 @@ void pError(errorLevel el, char* s, ...)
    a->l = l;
    a->r = r;
    //printf("Done!\n");
-
+    
    return a;
  }
-
- struct ast *
+ 
  newrel(int reltype, struct ast *l, struct ast *r)
  {
-   struct ast *a = malloc(sizeof(struct ast));
-
-   if(!a) {
-     pError(fatal, "out of space");
-     exit(-1);
-   }
-
-   a->nodetype = reltype;
-   a->l = l;
-   a->r = r;
+	struct ast *a = malloc(sizeof(struct ast));
+		
+	if(!a) {
+		pError(fatal, "out of space");
+		exit(-1);
+	}
+	
+	a->nodetype = reltype;
+	a->l = l;
+	a->r = r;
  }
 
  struct ast *
@@ -483,7 +488,7 @@ void pError(errorLevel el, char* s, ...)
      if(!a) {
              pError(fatal, "out of space");
              exit(-1);
-     }
+	 }
      a->nodetype = STR_LITERAL;
      a->str = strliteral;
     return (struct ast*)a;
@@ -496,7 +501,7 @@ void pError(errorLevel el, char* s, ...)
      if(!a) {
                      pError(fatal, "out of space");
                      exit(-1);
-     }
+	 }
      a->nodetype = INT; //VMQ defines an int using f
      a->number = num;
      return (struct ast *)a;
@@ -509,13 +514,12 @@ void pError(errorLevel el, char* s, ...)
      if(!a) {
                      pError(fatal, "out of space");
                      exit(-1);
-     }
+	 }
      a->nodetype = FLOAT; //VMQ defines a float using F
      a->number = num;
      return (struct ast *)a;
  }
 
-/*
  struct ast *
  newflow(int nodetype, struct ast *cond, struct ast *tl, struct ast *el) {
      struct flow *a = malloc(sizeof(struct flow));
@@ -523,22 +527,22 @@ void pError(errorLevel el, char* s, ...)
      if(!a) {
              pError(fatal, "out of space");
              exit(-1);
-     }
+	 }
      a->nodetype = nodetype;
      a->cond = cond;
      a->tl = tl;
      a->el = el;
      return (struct ast *)a;
  }
-*/
+
  struct ast *
  newref(struct symbol_node *s) {
     struct symref *a = malloc(sizeof(struct symref));
-
+    
     if(!a) {
             pError(fatal, "out of space");
             exit(-1);
-    }
+	}
     a->nodetype = ID;
     a->s = s;
 
@@ -547,13 +551,14 @@ void pError(errorLevel el, char* s, ...)
 // struct ast *newasgn(struct symbol_node *s, struct ast *v);
 
 // Function to delete and free AST
+//	Note - This may not even be needed.  Program will exit and OS will take care of deallocation.
   void
     treefree(struct ast *a)
     {
         //switch(a->nodetype) {
-            /* cases here will be basod on parser */
+            /* cases here will be based on parser */
         //}
-    }
+	}
 
 
 void eval(struct ast *a)
@@ -564,9 +569,11 @@ void eval(struct ast *a)
     {
         /* TERMINAL CASES */
 
-        case COUT:            break;
-        case RETURN:        break;
-        case STR_LITERAL:    (void)0; char* VMQ_push_stmt = (char*)malloc(20);
+        case COUT:          break;	// COUT can be tossed, not really needed.
+        case RETURN:        break;	// If we end up implementing function calls,
+									// this will need some code to handle returns from non-main functions.
+        
+        case STR_LITERAL:   (void)0; char* VMQ_push_stmt = (char*)malloc(20);
                             STRLIT_LIST ptr = str_list_head; char* str = strdup(((struct stringval*)a)->str->str);
                             while(ptr != NULL) { if(strcmp(ptr->str, str)== 0) break; else ptr = ptr->next; }
                             sprintf(VMQ_push_stmt, "p #%d", ptr->loc);
@@ -574,16 +581,18 @@ void eval(struct ast *a)
                             appendToStrList(&VMQ_list, "c 0 -11", 1);
                             appendToStrList(&VMQ_list, "^ 2", 1);
                             break;
+		
+		case ID:			
 
         // output_statement
-        case 'o':                    if(a->l != NULL) eval(a->l);
+        case STREAMOUT:                    if(a->l != NULL) eval(a->l);  
                                     if(a->r->nodetype == STR_LITERAL) eval(a->r); break;
 
         // statement
         case ('s'+'t'+'m'+'t'):         eval(a->l); break;
-
+        
         // statements
-        case ('s'+'t'+'m'+'t'+'s'):     if(a->l != NULL) eval(a->l);
+        case ('s'+'t'+'m'+'t'+'s'):     if(a->l != NULL) eval(a->l); 
                                      if(a->r != NULL) eval(a->r); break;
 
         // block
@@ -594,7 +603,7 @@ void eval(struct ast *a)
         case 'h':                    eval(a->r); appendToStrList(&VMQ_list, "h", 1); break;
 
         default:                    if(a->l != NULL) eval(a->l); if(a->r != NULL) eval(a->r);
-    }
+	}
 
 }
 /*
@@ -609,28 +618,28 @@ void transferStack(VMQ_STACK dest, VMQ_STACK src)
     {
         pushToStrStack(temp, strdup(src->str));
         popStrStack(src);
-    }
+	}
 
     while(temp != NULL)
     {
         pushToStrStack(dest, strdup(temp->str));
         printf("\tString transfered = %s\n", temp->str);
         popStrStack(temp);
-    }
+	}
 
     return;
 }
 
 void pushToStrStack(VMQ_STACK stk, char* str)
 {
-    if(val->stack_head == NULL)
+    if(val->stack_head == NULL) 
     {
         printf("\n\tStack is empty, pushing %s...", str);
         val->stack_head = (struct strlit_node*)malloc(sizeof(struct strlit_node));
         val->stack_head->str = strdup(str);
         val->stack_head->next = NULL;
         printf("Done!\n");
-    }
+	}
     else
     {
         printf("\n\tStack is not empty, pushing %s...", str);
@@ -639,7 +648,7 @@ void pushToStrStack(VMQ_STACK stk, char* str)
         ptr->next = stk;
         val->stack_head = ptr;
         printf("Done!\n");
-    }
+	}
 }
 
 void popStrStack(VMQ_STACK stk)
@@ -661,12 +670,12 @@ void printAST(struct ast *a)
         printf("\tSTRINGVAL NODE\n");
         //printf("\tstr = %s\tVMQ Loc = %d\n", ((struct stringval*)ptr)->str->str, ((struct stringval*)ptr)->str->loc);
         //fflush(stdout);
-    }
+	}
     else if(ptr->nodetype == ID)
     {
         printf("\tSYMREF NODE\n");
         //printSymbolData(((struct symref*)ptr)->s);
-    }
+	}
     else
     {
         //printf("\n\t!!ptr->nodetype != STR_LITERAL\n");
@@ -685,8 +694,9 @@ void printAST(struct ast *a)
         else if (ptr->nodetype == 's'+'t'+'m'+'t'+'s') printf("\tSTATEMENTS NODE\n");
         else if (ptr->nodetype == RETURN)        printf("\tRETURN NODE\n");
         else                                    printf("\tOTHER NODE (%d)\n", ptr->nodetype);
-
+        
         //printAST(ptr->l);
         printAST(ptr->r);
-    }
+	}
 }
+

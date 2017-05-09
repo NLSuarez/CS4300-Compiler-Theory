@@ -61,7 +61,7 @@
      * handle the negative numbers. For more details check out the fb3-2.l and fb3-2.y book examples.
      */
 
-    %type <a> variable program function_definitions function_head block identifier_list variable_definitions arguments parameter_list parameters statements statement compound_statement bool_expression expressions input_statement expression_list bool_term bool_factor output_statement expression simple_expression factor literal
+    %type <a> variable program function_definitions function_head block identifier_list variable_definitions arguments parameter_list parameters statements statement compound_statement bool_expression expressions input_statement expression_list bool_term bool_factor output_statement expression simple_expression factor literal term
     %type <d> type
     %start program
 %%
@@ -73,100 +73,100 @@
         | function_definitions function_head block  { if(DEBUG || PAR_DEBUG) printf("function_definitions PARSED\n"); }
         ;
         
-    identifier_list:    ID                                { $$ = newref($1); }
+    identifier_list:    ID                              { $$ = newref($1); }
         | ID '[' INT_LITERAL ']'                        { $$ = newref($1); }
         | identifier_list ',' ID                        { $$ = newast('I'+'D'+'L', $1, newref($3)); }
         | identifier_list ',' ID '[' INT_LITERAL ']'    { $$ = newast('I'+'D'+'L', $1, newref($3)); } 
         ;
         
-    variable_definitions:                                              { /*$$ = newast('v'+'a'+'r', NULL, NULL);*/ $$ = NULL;}
-        | variable_definitions type identifier_list ';'               { $$ = newast('v'+'a'+'r', $1, $3); }
+    variable_definitions:                                   { $$ = NULL;}
+        | variable_definitions type identifier_list ';'     { $$ = newast('v'+'a'+'r', $1, $3); }
         ;
         
     type:    INT { $$ = 'f'; }
         | FLOAT { $$ = 'F'; }
         ;
         
-    function_head:    type ID arguments { $$ = newast('f'+'h', newref($2), $3); }
+    function_head:    type ID arguments                 { $$ = newast('f'+'h', newref($2), $3); }
         ;
         
-    arguments:    '(' parameter_list ')' { $$ = newast('a'+'r'+'g', $2, NULL); }
+    arguments:    '(' parameter_list ')'                { $$ = newast('a'+'r'+'g', $2, NULL); }
         ;
         
-    parameter_list:                                        { /*$$ = newast('p'+'l', NULL, NULL);*/ $$ = NULL; }
+    parameter_list:                                     { $$ = NULL; }
         | parameters                                    { $$ = newast('p'+'l', $1, NULL); }
         ;
         
-    parameters:    type ID                                        { $$ = newref($2); }
-        | type ID '[' ']'                                    { $$ = newref($2); }
+    parameters:    type ID                                     { $$ = newref($2); }
+        | type ID '[' ']'                                      { $$ = newref($2); }
         | parameters ',' type ID         %prec ASSIGNOP        { $$ = newast('p'+'a'+'r', $1, newref($4)); }
         | parameters ',' type ID '[' ']' %prec ASSIGNOP        { $$ = newast('p'+'a'+'r', $1, newref($4)); }
         ;
         
-    block:    '{' variable_definitions statements '}' { fflush(stdout); $$ = newast(('b'+'l'+'k'), $2, $3); }
+    block:    '{' variable_definitions statements '}'          { $$ = newast(('b'+'l'+'k'), $2, $3); }
         ;
         
-    statements:                                        { /*$$ = newast('s'+'t'+'m'+'t'+'s', NULL, NULL);*/ $$ = NULL;}
-        | statements statement                        { $$ = newast('s'+'t'+'m'+'t'+'s', $1, $2); }
+    statements:                             { $$ = NULL; }
+        | statements statement				{ $$ = newast('s'+'t'+'m'+'t'+'s', $1, $2); }
         ;
         
-    statement:    expression ';'                                    { if(DEBUG || PAR_DEBUG) printf("statement PARSED!\n"); }
-        | compound_statement                                    { if(DEBUG || PAR_DEBUG) printf("statement PARSED!\n"); }
-        | RETURN expression ';'                                    { $$ = NULL; }
-        | IF '(' bool_expression ')' statement ELSE statement    { if(DEBUG || PAR_DEBUG) printf("statement PARSED!\n"); }
-        | WHILE '(' bool_expression ')' statement                { if(DEBUG || PAR_DEBUG) printf("statement PARSED!\n"); }
-        | input_statement ';'                                    { if(DEBUG || PAR_DEBUG) printf("statement PARSED!\n"); }
-        | output_statement ';'                                    { $$ = newast(('s'+'t'+'m'+'t'), $1, NULL); }
+    statement:    expression ';'                                  { $$ = $1; }
+        | compound_statement                                      { $$ = $1; }
+        | RETURN expression ';'                                   { $$ = newast(RETURN, $2, NULL); }
+        | IF '(' bool_expression ')' statement ELSE statement     { /*$$ = newflow(IF, $3, $5, $7);*/ }
+        | WHILE '(' bool_expression ')' statement                 { /*$$ = newflow(WHILE, $3, $5);*/ }
+        | input_statement ';'                                     { $$ = newast('s'+'t'+'m'+'t', $1, NULL); }
+        | output_statement ';'                                    { $$ = newast('s'+'t'+'m'+'t', $1, NULL); }
         ;
         
-    input_statement:    CIN                                        { if(DEBUG || PAR_DEBUG) printf("input_statement PARSED!\n"); }
-        | input_statement STREAMIN variable         %prec ASSIGNOP    { if(DEBUG || PAR_DEBUG) printf("input_statement PARSED!\n"); }
+    input_statement:    CIN                                        { $$ = newast(CIN, NULL, NULL); }
+        | input_statement STREAMIN variable                        { $$ = newast(STREAMIN, $1, $3); }
         ;
         
-    output_statement:    COUT                                        { $$ = newast(COUT, NULL, NULL); }
-        | output_statement STREAMOUT expression     %prec ASSIGNOP        { $$ = newast('o', $1, $3); }
-        | output_statement STREAMOUT STR_LITERAL                    { $$ = newast('o', $1, newstr($3)); }
-        | output_statement STREAMOUT ENDL                            { $$ = newast('o', $1, newstr($3)); }
+    output_statement:    COUT                                       { $$ = newast(COUT, NULL, NULL); }
+        | output_statement STREAMOUT expression                     { $$ = newast(STREAMOUT, $1, $3); }
+        | output_statement STREAMOUT STR_LITERAL                    { $$ = newast(STREAMOUT, $1, newstr($3)); }
+        | output_statement STREAMOUT ENDL                           { $$ = newast(STREAMOUT, $1, newstr($3)); }
         ;
         
-    compound_statement:    '{' statements '}'        { if(DEBUG || PAR_DEBUG) printf("compound_statement PARSED!\n"); }
+    compound_statement:    '{' statements '}'        { $$ = $2; }
         ;
         
-    variable:    ID                                { if(DEBUG || PAR_DEBUG) printf("variable PARSED!\n"); }
-        | ID '[' expression ']'                    { if(DEBUG || PAR_DEBUG) printf("variable PARSED!\n"); }
+    variable:    ID                                  { $$ = newref($1); }
+        | ID '[' expression ']'                      { $$ = newref($1); }
         ;
         
-    expression_list:                            { /* nothing */ }
-        | expressions                            { if(DEBUG || PAR_DEBUG) printf("expression_list PARSED!\n"); }
+    expression_list:                             { /* nothing */ }
+        | expressions                            { $$ = $1; }
         ;
         
-    expressions:    expression                                { if(DEBUG || PAR_DEBUG) printf("expressions PARSED!\n"); }
-        | expressions ',' expression    %prec ASSIGNOP        { if(DEBUG || PAR_DEBUG) printf("expressions PARSED!\n"); }
+    expressions:    expression                                { $$ = $1; }
+        | expressions ',' expression    %prec ASSIGNOP        { $$ = newast('e'+'x'+'p'+'s', $1, $3); }
         ;
         
-    expression:    variable ASSIGNOP expression    { if(DEBUG || PAR_DEBUG) printf("expression PARSED!\n"); }
-        | variable INCOP expression                { if(DEBUG || PAR_DEBUG) printf("expression PARSED!\n"); }
-        | simple_expression                        { if(DEBUG || PAR_DEBUG) printf("expression PARSED!\n"); }
+    expression:    variable ASSIGNOP expression    { $$ = newast(ASSIGNOP, $1, $3);  }
+        | variable INCOP expression                { $$ = newast(INCOP, $1, $3); }
+        | simple_expression                        { $$ = $1; }
         ;
         
-    simple_expression:    term            { if(DEBUG || PAR_DEBUG) printf("simple_expression PARSED!\n"); }
-        | ADDOP term                    { if(DEBUG || PAR_DEBUG) printf("simple_expression PARSED!\n"); }
-        | simple_expression ADDOP term    { if(DEBUG || PAR_DEBUG) printf("simple_expression PARSED!\n"); } 
+    simple_expression:    term				{ $$ = $1; }
+        | ADDOP term						{ $$ = newast(ADDOP, NULL, $2); }
+        | simple_expression ADDOP term		{ $$ = newast(ADDOP, $1, $3); } 
         ;
         
-    term:    factor                        { if(DEBUG || PAR_DEBUG) printf("term PARSED!\n"); }
-        | term MULOP factor                { if(DEBUG || PAR_DEBUG) printf("term PARSED!\n"); }
+    term:    factor                        { $$ = $1; }
+        | term MULOP factor                { $$ = newast(MULOP, $1, $3); }
         ;
         
-    factor:    ID                            { if(DEBUG || PAR_DEBUG) printf("factor PARSED!\n"); }
-        | ID '(' expression_list ')'    { if(DEBUG || PAR_DEBUG) printf("factor PARSED!\n"); }
-        | literal                        { if(DEBUG || PAR_DEBUG) printf("factor PARSED!\n"); }
-        | '(' expression ')'            { if(DEBUG || PAR_DEBUG) printf("factor PARSED!\n"); }
-        | ID '[' expression ']'            { if(DEBUG || PAR_DEBUG) printf("factor PARSED!\n"); }
+    factor:    ID                           { $$ = newref($1); }
+        | ID '(' expression_list ')'		{ $$ = newast('f'+'a'+'c'+'t', newref($1), $3); }
+        | literal							{ $$ = $1; }
+        | '(' expression ')'				{ $$ = $2; }
+        | ID '[' expression ']'             { $$ = newast('f'+'a'+'c'+'t', newref($1), $3); }
         ;
         
-    literal:    INT_LITERAL                { $$ = newint($1); if(DEBUG || PAR_DEBUG) printf("literal PARSED!\n"); }
-        | FLT_LITERAL                    { $$ = newfloat($1); if(DEBUG || PAR_DEBUG) printf("literal PARSED!\n"); }
+    literal:    INT_LITERAL					{ $$ = newint($1); }
+        | FLT_LITERAL						{ $$ = newfloat($1); }
         ;
         
     bool_expression:    bool_term            { if(DEBUG || PAR_DEBUG) printf("bool_expression PARSED!\n"); }
