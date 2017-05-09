@@ -468,6 +468,7 @@ void pError(errorLevel el, char* s, ...)
    return a;
  }
  
+struct ast *
  newrel(int reltype, struct ast *l, struct ast *r)
  {
 	struct ast *a = malloc(sizeof(struct ast));
