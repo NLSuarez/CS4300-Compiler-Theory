@@ -358,8 +358,8 @@ int main(int argc, char **argv)
     
     fclose(yyin);
 
-    //eval(ast_root);
-    printAST(ast_root);
+    eval(ast_root);
+    //printAST(ast_root);
 
     STRLIT_LIST list_ptr = str_list_head;
 
@@ -402,7 +402,7 @@ int main(int argc, char **argv)
         list_ptr = list_ptr->next;
 	}
 
-    //fclose(VMQ_file);
+    fclose(VMQ_file);
 
     if(DEBUG || LEX_DEBUG || PAR_DEBUG) printf("\n\nPROGRAM EXIT\n\n");
 
