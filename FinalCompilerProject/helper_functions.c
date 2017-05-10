@@ -358,7 +358,8 @@ int main(int argc, char **argv)
     
     fclose(yyin);
 
-    eval(ast_root);
+    //eval(ast_root);
+    printAST(ast_root);
 
     STRLIT_LIST list_ptr = str_list_head;
 
@@ -401,7 +402,7 @@ int main(int argc, char **argv)
         list_ptr = list_ptr->next;
 	}
 
-    fclose(VMQ_file);
+    //fclose(VMQ_file);
 
     if(DEBUG || LEX_DEBUG || PAR_DEBUG) printf("\n\nPROGRAM EXIT\n\n");
 
@@ -694,7 +695,14 @@ void printAST(struct ast *a)
         else if (ptr->nodetype == 'v'+'a'+'r')    printf("\tVAR DEF NODE\n");
         else if (ptr->nodetype == 's'+'t'+'m'+'t'+'s') printf("\tSTATEMENTS NODE\n");
         else if (ptr->nodetype == RETURN)        printf("\tRETURN NODE\n");
-        else                                    printf("\tOTHER NODE (%d)\n", ptr->nodetype);
+        else if (ptr->nodetype == NOT)            printf("\tNOT node\n");
+        else if (ptr->nodetype == AND)            printf("\tAND node\n");
+        else if (ptr->nodetype == OR)             printf("\tOR node\n");
+        else if (ptr->nodetype == RELOP)          printf("\tRELOP node\n");
+        else if (ptr->nodetype == IF)             printf("\tIF node\n");
+        else if (ptr->nodetype == WHILE)          printf("\tWHILE node\n");
+        else if (ptr->nodetype == ELSE)           printf("\tELSE node\n");
+        else                                      printf("\tOTHER NODE (%d)\n", ptr->nodetype);
         
         //printAST(ptr->l);
         printAST(ptr->r);
