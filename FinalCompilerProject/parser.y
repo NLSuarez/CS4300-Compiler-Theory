@@ -117,8 +117,8 @@
     statement:    expression ';'                                  { $$ = $1; }
         | compound_statement                                      { $$ = $1; }
         | RETURN expression ';'                                   { $$ = newast(RETURN, $2, NULL); }
-        | IF '(' bool_expression ')' statement ELSE statement     { /*$$ = newflow(IF, $3, $5, $7);*/ }
-        | WHILE '(' bool_expression ')' statement                 { /*$$ = newflow(WHILE, $3, $5);*/ }
+        | IF '(' bool_expression ')' statement ELSE statement     { $$ = newflow(IF, $3, $5, $7); }
+        | WHILE '(' bool_expression ')' statement                 { $$ = newflow(WHILE, $3, $5, NULL); }
         | input_statement ';'                                     { $$ = newast(CIN, $1, NULL); }
         | output_statement ';'                                    { $$ = newast(COUT, $1, NULL); }
         ;
@@ -173,17 +173,17 @@
         | FLT_LITERAL						{ $$ = newfloat($1); }
         ;
         
-    bool_expression:    bool_term            { if(DEBUG || PAR_DEBUG) printf("bool_expression PARSED!\n"); }
-        | bool_expression OR bool_term        { if(DEBUG || PAR_DEBUG) printf("bool_expression PARSED!\n"); }
+    bool_expression:    bool_term            { $$ = $1; if(DEBUG || PAR_DEBUG) printf("bool_expression PARSED!\n"); }
+        | bool_expression OR bool_term        { $$ = newrel(OR, $1, $3); if(DEBUG || PAR_DEBUG) printf("bool_expression PARSED!\n"); }
         ;
         
-    bool_term:    bool_factor                    { if(DEBUG || PAR_DEBUG) printf("bool_term PARSED!\n"); }
-        | bool_term AND bool_factor            { if(DEBUG || PAR_DEBUG) printf("bool_term PARSED!\n"); }
+    bool_term:    bool_factor                    { $$ = $1; if(DEBUG || PAR_DEBUG) printf("bool_term PARSED!\n"); }
+        | bool_term AND bool_factor            { $$ = newrel(AND, $1, $3); if(DEBUG || PAR_DEBUG) printf("bool_term PARSED!\n"); }
         ;
         
-    bool_factor:    NOT bool_factor                        { if(DEBUG || PAR_DEBUG) printf("bool_factor PARSED!\n"); }
-        | '(' bool_expression ')'                        { if(DEBUG || PAR_DEBUG) printf("bool_factor PARSED!\n"); }
-        | simple_expression RELOP simple_expression        { if(DEBUG || PAR_DEBUG) printf("bool_factor PARSED!\n"); }
+    bool_factor:    NOT bool_factor                        { $$ = newrel(NOT, $2, NULL); if(DEBUG || PAR_DEBUG) printf("bool_factor PARSED!\n"); }
+        | '(' bool_expression ')'                        { $$ = $2; if(DEBUG || PAR_DEBUG) printf("bool_factor PARSED!\n"); }
+        | simple_expression RELOP simple_expression        { $$ = newrel(RELOP, $1, $3); if(DEBUG || PAR_DEBUG) printf("bool_factor PARSED!\n"); }
         ;
     
 %%

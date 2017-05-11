@@ -190,7 +190,7 @@ struct ast *newfloat(float num);
 struct ast *newflow(int nodetype, struct ast *cond, struct ast *tl, struct ast *tr);
 struct ast *newref(struct symbol_node *s);
 struct ast *newasgn(struct symbol_node *s, struct ast *v);
-//struct ast *newrel(int reltype, struct ast *l, struct ast *r);
+struct ast *newrel(int reltype, struct ast *l, struct ast *r);
 //Add later.
   /*
    * Function to delete and free an AST

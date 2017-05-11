@@ -565,6 +565,21 @@ void pError(errorLevel el, char* s, ...)
     
    return a;
  }
+ 
+struct ast *
+ newrel(int reltype, struct ast *l, struct ast *r)
+ {
+	struct ast *a = malloc(sizeof(struct ast));
+		
+	if(!a) {
+		pError(fatal, "out of space");
+		exit(-1);
+	}
+	
+	a->nodetype = reltype;
+	a->l = l;
+	a->r = r;
+ }
 
  struct ast *
  newstr(struct strlit_node* strliteral) {
@@ -868,7 +883,6 @@ void printAST(struct ast *a)
         else if (ptr->nodetype == 'v'+'a'+'r')    printf("\tVAR DEF NODE\n");
         else if (ptr->nodetype == 's'+'t'+'m'+'t'+'s') printf("\tSTATEMENTS NODE\n");
         else if (ptr->nodetype == RETURN)        printf("\tRETURN NODE\n");
-		//else if (ptr->nodetype == ADDOP)		printf("\tADDOP NODE\n");
         else                                    printf("\tOTHER NODE (%d)\n", ptr->nodetype);
         
         //printAST(ptr->l);
