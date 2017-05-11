@@ -45,6 +45,7 @@ extern unsigned int LEX_DEBUG;
 extern struct scope_node* global_scope;
 extern struct scope_node* current_scope;
 extern STRLIT_LIST str_list_head;
+extern INTLIT_LIST int_list_head;
 int addNextIDToken = 0;
 %}
 
@@ -110,7 +111,7 @@ COMMA (",")
 
 {INT_LITERAL}/{ID} { pError(error, "INVALID ID ENTERED!"); }
 
-{INT_LITERAL} { yycolumn += strlen(yytext); return INT_LITERAL; }
+{INT_LITERAL} { yycolumn += strlen(yytext); yylval.iln = appendToIntList(&int_list_head, (int)atoi(yytext)); return INT_LITERAL; }
 
 {STR_LITERAL} { yycolumn += strlen(yytext); if(lookup(yytext) == NULL) { addSymbol(global_scope->symTab, yytext, STR_LITERAL); } yylval.sln = appendToStrList(&str_list_head, yytext, 0); return STR_LITERAL; }
 
@@ -153,6 +154,7 @@ COMMA (",")
 . { /* Call Scooby-Doo and the Gang, because we have a mystery on our hands... */ yycolumn += strlen(yytext); pError(warning, "Mystery char %c\n", *yytext); }
 
 %%
+
 
 
 

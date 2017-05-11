@@ -20,7 +20,7 @@ struct symbol_node
 {
     char* symbol;
     union data val;
-    int kind;					// 'f' for int, 'F' for float, 'F'+'U'+'N'+'C' for function
+    int kind;	// INT, FLOAT, or FUNC
     struct symbol_node* next;
 };
 
@@ -64,9 +64,19 @@ struct strlit_node
     struct strlit_node* next;
 };
 
+struct intlit_node
+{
+	int val;
+	unsigned int loc;
+	struct intlit_node* next;
+};
+
 typedef struct strlit_node* STRLIT_LIST;
+typedef struct intlit_node* INTLIT_LIST;
 
 struct strlit_node* appendToStrList(STRLIT_LIST* head, char* str, int eval_state);
+struct intlit_node* appendToIntList(INTLIT_LIST* head, int val);
+
 
 /* Deletes current_scope struct, sets current_scope struct to correct scope post-pop */
 void popScope();
@@ -133,14 +143,14 @@ struct ast {
 
 //string literal
 struct stringval {
-    int nodetype;    //    = 's' + 't' + 'r' = 115 + 116 + 114 = 345
+    int nodetype;    // = STR_LITERAL
     struct strlit_node* str; // points to struct that contains string and VMQ global memory location of string.
 };
 
 //int literal
 struct intval {
- int nodetype;
- int number;
+ int nodetype;		// = INT_LITERAL
+ struct intlit_node* number;
 };
 
 //float literal
@@ -175,12 +185,12 @@ struct symasgn {
   */
 struct ast *newast(int nodetype, struct ast *l, struct ast *r);
 struct ast *newstr(struct strlit_node* strliteral);
-struct ast *newint(int num);
+struct ast *newint(struct intlit_node* intliteral);
 struct ast *newfloat(float num);
 struct ast *newflow(int nodetype, struct ast *cond, struct ast *tl, struct ast *tr);
 struct ast *newref(struct symbol_node *s);
 struct ast *newasgn(struct symbol_node *s, struct ast *v);
-struct ast *newrel(int reltype, struct ast *l, struct ast *r);
+//struct ast *newrel(int reltype, struct ast *l, struct ast *r);
 //Add later.
   /*
    * Function to delete and free an AST
@@ -190,17 +200,8 @@ void treefree(struct ast *);
 // Pointer to head of stack containing VMQ statements (strings).
 typedef struct strlit_node* VMQ_STACK;
 
-struct eval_data
-{
-    int d;
-    double f;
-    char* str;
-//    VMQ_STACK stack_head;
-    STRLIT_LIST list_head;
-};
-
 // Function that will evaluate the AST, recursively.
-void eval(struct ast *a);
+struct ast* eval(struct ast *a);
 
 void transferStack(VMQ_STACK dest, VMQ_STACK src);
 
@@ -210,5 +211,6 @@ void popStrStack(VMQ_STACK stk);
 
 // DEBUG print statement for AST's
 void printAST(struct ast *a);
+
 
 

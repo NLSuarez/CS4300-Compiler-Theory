@@ -33,11 +33,12 @@
     char* str;
     struct symbol_node *s;
     struct strlit_node *sln;
+	struct intlit_node *iln;
     int fn;
 }
 
 /*    Tokens go here; Names and Literal values    */
-    %token <d> INT_LITERAL
+    %token <iln> INT_LITERAL
     %token <f> FLT_LITERAL
     %token <sln> STR_LITERAL
     %token <s> CIN COUT ELSE
@@ -46,12 +47,15 @@
     %token <fn> FUNC
     %token EOL
  
-    %token ASSIGNOP MULOP ADDOP INCOP RELOP NOT OR AND STREAMIN STREAMOUT
+    %token ASSIGNOP 
+    %token <fn> MULOP  
+	%token <fn> INCOP RELOP 
+	%token NOT OR AND STREAMIN STREAMOUT
  
     /* Precedence rules here. Could use some help. */
     %nonassoc RELOP
     %right ASSIGNOP
-    %left ADDOP
+    %left <fn> ADDOP
     %left MULOP
     %nonassoc NOT UNARY
     /* UNARY is just a token that we'll use to give things the highest precedence, 
@@ -113,17 +117,17 @@
     statement:    expression ';'                                  { $$ = $1; }
         | compound_statement                                      { $$ = $1; }
         | RETURN expression ';'                                   { $$ = newast(RETURN, $2, NULL); }
-        | IF '(' bool_expression ')' statement ELSE statement     { $$ = newflow(IF, $3, $5, $7); }
-        | WHILE '(' bool_expression ')' statement                 { $$ = newflow(WHILE, $3, $5, NULL); }
-        | input_statement ';'                                     { $$ = newast('s'+'t'+'m'+'t', $1, NULL); }
-        | output_statement ';'                                    { $$ = newast('s'+'t'+'m'+'t', $1, NULL); }
+        | IF '(' bool_expression ')' statement ELSE statement     { /*$$ = newflow(IF, $3, $5, $7);*/ }
+        | WHILE '(' bool_expression ')' statement                 { /*$$ = newflow(WHILE, $3, $5);*/ }
+        | input_statement ';'                                     { $$ = newast(CIN, $1, NULL); }
+        | output_statement ';'                                    { $$ = newast(COUT, $1, NULL); }
         ;
         
-    input_statement:    CIN                                        { $$ = newast(CIN, NULL, NULL); }
+    input_statement:    CIN                                        { $$ = NULL; }
         | input_statement STREAMIN variable                        { $$ = newast(STREAMIN, $1, $3); }
         ;
         
-    output_statement:    COUT                                       { $$ = newast(COUT, NULL, NULL); }
+    output_statement:    COUT                                       { $$ = NULL; }
         | output_statement STREAMOUT expression                     { $$ = newast(STREAMOUT, $1, $3); }
         | output_statement STREAMOUT STR_LITERAL                    { $$ = newast(STREAMOUT, $1, newstr($3)); }
         | output_statement STREAMOUT ENDL                           { $$ = newast(STREAMOUT, $1, newstr($3)); }
@@ -136,26 +140,26 @@
         | ID '[' expression ']'                      { $$ = newref($1); }
         ;
         
-    expression_list:                             { /* nothing */ }
+    expression_list:                             { $$ = NULL; }
         | expressions                            { $$ = $1; }
         ;
         
-    expressions:    expression                                { $$ = $1; }
-        | expressions ',' expression    %prec ASSIGNOP        { $$ = newast('e'+'x'+'p'+'s', $1, $3); }
+    expressions:    expression                     { $$ = $1; }
+        | expressions ',' expression               { $$ = newast('e'+'x'+'p'+'s', $1, $3); }
         ;
         
-    expression:    variable ASSIGNOP expression    { $$ = newast(ASSIGNOP, $1, $3);  }
-        | variable INCOP expression                { $$ = newast(INCOP, $1, $3); }
+    expression:    variable ASSIGNOP expression    { /* Something here later */ }
+        | variable INCOP expression                { if($2 == 1) $$ = newast(('+')+('='), $1, $3); else $$ = newast(('-')+('='), $1, $3); }
         | simple_expression                        { $$ = $1; }
         ;
         
     simple_expression:    term				{ $$ = $1; }
-        | ADDOP term						{ $$ = newast(ADDOP, NULL, $2); }
-        | simple_expression ADDOP term		{ $$ = newast(ADDOP, $1, $3); } 
+        | ADDOP term						{ if($1 == 1) $$ = newast('+', NULL, $2); else $$ = newast('-', NULL, $2); }
+        | simple_expression ADDOP term		{ if($2 == 1) $$ = newast('+', $1, $3); else $$ = newast('-', $1, $3); } 
         ;
         
     term:    factor                        { $$ = $1; }
-        | term MULOP factor                { $$ = newast(MULOP, $1, $3); }
+        | term MULOP factor                { if($2 == 1) $$ = newast('*', $1, $3); else if($2 == 2) $$ = newast('/', $1, $3); else $$ = newast('%', $1, $3); }
         ;
         
     factor:    ID                           { $$ = newref($1); }
@@ -169,20 +173,21 @@
         | FLT_LITERAL						{ $$ = newfloat($1); }
         ;
         
-    bool_expression:    bool_term            { $$ = $1; if(DEBUG || PAR_DEBUG) printf("bool_expression PARSED!\n"); }
-        | bool_expression OR bool_term        { $$ = newrel(OR, $1, $3); if(DEBUG || PAR_DEBUG) printf("bool_expression PARSED!\n"); }
+    bool_expression:    bool_term            { if(DEBUG || PAR_DEBUG) printf("bool_expression PARSED!\n"); }
+        | bool_expression OR bool_term        { if(DEBUG || PAR_DEBUG) printf("bool_expression PARSED!\n"); }
         ;
         
-    bool_term:    bool_factor                    { $$ = $1; if(DEBUG || PAR_DEBUG) printf("bool_term PARSED!\n"); }
-        | bool_term AND bool_factor            { $$ = newrel(AND, $1, $3); if(DEBUG || PAR_DEBUG) printf("bool_term PARSED!\n"); }
+    bool_term:    bool_factor                    { if(DEBUG || PAR_DEBUG) printf("bool_term PARSED!\n"); }
+        | bool_term AND bool_factor            { if(DEBUG || PAR_DEBUG) printf("bool_term PARSED!\n"); }
         ;
         
-    bool_factor:    NOT bool_factor                        { $$ = newrel(NOT, $2, NULL); if(DEBUG || PAR_DEBUG) printf("bool_factor PARSED!\n"); }
-        | '(' bool_expression ')'                        { $$ = $2; if(DEBUG || PAR_DEBUG) printf("bool_factor PARSED!\n"); }
-        | simple_expression RELOP simple_expression        { $$ = newrel(RELOP, $1, $3); if(DEBUG || PAR_DEBUG) printf("bool_factor PARSED!\n"); }
+    bool_factor:    NOT bool_factor                        { if(DEBUG || PAR_DEBUG) printf("bool_factor PARSED!\n"); }
+        | '(' bool_expression ')'                        { if(DEBUG || PAR_DEBUG) printf("bool_factor PARSED!\n"); }
+        | simple_expression RELOP simple_expression        { if(DEBUG || PAR_DEBUG) printf("bool_factor PARSED!\n"); }
         ;
     
 %%
+
 
 
 
