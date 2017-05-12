@@ -16,7 +16,7 @@ AND stands for the lexeme &&
 FLT_LITERAL is a float constant without a sign
 (at least 1 digit before and after decimal pt.; possible exponent)
 INT_LITERAL is an integer constant without a sign
-STR_LITERAL is a string enclosed in quotes (ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â), not longer than 1 line
+STR_LITERAL is a string enclosed in quotes (ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬ ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â), not longer than 1 line
 STREAMIN is >>
 STREAMOUT is <<
 ID follows the usual rules for C++ identifiers, and may be any length
@@ -78,7 +78,7 @@ WHILE ("while")
 KEYWORD ({CIN}|{COUT}|{ELSE}|{ENDL}|{FLOAT}|{IF}|{INT}|{RETURN}|{WHILE})
 COMMENT_LINE ("//"[^\n]+)
 COMMENT_BLOCK ("/*"[^"*/"]+"*/")
-PRE_PROC ("#"[^\n]+)
+PRE_PROC ("#"[^\n]*)
 END_STMT (";")
 O_PAREN ("(")
 C_PAREN (")")
@@ -154,6 +154,7 @@ COMMA (",")
 . { /* Call Scooby-Doo and the Gang, because we have a mystery on our hands... */ yycolumn += strlen(yytext); pError(warning, "Mystery char %c\n", *yytext); }
 
 %%
+
 
 
 

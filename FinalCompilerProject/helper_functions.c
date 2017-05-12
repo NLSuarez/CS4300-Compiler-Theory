@@ -60,8 +60,8 @@ unsigned int max_temp_vars = 0;
 
     /* FUNCTION DEFINITIONS */
 
-/*
-	This function is used to append to a list of symbolnode pointers, which
+/* 
+	This function is used to append to a list of symbolnode pointers, which 
 	can also serve as just plain strings for tracking VMQ statement strings
 */
 struct strlit_node* appendToStrList(STRLIT_LIST* head, char* str, int eval_state)
@@ -71,7 +71,7 @@ struct strlit_node* appendToStrList(STRLIT_LIST* head, char* str, int eval_state
 	// Look for existing string, so we don't make duplicates.
     if(*head != NULL && !eval_state)
     {
-        while(ptr != NULL && ptr->str != str)
+        while(ptr != NULL && ptr->str != str) 
         {
             if (strcmp(ptr->str, str) == 0)
                 return ptr;
@@ -79,7 +79,7 @@ struct strlit_node* appendToStrList(STRLIT_LIST* head, char* str, int eval_state
                 ptr = ptr->next;
 		}
 	}
-
+    
 	// List is empty, initialize with new string
     if (*head == NULL)
     {
@@ -95,12 +95,12 @@ struct strlit_node* appendToStrList(STRLIT_LIST* head, char* str, int eval_state
         while(ptr->next != NULL) ptr = ptr->next;
         STRLIT_LIST prev = ptr;
         ptr = ptr->next = (struct strlit_node*)malloc(sizeof(struct strlit_node));
-
-		ptr->str = strdup(str);
+        
+			ptr->str = strdup(str);
         ptr->loc = 0;			// VMQ Location will be handled later.
         ptr->next = NULL;
 	}
-
+    
     return ptr;
 }
 
@@ -118,31 +118,31 @@ struct intlit_node* appendToIntList(INTLIT_LIST* head, int val)
         {
             if (ptr->val == val)
                 return ptr;
-			else
+					else
                 ptr = ptr->next;
 		}
 	}
 
 	ptr = *head;
-
+	
     // List is empty, initialize with new int node
     if (ptr == NULL)
     {
         ptr = (struct intlit_node*)malloc(sizeof(struct intlit_node));
-
-		ptr->val = val;
+        
+			ptr->val = val;
         ptr->loc = 0;
         ptr->next = NULL;
-		*head = ptr;
+			*head = ptr;
 	}
     else    // List is not empty, append node to end of list.
     {
-	    ptr = *head;
+		    ptr = *head;
         while(ptr->next != NULL) ptr = ptr->next;
         INTLIT_LIST prev = ptr;
         ptr = ptr->next = (struct intlit_node*)malloc(sizeof(struct intlit_node));
-
-		ptr->val = val;
+       
+			ptr->val = val;
         ptr->loc = 0;				// VMQ Location will be handled later.
         ptr->next = NULL;
 	}
@@ -157,14 +157,14 @@ struct scope_node* pushScope()
     newScope->symTab = generateSymbolTable(TABLE_SIZE);
     newScope->next = NULL;
     newScope->is_new_scope = 1;
-
+        
     fflush(stdout);
     // If global_scope is uninitialized, then set global_scope to equal the new scope and return.
     if (global_scope == NULL)
         global_scope = current_scope = newScope;
-
+     
     current_scope->next = newScope;
-
+    
     current_scope = newScope;
 
     if(DEBUG) printf("\tDone!\n");
@@ -211,7 +211,7 @@ unsigned int hash(const char* symbol)
 }
 
 struct symbol_node* lookup(const char* symbol)
-{
+{    
     if(DEBUG) printf("ENTERED lookup: symbol = %s\n", symbol);
     // Hash the key.
     unsigned int hashKey = hash(symbol);
@@ -224,7 +224,7 @@ struct symbol_node* lookup(const char* symbol)
     while(symNode == NULL)
     {
             struct symbol_node* ptr = &tablePtr[hashKey];
-
+            
             /* Check for symbols in linked list of hash table entry */
             while(ptr != NULL)
             {
@@ -286,7 +286,7 @@ SYMBOL_TABLE generateSymbolTable(unsigned int tableSize)
 {
     // Allocate memory for symbol table
     SYMBOL_TABLE symTab = (SYMBOL_TABLE) malloc(tableSize * sizeof(struct symbol_node));
-
+    
     if (symTab == NULL)
         return NULL;    // Couldn't allocate memory
 
@@ -366,9 +366,9 @@ int main(int argc, char **argv)
     extern unsigned int LEX_DEBUG;
     extern int yyparse();
     DEBUG = PAR_DEBUG = LEX_DEBUG = 0;
-
+    
     extern FILE* yyin;
-
+    
     if (argc > 1)
     {
         // Assuming file is last argument in command line, to allow for DEBUG flags.
@@ -383,8 +383,8 @@ int main(int argc, char **argv)
 	}
 	else if (argc == 1)
 	{
-		pError(fatal, "No file provided.");
-		exit(-1);
+			pError(fatal, "No file provided.");
+			exit(-1);
 	}
     #if YYDEBUG
         yydebug = 1;
@@ -396,22 +396,25 @@ int main(int argc, char **argv)
     VMQ_list = NULL;
     ast_root = NULL;
     global_scope = pushScope();
+    
 
+	// Enter parser
     yyparse();
-
+    
     fclose(yyin);
 
     STRLIT_LIST list_ptr = str_list_head;
+	
 
 	// Assign VMQ memory locations to string literals
-	while(list_ptr->next != NULL)
-	{
-		if(strcmp(list_ptr->str, "\\n") == 0)
-			list_ptr->next->loc = list_ptr->loc + 2;
-		else
-			list_ptr->next->loc = list_ptr->loc + strlen(list_ptr->str);
+	while(list_ptr->next != NULL) 
+	{ 
+			if(strcmp(list_ptr->str, "\\n") == 0)
+				list_ptr->next->loc = list_ptr->loc + 2;
+			else
+				list_ptr->next->loc = list_ptr->loc + strlen(list_ptr->str);
 
-		list_ptr = list_ptr->next;
+			list_ptr = list_ptr->next;
 	}
 
 	INTLIT_LIST int_list_ptr = int_list_head;
@@ -426,16 +429,16 @@ int main(int argc, char **argv)
 	// Assign VMQ memory locations to int literals
 	while(int_list_ptr->next != NULL)
 	{
-		int_list_ptr->next->loc = int_list_ptr->loc + 2;
+			int_list_ptr->next->loc = int_list_ptr->loc + 2;
 
-		int_list_ptr = int_list_ptr->next;
+			int_list_ptr = int_list_ptr->next;
 	}
 
 
 	eval(ast_root);
 
     char* filename = strdup(argv[argc-1]);
-
+    
     char* str_ptr = filename + strlen(filename) - 3;
     *str_ptr = 'q'; str_ptr++;
     *str_ptr = '\0';
@@ -446,8 +449,8 @@ int main(int argc, char **argv)
 
     while(list_ptr != NULL)
     {
-        if(strcmp(list_ptr->str, "\\n") == 0)
-        {
+        if(strcmp(list_ptr->str, "\\n") == 0) 
+        { 
             sprintf(str_ptr, "%d \"%s\"\n", list_ptr->loc, list_ptr->str);
             fputs(str_ptr, VMQ_file);
 		}
@@ -457,7 +460,7 @@ int main(int argc, char **argv)
             fputs(str_ptr, VMQ_file);
 		}
 
-		if (list_ptr->next == NULL) break;
+			if (list_ptr->next == NULL) break;
 
         list_ptr = list_ptr->next;
 	}
@@ -466,23 +469,23 @@ int main(int argc, char **argv)
 
 	while(int_list_ptr != NULL)
 	{
-		sprintf(str_ptr, "%d %d\n", int_list_ptr->loc, int_list_ptr->val);
-		fputs(str_ptr, VMQ_file);
+			sprintf(str_ptr, "%d %d\n", int_list_ptr->loc, int_list_ptr->val);
+			fputs(str_ptr, VMQ_file);
 
-		if(int_list_ptr->next == NULL) break;
-
-		int_list_ptr = int_list_ptr->next;
+			if(int_list_ptr->next == NULL) break;
+			
+			int_list_ptr = int_list_ptr->next;
 	}
 
-
-
+	
+           
     // Write runtime initialization op to file.
     if(int_list_head == NULL)
 	    sprintf(str_ptr, "$ 1 %lu\n", list_ptr->loc + strlen(list_ptr->str) - 2);
     else
 		sprintf(str_ptr, "$ 1 %u\n", int_list_ptr->loc + 2);
 	fputs(str_ptr, VMQ_file);
-
+    
 	// Write stack frame creation op to file.
     if(max_temp_vars)
     {
@@ -557,29 +560,30 @@ void pError(errorLevel el, char* s, ...)
      pError(fatal, "out of space");
      exit(-1);
    }
-   //printf("\n\n\tAllocated new AST, initializing...");
+  // printf("\n\t\tNew AST built with nodetype == %d\n", nodetype);
    a->nodetype = nodetype;
    a->l = l;
    a->r = r;
-   //printf("Done!\n");
-
+    
    return a;
  }
-
+ 
 struct ast *
  newrel(int reltype, struct ast *l, struct ast *r)
  {
 	struct ast *a = malloc(sizeof(struct ast));
-
+		
 	if(!a) {
-		pError(fatal, "out of space");
-		exit(-1);
+			pError(fatal, "out of space");
+			exit(-1);
 	}
+	//printf("\n\t\tNew rel built with nodetype == %d\n", reltype);
 
 	a->nodetype = reltype;
 	a->l = l;
 	a->r = r;
-  return (struct ast *)a;
+
+	return (struct ast*)a;
  }
 
  struct ast *
@@ -589,6 +593,8 @@ struct ast *
              pError(fatal, "out of space");
              exit(-1);
 	 }
+	//printf("\n\t\tNew str built with nodetype == %d\n", STR_LITERAL);
+
      a->nodetype = STR_LITERAL;
      a->str = strliteral;
     return (struct ast*)a;
@@ -602,6 +608,8 @@ struct ast *
                      pError(fatal, "out of space");
                      exit(-1);
 	 }
+	//printf("\n\t\tNew int built with nodetype == %d\n", INT_LITERAL);
+
      a->nodetype = INT_LITERAL; //VMQ defines an int using f
      a->number = intliteral;
      return (struct ast *)a;
@@ -615,7 +623,9 @@ struct ast *
                      pError(fatal, "out of space");
                      exit(-1);
 	 }
-     a->nodetype = FLOAT; //VMQ defines a float using F
+	//printf("\n\t\tNew float built with nodetype == %d\n", FLT_LITERAL);
+
+     a->nodetype = FLT_LITERAL; //VMQ defines a float using F
      a->number = num;
      return (struct ast *)a;
  }
@@ -628,6 +638,8 @@ struct ast *
              pError(fatal, "out of space");
              exit(-1);
 	 }
+	//printf("\n\t\tNew flow built with nodetype == %d\n", nodetype);
+
      a->nodetype = nodetype;
      a->cond = cond;
      a->tl = tl;
@@ -638,11 +650,13 @@ struct ast *
  struct ast *
  newref(struct symbol_node *s) {
     struct symref *a = malloc(sizeof(struct symref));
-
+    
     if(!a) {
             pError(fatal, "out of space");
             exit(-1);
 	}
+	//printf("\n\t\tNew ref built with nodetype == %d\n", ID);
+
     a->nodetype = ID;
     a->s = s;
 
@@ -665,81 +679,196 @@ unsigned int temp_vars = 0;
 unsigned int temp_var_flag = 0;
 unsigned int output_flag = 0;
 unsigned int input_flag = 0;
+unsigned int expr_max_temp_vars = 0;
 
 struct ast* eval(struct ast *a)
 {
 	struct ast* lnode = NULL;
 	struct ast* rnode = NULL;
-
+	
 	if(a == NULL) return a;
+	
+	char* VMQ_add_stmt = malloc(20);
 
     switch (a->nodetype)
     {
         case COUT:			output_flag = 1; eval(a->l); output_flag = 0; break;
 		case CIN:			input_flag = 1;	 eval(a->l); input_flag = 0; break;
         case RETURN:        break;
-
+	
         case STR_LITERAL:   return a;
 
 		case INT_LITERAL:	return a;
-
-		case ID:			break; // Need code to handle ID ref's at some point
+	
+	    case ID:			break; // Need code to handle ID ref's at some point
 
 		case '+':			lnode = a->l;
 							rnode = a->r;
-							char* VMQ_add_stmt = malloc(20);
-							if (lnode && lnode->nodetype != INT_LITERAL) eval(a->l);
-							if (rnode && rnode->nodetype != INT_LITERAL) eval(a->r);
-							if(lnode && lnode->nodetype == INT_LITERAL && output_flag)
+							if (lnode && lnode->nodetype != INT_LITERAL) { eval(a->l); /*temp_vars--;*/ }
+						    if (rnode && rnode->nodetype != INT_LITERAL) { /*temp_vars++;*/ eval(a->r);  }
+							if(output_flag && lnode && rnode)
 							{
-								// Marks a case where we're going to need a temporary local variable
-								// to store a part of a calculation that will be output.
-								if(++temp_vars > max_temp_vars) max_temp_vars = temp_vars;
-
-								if(rnode && rnode->nodetype == INT_LITERAL && output_flag)
+								if(lnode->nodetype == INT_LITERAL && rnode->nodetype == INT_LITERAL)
 								{
-									if (temp_vars == 1)
-									    sprintf(VMQ_add_stmt, "a %d %d /-%d",
-                                                ((struct intval*)lnode)->number->loc,
-                                                ((struct intval*)rnode)->number->loc,
-												2*temp_vars);
-									else
-										sprintf(VMQ_add_stmt, "a /-%d /-%d /-%d", 2*(temp_vars-1), 2*temp_vars, 2*(temp_vars-1));
+									if(++temp_vars > max_temp_vars) max_temp_vars = temp_vars;
+									if(temp_vars > expr_max_temp_vars) expr_max_temp_vars = temp_vars;
+
+								    sprintf(VMQ_add_stmt, "a %d %d /-%d", ((struct intval*)lnode)->number->loc, ((struct intval*)rnode)->number->loc, 2*temp_vars);
 									appendToStrList(&VMQ_list, VMQ_add_stmt, 1);
-									if (temp_vars > 1)
-									{
-										sprintf(VMQ_add_stmt, "s /-%d /-%d /-%d", 2*temp_vars, 2*temp_vars, 2*temp_vars);
-										appendToStrList(&VMQ_list, VMQ_add_stmt, 1);
-										--temp_vars;
-									}
 								}
-								else if (rnode)
-                                {
-									// Right side of tree contains more calculations that require another
-									// temp variable to store intermediate values
-                                    if(++temp_vars > max_temp_vars)
-                                        max_temp_vars = temp_vars;
-
-									eval(a->r);
+								else if (lnode->nodetype != INT_LITERAL && rnode->nodetype == INT_LITERAL)
+								{
+									sprintf(VMQ_add_stmt, "a /-%d %d /-%d", 2*temp_vars, ((struct intval*)rnode)->number->loc, 2*temp_vars);
+									appendToStrList(&VMQ_list, VMQ_add_stmt, 1);
 								}
-
-							}
-							else if (rnode->nodetype == INT_LITERAL)
-							{
-								if(temp_vars == 1)
-								    sprintf(VMQ_add_stmt, "a /-%d %d /-%d",
-										    2*temp_vars,
-										    ((struct intval*)rnode)->number->loc,
-										    2*temp_vars);
-								else
-									sprintf(VMQ_add_stmt, "a /-%d /-%d /-%d",
-											2*(temp_vars-1), 2*temp_vars, 2*temp_vars);
-
-								appendToStrList(&VMQ_list, VMQ_add_stmt, 1);
+								else if (lnode->nodetype == INT_LITERAL && rnode->nodetype != INT_LITERAL)
+								{
+									sprintf(VMQ_add_stmt, "a %d /-%d /-%d", ((struct intval*)lnode)->number->loc, 2*temp_vars, 2*temp_vars);
+								}
+								else // Both lnode and rnode are non-terminals (non-INT_LITERAL nodes)
+								{
+									sprintf(VMQ_add_stmt, "a /-%d /-%d /-%d", 2*(temp_vars-1), 2*temp_vars, 2*(temp_vars-1));
+									appendToStrList(&VMQ_list, VMQ_add_stmt, 1);
+									sprintf(VMQ_add_stmt, "s /-%d /-%d /-%d", 2*(temp_vars), 2*temp_vars, 2*temp_vars);
+									temp_vars--;
+								}
 							}
 							break;
 
+		case '-':			lnode = a->l;
+                            rnode = a->r;
+                            if (lnode && lnode->nodetype != INT_LITERAL) { eval(a->l); /*temp_vars--;*/ }
+                            if (rnode && rnode->nodetype != INT_LITERAL) { /*temp_vars++;*/ eval(a->r); }
+                            if(output_flag && lnode && rnode)
+                            {
+                                if(lnode->nodetype == INT_LITERAL && rnode->nodetype == INT_LITERAL)
+                                {
+                                    if(++temp_vars > max_temp_vars) max_temp_vars = temp_vars;
+                                    if(temp_vars > expr_max_temp_vars) expr_max_temp_vars = temp_vars;
+
+                                    sprintf(VMQ_add_stmt, "s %d %d /-%d", ((struct intval*)lnode)->number->loc, ((struct intval*)rnode)->number->loc, 2*temp_vars);
+                                    appendToStrList(&VMQ_list, VMQ_add_stmt, 1);
+								}
+                                else if (lnode->nodetype != INT_LITERAL && rnode->nodetype == INT_LITERAL)
+                                {
+                                    sprintf(VMQ_add_stmt, "s /-%d %d /-%d", 2*temp_vars, ((struct intval*)rnode)->number->loc, 2*temp_vars);
+                                    appendToStrList(&VMQ_list, VMQ_add_stmt, 1);
+								}
+                                else if (lnode->nodetype == INT_LITERAL && rnode->nodetype != INT_LITERAL)
+                                {
+                                    sprintf(VMQ_add_stmt, "s %d /-%d /-%d", ((struct intval*)lnode)->number->loc, 2*temp_vars, 2*temp_vars);
+								}
+                                else // Both lnode and rnode are non-terminals (non-INT_LITERAL nodes)
+                                {
+                                    sprintf(VMQ_add_stmt, "s /-%d /-%d /-%d", 2*(temp_vars-1), 2*temp_vars, 2*(temp_vars-1));
+                                    appendToStrList(&VMQ_list, VMQ_add_stmt, 1);
+									sprintf(VMQ_add_stmt, "s /-%d /-%d /-%d", 2*(temp_vars), 2*temp_vars, 2*temp_vars);
+                                    temp_vars--;
+								}
+							}
+                            break;
+
+		case '*':			lnode = a->l;
+                            rnode = a->r;
+                            if (lnode && lnode->nodetype != INT_LITERAL) { eval(a->l); /*temp_vars--;*/ }
+                            if (rnode && rnode->nodetype != INT_LITERAL) { /*temp_vars++;*/ eval(a->r); }
+                            if(output_flag && lnode && rnode)
+                            {
+                                if(lnode->nodetype == INT_LITERAL && rnode->nodetype == INT_LITERAL)
+                                {
+                                    if(++temp_vars > max_temp_vars) max_temp_vars = temp_vars;
+                                    if(temp_vars > expr_max_temp_vars) expr_max_temp_vars = temp_vars;
+
+                                    sprintf(VMQ_add_stmt, "m %d %d /-%d", ((struct intval*)lnode)->number->loc, ((struct intval*)rnode)->number->loc, 2*temp_vars);
+                                    appendToStrList(&VMQ_list, VMQ_add_stmt, 1);
+								}
+                                else if (lnode->nodetype != INT_LITERAL && rnode->nodetype == INT_LITERAL)
+                                {
+                                    sprintf(VMQ_add_stmt, "m /-%d %d /-%d", 2*temp_vars, ((struct intval*)rnode)->number->loc, 2*temp_vars);
+                                    appendToStrList(&VMQ_list, VMQ_add_stmt, 1);
+								}
+                                else if (lnode->nodetype == INT_LITERAL && rnode->nodetype != INT_LITERAL)
+                                {
+                                    sprintf(VMQ_add_stmt, "m %d /-%d /-%d", ((struct intval*)lnode)->number->loc, 2*temp_vars, 2*temp_vars);
+								}
+                                else // Both lnode and rnode are non-terminals (non-INT_LITERAL nodes)
+                                {
+                                    sprintf(VMQ_add_stmt, "m /-%d /-%d /-%d", 2*(temp_vars-1), 2*temp_vars, 2*(temp_vars-1));
+                                    appendToStrList(&VMQ_list, VMQ_add_stmt, 1);
+									sprintf(VMQ_add_stmt, "s /-%d /-%d /-%d", 2*(temp_vars), 2*temp_vars, 2*temp_vars);
+                                    temp_vars--;
+								}
+							}
+                            break;
+
+		case '/':			lnode = a->l;
+                            rnode = a->r;
+                            if (lnode && lnode->nodetype != INT_LITERAL) { eval(a->l); /*temp_vars--;*/ }
+                            if (rnode && rnode->nodetype != INT_LITERAL) { /*temp_vars++;*/ eval(a->r); }
+                            if(output_flag && lnode && rnode)
+                            {
+                                if(lnode->nodetype == INT_LITERAL && rnode->nodetype == INT_LITERAL)
+                                {
+                                    if(++temp_vars > max_temp_vars) max_temp_vars = temp_vars;
+                                    if(temp_vars > expr_max_temp_vars) expr_max_temp_vars = temp_vars;
+
+                                    sprintf(VMQ_add_stmt, "d %d %d /-%d", ((struct intval*)lnode)->number->loc, ((struct intval*)rnode)->number->loc, 2*temp_vars);
+                                    appendToStrList(&VMQ_list, VMQ_add_stmt, 1);
+								}
+                                else if (lnode->nodetype != INT_LITERAL && rnode->nodetype == INT_LITERAL)
+                                {
+                                    sprintf(VMQ_add_stmt, "d /-%d %d /-%d", 2*temp_vars, ((struct intval*)rnode)->number->loc, 2*temp_vars);
+                                    appendToStrList(&VMQ_list, VMQ_add_stmt, 1);
+								}
+                                else if (lnode->nodetype == INT_LITERAL && rnode->nodetype != INT_LITERAL)
+                                {
+                                    sprintf(VMQ_add_stmt, "d %d /-%d /-%d", ((struct intval*)lnode)->number->loc, 2*temp_vars, 2*temp_vars);
+								}
+                                else // Both lnode and rnode are non-terminals (non-INT_LITERAL nodes)
+                                {
+                                    sprintf(VMQ_add_stmt, "d /-%d /-%d /-%d", 2*(temp_vars-1), 2*temp_vars, 2*(temp_vars-1));
+                                    appendToStrList(&VMQ_list, VMQ_add_stmt, 1);
+									sprintf(VMQ_add_stmt, "s /-%d /-%d /-%d", 2*(temp_vars), 2*temp_vars, 2*temp_vars);
+                                    temp_vars--;
+								}
+							}
+                            break;
+		
+		case '%':           lnode = a->l;
+                            rnode = a->r;
+                            if (lnode && lnode->nodetype != INT_LITERAL) { eval(a->l); /*temp_vars--;*/ }
+                            if (rnode && rnode->nodetype != INT_LITERAL) { /*temp_vars++;*/ eval(a->r); }
+                            if(output_flag && lnode && rnode)
+                            {
+                                if(lnode->nodetype == INT_LITERAL && rnode->nodetype == INT_LITERAL)
+                                {
+                                    if(++temp_vars > max_temp_vars) max_temp_vars = temp_vars;
+                                    if(temp_vars > expr_max_temp_vars) expr_max_temp_vars = temp_vars;
+
+                                    sprintf(VMQ_add_stmt, "r %d %d /-%d", ((struct intval*)lnode)->number->loc, ((struct intval*)rnode)->number->loc, 2*temp_vars);
+                                    appendToStrList(&VMQ_list, VMQ_add_stmt, 1);
+								}
+                                else if (lnode->nodetype != INT_LITERAL && rnode->nodetype == INT_LITERAL)
+                                {
+                                    sprintf(VMQ_add_stmt, "r /-%d %d /-%d", 2*temp_vars, ((struct intval*)rnode)->number->loc, 2*temp_vars);
+                                    appendToStrList(&VMQ_list, VMQ_add_stmt, 1);
+								}
+                                else if (lnode->nodetype == INT_LITERAL && rnode->nodetype != INT_LITERAL)
+                                {
+                                    sprintf(VMQ_add_stmt, "r %d /-%d /-%d", ((struct intval*)lnode)->number->loc, 2*temp_vars, 2*temp_vars);
+								}
+                                else // Both lnode and rnode are non-terminals (non-INT_LITERAL nodes)
+                                {
+                                    sprintf(VMQ_add_stmt, "r /-%d /-%d /-%d", 2*(temp_vars-1), 2*temp_vars, 2*(temp_vars-1));
+                                    appendToStrList(&VMQ_list, VMQ_add_stmt, 1);
+                                    sprintf(VMQ_add_stmt, "s /-%d /-%d /-%d", 2*(temp_vars), 2*temp_vars, 2*temp_vars);
+                                    temp_vars--;
+								}
+							}
+                            break;
+
 		case STREAMOUT:	eval(a->l);			// Takes us to bottom output tree
+					//	printAST(a);
 						rnode = a->r;	// Either a STR_LITERAL or some kind of expression
 						if(rnode != NULL)
 							switch(rnode->nodetype)
@@ -754,32 +883,38 @@ struct ast* eval(struct ast *a)
 													break;
 
 								case INT_LITERAL:	;char* VMQ_intlit_stmt = malloc(20);
-													sprintf(VMQ_intlit_stmt, "p #%d",
-                                                          ((struct intval*)rnode)->number->loc);
+													sprintf(VMQ_intlit_stmt, "p #%d", ((struct intval*)rnode)->number->loc);
 													appendToStrList(&VMQ_list, VMQ_intlit_stmt, 1);
 													appendToStrList(&VMQ_list, "c 0 -9", 1);
 													appendToStrList(&VMQ_list, "^ 2", 1);
 													break;
-
+															
 								case '+':
 								case '-':
 								case '*':
-								case '/':
+								case '/':			
 								case '%':			eval(a->r);
+													// Reset all used temp_vars to 0 for other potential expressions.
+													while(expr_max_temp_vars > 1)
+													{
+														sprintf(VMQ_add_stmt, "s /-%d /-%d /-%d", 2*expr_max_temp_vars, 2*expr_max_temp_vars, 2*expr_max_temp_vars);
+														appendToStrList(&VMQ_list, VMQ_add_stmt, 1);
+														expr_max_temp_vars--;
+													}
+													expr_max_temp_vars = temp_vars = 0;
 													appendToStrList(&VMQ_list, "p #/-2", 1);
 													appendToStrList(&VMQ_list, "c 0 -9", 1);
 													appendToStrList(&VMQ_list, "^ 2", 1);
 													appendToStrList(&VMQ_list, "s /-2 /-2 /-2", 1);
-													--temp_vars;
 													break;
-						    }
+							}
 						break;
-
+		
         // statement
         case ('s'+'t'+'m'+'t'):      eval(a->l); break;
-
+		
         // statements
-        case ('s'+'t'+'m'+'t'+'s'):  if(a->l != NULL) eval(a->l);
+        case ('s'+'t'+'m'+'t'+'s'):  if(a->l != NULL) eval(a->l); 
                                      if(a->r != NULL) eval(a->r); break;
 
         // block
@@ -789,10 +924,11 @@ struct ast* eval(struct ast *a)
 
         case 'h':                   eval(a->r); appendToStrList(&VMQ_list, "h", 1); break;
 
-        default:                    if(a->l != NULL) eval(a->l); if(a->r != NULL) eval(a->r);
+        default:                    free(VMQ_add_stmt); if(a->l != NULL) eval(a->l); if(a->r != NULL) eval(a->r);
 	}
 
-
+	
+		
 	return a;
 
 }
@@ -822,7 +958,7 @@ void transferStack(VMQ_STACK dest, VMQ_STACK src)
 
 void pushToStrStack(VMQ_STACK stk, char* str)
 {
-    if(val->stack_head == NULL)
+    if(val->stack_head == NULL) 
     {
         printf("\n\tStack is empty, pushing %s...", str);
         val->stack_head = (struct strlit_node*)malloc(sizeof(struct strlit_node));
@@ -853,8 +989,12 @@ void popStrStack(VMQ_STACK stk)
 
 void printAST(struct ast *a)
 {
+	fflush(stdout);
+
+	if (a == NULL) return;
     struct ast *ptr = a;
-    if (ptr == NULL) return;
+
+	if(ptr->nodetype == 0) { printf("\t!! NULLTYPE NODE !!\n"); return; }
 
     if(ptr->nodetype == STR_LITERAL)
     {
@@ -869,7 +1009,7 @@ void printAST(struct ast *a)
 	}
     else
     {
-        //printf("\n\t!!ptr->nodetype != STR_LITERAL\n");
+
         printAST(ptr->l);
         if (ptr->nodetype == 's'+'t'+'m'+'t')   printf("\tSTATEMENT NODE\n");
         else if (ptr->nodetype == 'o')          printf("\tOUTSTMT NODE (o)\n");
@@ -884,9 +1024,19 @@ void printAST(struct ast *a)
         else if (ptr->nodetype == 'v'+'a'+'r')    printf("\tVAR DEF NODE\n");
         else if (ptr->nodetype == 's'+'t'+'m'+'t'+'s') printf("\tSTATEMENTS NODE\n");
         else if (ptr->nodetype == RETURN)        printf("\tRETURN NODE\n");
-        else                                    printf("\tOTHER NODE (%d)\n", ptr->nodetype);
-
-        //printAST(ptr->l);
+        else if (ptr->nodetype == '+')			printf("\tADDOP(+) NODE\n");
+		else if (ptr->nodetype == '-')			printf("\tADDOP(-) NODE\n");
+		else if (ptr->nodetype == '*')			printf("\tMULOP(*) NODE\n");
+		else if (ptr->nodetype == '/')			printf("\tMULOP(/) NODE\n");
+		else if (ptr->nodetype == '%')			printf("\tMULOP(%%) NODE\n");
+		else if (ptr->nodetype == INT_LITERAL)	printf("\tINT_LIT NODE (val == %d)\n", ((struct intval*)a)->number->val);
+		else if (ptr->nodetype == STREAMOUT)	printf("\tSTREAMOUT NODE\n");
+		else                                    printf("\tOTHER NODE (%d)\n", ptr->nodetype);
         printAST(ptr->r);
+
+		fflush(stdout);
 	}
 }
+
+
+

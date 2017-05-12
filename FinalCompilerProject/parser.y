@@ -127,7 +127,7 @@
         | input_statement STREAMIN variable                        { $$ = newast(STREAMIN, $1, $3); }
         ;
         
-    output_statement:    COUT                                       { $$ = NULL; }
+    output_statement:    COUT                                       { $$ = newast(0, NULL, NULL); }
         | output_statement STREAMOUT expression                     { $$ = newast(STREAMOUT, $1, $3); }
         | output_statement STREAMOUT STR_LITERAL                    { $$ = newast(STREAMOUT, $1, newstr($3)); }
         | output_statement STREAMOUT ENDL                           { $$ = newast(STREAMOUT, $1, newstr($3)); }
@@ -187,6 +187,7 @@
         ;
     
 %%
+
 
 
 
