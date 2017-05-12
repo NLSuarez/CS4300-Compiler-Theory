@@ -705,8 +705,8 @@ struct ast* eval(struct ast *a)
 		case '+':			lnode = a->l;
 							rnode = a->r;
 							if (lnode && lnode->nodetype != INT_LITERAL) { eval(a->l); /*temp_vars--;*/ }
-						    if (rnode && rnode->nodetype != INT_LITERAL) { /*temp_vars++;*/ eval(a->r);  }
-							if(output_flag && lnode && rnode)
+						    if (rnode && rnode->nodetype != INT_LITERAL) { /*temp_vars++;*/ eval(a->r); }
+							if(lnode && rnode)
 							{
 								if(lnode->nodetype == INT_LITERAL && rnode->nodetype == INT_LITERAL)
 								{
@@ -724,6 +724,7 @@ struct ast* eval(struct ast *a)
 								else if (lnode->nodetype == INT_LITERAL && rnode->nodetype != INT_LITERAL)
 								{
 									sprintf(VMQ_add_stmt, "a %d /-%d /-%d", ((struct intval*)lnode)->number->loc, 2*temp_vars, 2*temp_vars);
+									appendToStrList(&VMQ_list, VMQ_add_stmt, 1);
 								}
 								else // Both lnode and rnode are non-terminals (non-INT_LITERAL nodes)
 								{
@@ -739,7 +740,7 @@ struct ast* eval(struct ast *a)
                             rnode = a->r;
                             if (lnode && lnode->nodetype != INT_LITERAL) { eval(a->l); /*temp_vars--;*/ }
                             if (rnode && rnode->nodetype != INT_LITERAL) { /*temp_vars++;*/ eval(a->r); }
-                            if(output_flag && lnode && rnode)
+                            if(lnode && rnode)
                             {
                                 if(lnode->nodetype == INT_LITERAL && rnode->nodetype == INT_LITERAL)
                                 {
@@ -757,6 +758,7 @@ struct ast* eval(struct ast *a)
                                 else if (lnode->nodetype == INT_LITERAL && rnode->nodetype != INT_LITERAL)
                                 {
                                     sprintf(VMQ_add_stmt, "s %d /-%d /-%d", ((struct intval*)lnode)->number->loc, 2*temp_vars, 2*temp_vars);
+									appendToStrList(&VMQ_list, VMQ_add_stmt, 1);
 								}
                                 else // Both lnode and rnode are non-terminals (non-INT_LITERAL nodes)
                                 {
@@ -766,13 +768,21 @@ struct ast* eval(struct ast *a)
                                     temp_vars--;
 								}
 							}
+							else if (lnode == NULL && rnode)
+							{
+								// UNARY minus case
+								if(++temp_vars > max_temp_vars) max_temp_vars = temp_vars;
+								if(temp_vars > expr_max_temp_vars) expr_max_temp_vars = temp_vars;
+								sprintf(VMQ_add_stmt, "n %d /-%d", ((struct intval*)rnode)->number->loc, 2*temp_vars);
+								appendToStrList(&VMQ_list, VMQ_add_stmt, 1);
+							}
                             break;
 
 		case '*':			lnode = a->l;
                             rnode = a->r;
                             if (lnode && lnode->nodetype != INT_LITERAL) { eval(a->l); /*temp_vars--;*/ }
                             if (rnode && rnode->nodetype != INT_LITERAL) { /*temp_vars++;*/ eval(a->r); }
-                            if(output_flag && lnode && rnode)
+                            if(lnode && rnode)
                             {
                                 if(lnode->nodetype == INT_LITERAL && rnode->nodetype == INT_LITERAL)
                                 {
@@ -790,6 +800,7 @@ struct ast* eval(struct ast *a)
                                 else if (lnode->nodetype == INT_LITERAL && rnode->nodetype != INT_LITERAL)
                                 {
                                     sprintf(VMQ_add_stmt, "m %d /-%d /-%d", ((struct intval*)lnode)->number->loc, 2*temp_vars, 2*temp_vars);
+									appendToStrList(&VMQ_list, VMQ_add_stmt, 1);
 								}
                                 else // Both lnode and rnode are non-terminals (non-INT_LITERAL nodes)
                                 {
@@ -805,7 +816,7 @@ struct ast* eval(struct ast *a)
                             rnode = a->r;
                             if (lnode && lnode->nodetype != INT_LITERAL) { eval(a->l); /*temp_vars--;*/ }
                             if (rnode && rnode->nodetype != INT_LITERAL) { /*temp_vars++;*/ eval(a->r); }
-                            if(output_flag && lnode && rnode)
+                            if(lnode && rnode)
                             {
                                 if(lnode->nodetype == INT_LITERAL && rnode->nodetype == INT_LITERAL)
                                 {
@@ -823,6 +834,7 @@ struct ast* eval(struct ast *a)
                                 else if (lnode->nodetype == INT_LITERAL && rnode->nodetype != INT_LITERAL)
                                 {
                                     sprintf(VMQ_add_stmt, "d %d /-%d /-%d", ((struct intval*)lnode)->number->loc, 2*temp_vars, 2*temp_vars);
+									appendToStrList(&VMQ_list, VMQ_add_stmt, 1);
 								}
                                 else // Both lnode and rnode are non-terminals (non-INT_LITERAL nodes)
                                 {
@@ -838,7 +850,7 @@ struct ast* eval(struct ast *a)
                             rnode = a->r;
                             if (lnode && lnode->nodetype != INT_LITERAL) { eval(a->l); /*temp_vars--;*/ }
                             if (rnode && rnode->nodetype != INT_LITERAL) { /*temp_vars++;*/ eval(a->r); }
-                            if(output_flag && lnode && rnode)
+                            if(lnode && rnode)
                             {
                                 if(lnode->nodetype == INT_LITERAL && rnode->nodetype == INT_LITERAL)
                                 {
@@ -856,6 +868,7 @@ struct ast* eval(struct ast *a)
                                 else if (lnode->nodetype == INT_LITERAL && rnode->nodetype != INT_LITERAL)
                                 {
                                     sprintf(VMQ_add_stmt, "r %d /-%d /-%d", ((struct intval*)lnode)->number->loc, 2*temp_vars, 2*temp_vars);
+									appendToStrList(&VMQ_list, VMQ_add_stmt, 1);
 								}
                                 else // Both lnode and rnode are non-terminals (non-INT_LITERAL nodes)
                                 {
@@ -867,8 +880,7 @@ struct ast* eval(struct ast *a)
 							}
                             break;
 
-		case STREAMOUT:	eval(a->l);			// Takes us to bottom output tree
-					//	printAST(a);
+		case STREAMOUT:	eval(a->l);		// Takes us to bottom of the output tree (first output statement to execute).
 						rnode = a->r;	// Either a STR_LITERAL or some kind of expression
 						if(rnode != NULL)
 							switch(rnode->nodetype)
@@ -894,18 +906,18 @@ struct ast* eval(struct ast *a)
 								case '*':
 								case '/':			
 								case '%':			eval(a->r);
-													// Reset all used temp_vars to 0 for other potential expressions.
-													while(expr_max_temp_vars > 1)
-													{
-														sprintf(VMQ_add_stmt, "s /-%d /-%d /-%d", 2*expr_max_temp_vars, 2*expr_max_temp_vars, 2*expr_max_temp_vars);
-														appendToStrList(&VMQ_list, VMQ_add_stmt, 1);
-														expr_max_temp_vars--;
-													}
-													expr_max_temp_vars = temp_vars = 0;
 													appendToStrList(&VMQ_list, "p #/-2", 1);
 													appendToStrList(&VMQ_list, "c 0 -9", 1);
 													appendToStrList(&VMQ_list, "^ 2", 1);
-													appendToStrList(&VMQ_list, "s /-2 /-2 /-2", 1);
+
+													// Reset any temp variables that were used.
+                                                    while(expr_max_temp_vars != 0)
+                                                    {						  // "s tmp tmp tmp" will set tmp to 0.
+                                                        sprintf(VMQ_add_stmt, "s /-%d /-%d /-%d", 2*expr_max_temp_vars, 2*expr_max_temp_vars, 2*expr_max_temp_vars);
+                                                        appendToStrList(&VMQ_list, VMQ_add_stmt, 1);
+                                                        expr_max_temp_vars--;
+													}
+                                                    temp_vars = 0;
 													break;
 							}
 						break;

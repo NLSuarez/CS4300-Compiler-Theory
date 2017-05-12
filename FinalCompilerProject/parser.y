@@ -94,7 +94,7 @@
     function_head:    type ID arguments                 { $$ = newast('f'+'h', newref($2), $3); }
         ;
         
-    arguments:    '(' parameter_list ')'                { $$ = newast('a'+'r'+'g', $2, NULL); }
+    arguments:    '(' parameter_list ')'                { $$ = $2 }
         ;
         
     parameter_list:                                     { $$ = NULL; }
@@ -148,25 +148,25 @@
         | expressions ',' expression               { $$ = newast('e'+'x'+'p'+'s', $1, $3); }
         ;
         
-    expression:    variable ASSIGNOP expression    { /* Something here later */ }
+    expression:    variable ASSIGNOP expression    { $$ = newast(ASSIGNOP, $1, $3); }
         | variable INCOP expression                { if($2 == 1) $$ = newast(('+')+('='), $1, $3); else $$ = newast(('-')+('='), $1, $3); }
         | simple_expression                        { $$ = $1; }
         ;
         
-    simple_expression:    term				{ $$ = $1; }
-        | ADDOP term						{ if($1 == 1) $$ = newast('+', NULL, $2); else $$ = newast('-', NULL, $2); }
-        | simple_expression ADDOP term		{ if($2 == 1) $$ = newast('+', $1, $3); else $$ = newast('-', $1, $3); } 
+    simple_expression:    term				            { $$ = $1; }
+        | ADDOP term				   %prec UNARY		{ if($1 == 1) $$ = newast('+', NULL, $2); else $$ = newast('-', NULL, $2); }
+        | simple_expression ADDOP term		            { if($2 == 1) $$ = newast('+', $1, $3); else $$ = newast('-', $1, $3); } 
         ;
         
     term:    factor                        { $$ = $1; }
         | term MULOP factor                { if($2 == 1) $$ = newast('*', $1, $3); else if($2 == 2) $$ = newast('/', $1, $3); else $$ = newast('%', $1, $3); }
         ;
         
-    factor:    ID                           { $$ = newref($1); }
-        | ID '(' expression_list ')'		{ $$ = newast('f'+'a'+'c'+'t', newref($1), $3); }
-        | literal							{ $$ = $1; }
-        | '(' expression ')'				{ $$ = $2; }
-        | ID '[' expression ']'             { $$ = newast('f'+'a'+'c'+'t', newref($1), $3); }
+    factor:    ID                                   { /* This is a variable ref */ $$ = newref($1); }
+        | ID '(' expression_list ')'		        { /* This is a function call */ $$ = newast(FUNC, newref($1), $3); }
+        | literal							        { /* This is an INT or FLT literal */ $$ = $1; }
+        | '(' expression ')'		%prec UNARY 	{ /* This is any expr */ $$ = $2; }
+        | ID '[' expression ']'                     { /* This is an array access */ $$ = newast('a'+'r'+'r', newref($1), $3); }
         ;
         
     literal:    INT_LITERAL					{ $$ = newint($1); }
