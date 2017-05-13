@@ -11,5 +11,19 @@ int main(int a1, int a2, float b1, float b2)
 	else
 		cout << "true" << endl;
 	
+	if (44 >= 33 || 46 <= 85)
+	{
+		cout << "TRUE" << endl;
+	}
+	else
+		cout << "FALSE" << endl;
+	
+	if (12 == 12 || 35 != 25)
+	{
+		cout << "T" << endl;
+	}
+	else
+		cout << "F" << endl;
+	
 	return 0;
 }

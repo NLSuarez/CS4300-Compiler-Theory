@@ -436,6 +436,7 @@ int main(int argc, char **argv)
 
 
 	eval(ast_root);
+	printAST(ast_root);
 
     char* filename = strdup(argv[argc-1]);
     
@@ -935,7 +936,43 @@ struct ast* eval(struct ast *a)
         case ('f'+'d'):             temp_vars = 0; eval(a->l); eval(a->r); break;
 
         case 'h':                   eval(a->r); appendToStrList(&VMQ_list, "h", 1); break;
-
+		
+		case '<':					if (((struct intval*)(eval(a->l)))->number->val < ((struct intval*)(eval(a->r)))->number->val)
+									{
+										printf("\tLEFT (%d) IS LESS THAN RIGHT (%d)\n", ((struct intval*)(eval(a->l)))->number->val, ((struct intval*)(eval(a->r)))->number->val);
+									}
+									break;
+			
+		case '>':					if (((struct intval*)(eval(a->l)))->number->val > ((struct intval*)(eval(a->r)))->number->val)
+									{
+										printf("\tLEFT (%d) IS GREATER THAN RIGHT (%d)\n", ((struct intval*)(eval(a->l)))->number->val, ((struct intval*)(eval(a->r)))->number->val);
+									}
+									break;
+			
+		case ('<'+'='):				if (((struct intval*)(eval(a->l)))->number->val <= ((struct intval*)(eval(a->r)))->number->val)
+									{
+										printf("\tLEFT (%d) IS LESS THAN OR EQUAL TO RIGHT (%d)\n", ((struct intval*)(eval(a->l)))->number->val, ((struct intval*)(eval(a->r)))->number->val);
+									}
+									break;
+			
+		case ('>'+'='):				if (((struct intval*)(eval(a->l)))->number->val >= ((struct intval*)(eval(a->r)))->number->val)
+									{
+										printf("\tLEFT (%d) IS GREATER THAN OR EQUAL TO RIGHT (%d)\n", ((struct intval*)(eval(a->l)))->number->val, ((struct intval*)(eval(a->r)))->number->val);
+									}
+									break;
+			
+		case ('='+'='):				if (((struct intval*)(eval(a->l)))->number->val == ((struct intval*)(eval(a->r)))->number->val)
+									{
+										printf("\tLEFT (%d) IS EQUAL TO RIGHT (%d)\n", ((struct intval*)(eval(a->l)))->number->val, ((struct intval*)(eval(a->r)))->number->val);
+									}
+									break;
+			
+		case ('!'+'='):				if (((struct intval*)(eval(a->l)))->number->val != ((struct intval*)(eval(a->r)))->number->val)
+									{
+										printf("\tLEFT (%d) IS NOT EQUAL TO RIGHT (%d)\n", ((struct intval*)(eval(a->l)))->number->val, ((struct intval*)(eval(a->r)))->number->val);
+									}
+									break;
+			
         default:                    free(VMQ_add_stmt); if(a->l != NULL) eval(a->l); if(a->r != NULL) eval(a->r);
 	}
 
@@ -1047,9 +1084,14 @@ void printAST(struct ast *a)
 		else if (ptr->nodetype == ELSE)			printf("\tELSE node\n");
 		else if (ptr->nodetype == WHILE)		printf("\tWHILE node\n");
 		else if (ptr->nodetype == NOT)			printf("\tNOT node\n");
-		else if (ptr->nodetype == AND)			printf("\tAND node\n");
-		else if (ptr->nodetype == OR)			printf("\tOR node\n");
-		else if (ptr->nodetype == RELOP)		printf("\tRELOP node\n");
+		else if (ptr->nodetype == AND)			printf("\tAND node, AND = %d; LEFT SIDE = %d, RIGHT SIDE = %d.\n", ptr->nodetype, ptr->l->nodetype, ptr->r->nodetype);
+		else if (ptr->nodetype == OR)			printf("\tOR node, OR = %d; LEFT SIDE = %d, RIGHT SIDE = %d.\n", ptr->nodetype, ptr->l->nodetype, ptr->r->nodetype);
+		else if (ptr->nodetype == '<')			printf("\tRELOP node, RELOP = %c; LEFT SIDE = %d, RIGHT SIDE = %d.\n", ptr->nodetype, ptr->l->nodetype, ptr->r->nodetype);
+		else if (ptr->nodetype == '>')			printf("\tRELOP node, RELOP = %c; LEFT SIDE = %d, RIGHT SIDE = %d.\n", ptr->nodetype, ptr->l->nodetype, ptr->r->nodetype);
+		else if (ptr->nodetype == '<'+'=')		printf("\tRELOP node, RELOP = <=; LEFT SIDE = %d, RIGHT SIDE = %d.\n", ptr->l->nodetype, ptr->r->nodetype);
+		else if (ptr->nodetype == '>'+'=')		printf("\tRELOP node, RELOP = >=; LEFT SIDE = %d, RIGHT SIDE = %d.\n", ptr->l->nodetype, ptr->r->nodetype);
+		else if (ptr->nodetype == '=' +'=')		printf("\tRELOP node, RELOP = ==; LEFT SIDE = %d, RIGHT SIDE = %d.\n", ptr->l->nodetype, ptr->r->nodetype);
+		else if (ptr->nodetype == '!'+'=')		printf("\tRELOP node, RELOP = !=; LEFT SIDE = %d, RIGHT SIDE = %d.\n", ptr->l->nodetype, ptr->r->nodetype);
 		else                                    printf("\tOTHER NODE (%d)\n", ptr->nodetype);
         printAST(ptr->r);
 
