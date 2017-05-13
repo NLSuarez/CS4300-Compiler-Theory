@@ -1045,11 +1045,11 @@ void printAST(struct ast *a)
 		else if (ptr->nodetype == STREAMOUT)	printf("\tSTREAMOUT NODE\n");
 		else if (ptr->nodetype == IF)			printf("\tIF node\n");
 		else if (ptr->nodetype == ELSE)			printf("\tELSE node\n");
-		else if (ptr->nodetype == WHILE)			printf("\tWHILE node\n");
+		else if (ptr->nodetype == WHILE)		printf("\tWHILE node\n");
 		else if (ptr->nodetype == NOT)			printf("\tNOT node\n");
 		else if (ptr->nodetype == AND)			printf("\tAND node\n");
 		else if (ptr->nodetype == OR)			printf("\tOR node\n");
-		else if (ptr->nodetype == RELOP)			printf("\tRELOP node\n");
+		else if (ptr->nodetype == RELOP)		printf("\tRELOP node\n");
 		else                                    printf("\tOTHER NODE (%d)\n", ptr->nodetype);
         printAST(ptr->r);
 
