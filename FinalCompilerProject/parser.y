@@ -33,7 +33,7 @@
     char* str;
     struct symbol_node *s;
     struct strlit_node *sln;
-	struct intlit_node *iln;
+    struct intlit_node *iln;
     int fn;
 }
 
@@ -49,8 +49,8 @@
  
     %token ASSIGNOP 
     %token <fn> MULOP  
-	%token <fn> INCOP RELOP 
-	%token NOT OR AND STREAMIN STREAMOUT
+    %token <fn> INCOP RELOP 
+    %token NOT OR AND STREAMIN STREAMOUT
  
     /* Precedence rules here. Could use some help. */
     %nonassoc RELOP
@@ -111,7 +111,7 @@
         ;
         
     statements:                             { $$ = NULL; }
-        | statements statement				{ $$ = newast('s'+'t'+'m'+'t'+'s', $1, $2); }
+        | statements statement                { $$ = newast('s'+'t'+'m'+'t'+'s', $1, $2); }
         ;
         
     statement:    expression ';'                                  { $$ = $1; }
@@ -153,9 +153,9 @@
         | simple_expression                        { $$ = $1; }
         ;
         
-    simple_expression:    term				            { $$ = $1; }
-        | ADDOP term				   %prec UNARY		{ if($1 == 1) $$ = newast('+', NULL, $2); else $$ = newast('-', NULL, $2); }
-        | simple_expression ADDOP term		            { if($2 == 1) $$ = newast('+', $1, $3); else $$ = newast('-', $1, $3); } 
+    simple_expression:    term                            { $$ = $1; }
+        | ADDOP term                   %prec UNARY        { if($1 == 1) $$ = newast('+', NULL, $2); else $$ = newast('-', NULL, $2); }
+        | simple_expression ADDOP term                    { if($2 == 1) $$ = newast('+', $1, $3); else $$ = newast('-', $1, $3); } 
         ;
         
     term:    factor                        { $$ = $1; }
@@ -163,14 +163,14 @@
         ;
         
     factor:    ID                                   { /* This is a variable ref */ $$ = newref($1); }
-        | ID '(' expression_list ')'		        { /* This is a function call */ $$ = newast(FUNC, newref($1), $3); }
-        | literal							        { /* This is an INT or FLT literal */ $$ = $1; }
-        | '(' expression ')'		%prec UNARY 	{ /* This is any expr */ $$ = $2; }
+        | ID '(' expression_list ')'                { /* This is a function call */ $$ = newast(FUNC, newref($1), $3); }
+        | literal                                    { /* This is an INT or FLT literal */ $$ = $1; }
+        | '(' expression ')'        %prec UNARY     { /* This is any expr */ $$ = $2; }
         | ID '[' expression ']'                     { /* This is an array access */ $$ = newast('a'+'r'+'r', newref($1), $3); }
         ;
         
-    literal:    INT_LITERAL					{ $$ = newint($1); }
-        | FLT_LITERAL						{ $$ = newfloat($1); }
+    literal:    INT_LITERAL                    { $$ = newint($1); }
+        | FLT_LITERAL                        { $$ = newfloat($1); }
         ;
         
     bool_expression:    bool_term            { $$ = $1; if(DEBUG || PAR_DEBUG) printf("bool_expression PARSED!\n"); }
@@ -184,11 +184,11 @@
     bool_factor:    NOT bool_factor                        { $$ = newrel(NOT, $2, NULL); if(DEBUG || PAR_DEBUG) printf("bool_factor PARSED!\n"); }
         | '(' bool_expression ')'                        { $$ = $2; if(DEBUG || PAR_DEBUG) printf("bool_factor PARSED!\n"); }
         | simple_expression RELOP simple_expression        { if ($2 == 1) $$ = newrel('>', $1, $3);
-															 else if ($2 == 2) $$ = newrel('<', $1, $3);
-															 else if ($2 == 3) $$ = newrel('!'+'=', $1, $3);
-															 else if ($2 == 4) $$ = newrel('='+'=', $1, $3);
-															 else if ($2 == 5) $$ = newrel('>'+'=', $1, $3);
-															 else $$ = newrel('<'+'=', $1, $3); if(DEBUG || PAR_DEBUG) printf("bool_factor PARSED!\n"); }
+                                                             else if ($2 == 2) $$ = newrel('<', $1, $3);
+                                                             else if ($2 == 3) $$ = newrel('!'+'=', $1, $3);
+                                                             else if ($2 == 4) $$ = newrel('='+'=', $1, $3);
+                                                             else if ($2 == 5) $$ = newrel('>'+'=', $1, $3);
+                                                             else $$ = newrel('<'+'=', $1, $3); if(DEBUG || PAR_DEBUG) printf("bool_factor PARSED!\n"); }
         ;
     
 %%

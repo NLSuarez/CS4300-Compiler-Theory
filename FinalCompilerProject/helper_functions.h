@@ -20,22 +20,22 @@ struct symbol_node
 {
     char* symbol;
     union data val;
-    int kind;	// INT, FLOAT, or FUNC
+    int kind;    // INT, FLOAT, or FUNC
     struct symbol_node* next;
 };
 
 /* Element of funcvar_list, used to track function's non-argument local variables */
 struct funcvar_node
 {
-	struct symbol_node* var;
-	struct symbol_node* func;
+    struct symbol_node* var;
+    struct symbol_node* func;
 };
 
 /* List that is used to track a function's non-arg local variables */
 struct funcvar_list
 {
-	struct funcvar_node* head;
-	struct funcvar_list* next;
+    struct funcvar_node* head;
+    struct funcvar_list* next;
 };
 
 /* symbol tables are a dynamically allocated array of symbol_node structs */
@@ -66,9 +66,9 @@ struct strlit_node
 
 struct intlit_node
 {
-	int val;
-	unsigned int loc;
-	struct intlit_node* next;
+    int val;
+    unsigned int loc;
+    struct intlit_node* next;
 };
 
 typedef struct strlit_node* STRLIT_LIST;
@@ -149,7 +149,7 @@ struct stringval {
 
 //int literal
 struct intval {
- int nodetype;		// = INT_LITERAL
+ int nodetype;        // = INT_LITERAL
  struct intlit_node* number;
 };
 
