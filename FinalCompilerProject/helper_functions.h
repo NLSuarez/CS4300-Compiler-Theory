@@ -19,31 +19,22 @@ union data
 struct symbol_node
 {
     char* symbol;
-    union data val;
-    int kind;    // INT, FLOAT, or FUNC
+//	union data val;
+    int kind;	// INT, FLOAT, or FUNC
     struct symbol_node* next;
 };
 
-/* Element of funcvar_list, used to track function's non-argument local variables */
-struct funcvar_node
+struct var_node
 {
-    struct symbol_node* var;
-    struct symbol_node* func;
-};
-
-/* List that is used to track a function's non-arg local variables */
-struct funcvar_list
-{
-    struct funcvar_node* head;
-    struct funcvar_list* next;
+	unsigned int isParam;
+	char* symbol;
+	int kind;
+	int loc;
+	struct var_node* next;
 };
 
 /* symbol tables are a dynamically allocated array of symbol_node structs */
 typedef struct symbol_node* SYMBOL_TABLE;
-
-/* Used to keep track of the local variables within each function */
-typedef struct funcvar_list** CURRENT_FUNCVAR_LIST;
-typedef struct funcvar_list** HEAD_FUNCVAR_LIST;
 
 /* Used to track existing scopes - effectively implemented as a stack of scope_node structs */
 struct scope_node
@@ -66,17 +57,36 @@ struct strlit_node
 
 struct intlit_node
 {
-    int val;
-    unsigned int loc;
-    struct intlit_node* next;
+	int val;
+	unsigned int loc;
+	struct intlit_node* next;
+};
+
+/*
+	Used to keep track of each function's parameters and variables.
+*/
+struct funcvars_node
+{
+    struct symbol_node* func;
+    struct var_node* params;
+    struct var_node* vars;
+    unsigned int param_count;
+    unsigned int var_count;
+	unsigned int end_var_addr;
+	unsigned int end_param_addr;
+	struct funcvars_node* next;
 };
 
 typedef struct strlit_node* STRLIT_LIST;
 typedef struct intlit_node* INTLIT_LIST;
+typedef struct funcvars_node* FUNC_LIST;
 
 struct strlit_node* appendToStrList(STRLIT_LIST* head, char* str, int eval_state);
 struct intlit_node* appendToIntList(INTLIT_LIST* head, int val);
-
+struct var_node* appendToFuncVars(struct symbol_node* var);
+struct var_node* appendToFuncParams(struct symbol_node* param);
+struct funcvars_node* appendNewFunc(struct symbol_node* func);
+struct var_node* getFuncVar(char* str);
 
 /* Deletes current_scope struct, sets current_scope struct to correct scope post-pop */
 void popScope();
@@ -149,7 +159,7 @@ struct stringval {
 
 //int literal
 struct intval {
- int nodetype;        // = INT_LITERAL
+ int nodetype;		// = INT_LITERAL
  struct intlit_node* number;
 };
 
@@ -169,8 +179,8 @@ struct flow {
 
 //reference node(i.e. if you need to call a variable)
 struct symref {
- int nodetype;    /* Potentially type N like the calculator */
- struct symbol_node *s;
+ int nodetype;
+ struct var_node *vn;
 };
 
 //assignment node
@@ -188,7 +198,7 @@ struct ast *newstr(struct strlit_node* strliteral);
 struct ast *newint(struct intlit_node* intliteral);
 struct ast *newfloat(float num);
 struct ast *newflow(int nodetype, struct ast *cond, struct ast *tl, struct ast *tr);
-struct ast *newref(struct symbol_node *s);
+struct ast *newref(struct var_node* vn);
 struct ast *newasgn(struct symbol_node *s, struct ast *v);
 struct ast *newrel(int reltype, struct ast *l, struct ast *r);
 //Add later.
@@ -212,6 +222,7 @@ void popStrStack(VMQ_STACK stk);
 // DEBUG print statement for AST's
 void printAST(struct ast *a);
 
-
+// DEBUG print statement for FUNCVARS_LIST
+void printFuncLists();
 
 
