@@ -845,6 +845,7 @@ FUNC_LIST current_func = NULL;
 
 struct ast* eval(struct ast *a)
 {
+	struct ast* cond = NULL;
     struct ast* lnode = NULL;
     struct ast* rnode = NULL;
     
