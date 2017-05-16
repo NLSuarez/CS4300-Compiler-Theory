@@ -72,7 +72,7 @@
     %start program
 %%
 
-    program: variable_definitions function_definitions { $$ = ast_root = newast(('h'), $1, $2); }
+    program: variable_definitions function_definitions { $$ = ast_root = newast(('p'+'r'+'o'+'g'), $1, $2); }
         ;
         
     function_definitions:    function_head block     { $$ = newast('f'+'d', $1, $2); }
@@ -151,7 +151,7 @@
         ;
         
     expression:    variable ASSIGNOP expression    { $$ = newast(ASSIGNOP, $1, $3); }
-        | variable INCOP expression                { if($2 == 1) $$ = newast(('+')+('='), $1, $3); else $$ = newast(('-')+('='), $1, $3); }
+        | variable INCOP expression                { if($2 == 1) $$ = newast('+'+'=', $1, $3); else $$ = newast('-'+'=', $1, $3); }
         | simple_expression                        { $$ = $1; }
         ;
         
@@ -167,7 +167,7 @@
     factor:    ID                                   { $$ = newref($1); }
         | ID '(' expression_list ')'		        { /* This is a function call */ $$ = newast(FUNC, newref($1), $3); }
         | literal							        { /* This is an INT or FLT literal */ $$ = $1; }
-        | '(' expression ')'		%prec UNARY 	{ /* This is any expr */ $$ = $2; }
+        | '(' expression ')'		%prec UNARY		{ /* This is any expr */ $$ = $2; }
         | ID '[' expression ']'                     { /* This is an array access */ $$ = newast('a'+'r'+'r', newref($1), $3); }
         ;
         

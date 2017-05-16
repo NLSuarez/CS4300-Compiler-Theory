@@ -19,8 +19,6 @@ int main()
 
 	f = 30 - c - (b * a);
 
-	g = c * e * ((a - (-b)) / 2);
-
 	cout << "a = 5 * 2 = " << a << endl;
 
 	cout << "b = 3 - 4 = " << b << endl;
@@ -32,9 +30,22 @@ int main()
 	cout << "e = 15 % 7 * (15 - 2) / 2 = " << e << endl;
 
 	cout << "f = 30 - c - (b * a) = " << f << endl;
+
+	g = 5;
+
+	cout << "g = " << g << endl;
+
+	g = g * c * e * ((a - (-b)) / 2);
 	
-	cout << "g = c * e * ((a - (-b)) / 2) = " << g << endl;
+	cout << "g = g * c * e * ((a - (-b)) / 2) = " << g << endl;
+
+	f += (-25);
+
+	cout << "f += (-25) = " << f << endl;
+
+	g -= (g/7) + f * (a + g / e);
+
+	cout << "g -= (g/7) + f * (a + g / e) = " << g << endl;
 
 	return 0;
 }
-
