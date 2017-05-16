@@ -185,7 +185,12 @@
         
     bool_factor:    NOT bool_factor                        { $$ = newrel(NOT, $2, NULL); if(DEBUG || PAR_DEBUG) printf("bool_factor PARSED!\n"); }
         | '(' bool_expression ')'                        { $$ = $2; if(DEBUG || PAR_DEBUG) printf("bool_factor PARSED!\n"); }
-        | simple_expression RELOP simple_expression        { $$ = newrel(RELOP, $1, $3); if(DEBUG || PAR_DEBUG) printf("bool_factor PARSED!\n"); }
+        | simple_expression RELOP simple_expression        { if ($2 == 1) $$ = newrel('>', $1, $3);
+                                                             else if ($2 == 2) $$ = newrel('<', $1, $3);
+                                                             else if ($2 == 3) $$ = newrel('!'+'=', $1, $3);
+                                                             else if ($2 == 4) $$ = newrel('='+'=', $1, $3);
+                                                             else if ($2 == 5) $$ = newrel('>'+'=', $1, $3);
+                                                             else $$ = newrel('<'+'=', $1, $3); if(DEBUG || PAR_DEBUG) printf("bool_factor PARSED!\n"); }
         ;
     
 %%
