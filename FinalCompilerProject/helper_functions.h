@@ -19,18 +19,18 @@ union data
 struct symbol_node
 {
     char* symbol;
-//	union data val;
-    int kind;	// INT, FLOAT, or FUNC
+//    union data val;
+    int kind;    // INT, FLOAT, or FUNC
     struct symbol_node* next;
 };
 
 struct var_node
 {
-	unsigned int isParam;
-	char* symbol;
-	int kind;
-	int loc;
-	struct var_node* next;
+    unsigned int isParam;
+    char* symbol;
+    int kind;
+    int loc;
+    struct var_node* next;
 };
 
 /* symbol tables are a dynamically allocated array of symbol_node structs */
@@ -57,13 +57,13 @@ struct strlit_node
 
 struct intlit_node
 {
-	int val;
-	unsigned int loc;
-	struct intlit_node* next;
+    int val;
+    unsigned int loc;
+    struct intlit_node* next;
 };
 
 /*
-	Used to keep track of each function's parameters and variables.
+    Used to keep track of each function's parameters and variables.
 */
 struct funcvars_node
 {
@@ -72,9 +72,9 @@ struct funcvars_node
     struct var_node* vars;
     unsigned int param_count;
     unsigned int var_count;
-	unsigned int end_var_addr;
-	unsigned int end_param_addr;
-	struct funcvars_node* next;
+    unsigned int end_var_addr;
+    unsigned int end_param_addr;
+    struct funcvars_node* next;
 };
 
 typedef struct strlit_node* STRLIT_LIST;
@@ -159,7 +159,7 @@ struct stringval {
 
 //int literal
 struct intval {
- int nodetype;		// = INT_LITERAL
+ int nodetype;        // = INT_LITERAL
  struct intlit_node* number;
 };
 
