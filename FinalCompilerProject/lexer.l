@@ -1,3 +1,5 @@
+
+
 /*
 Spring 2017
 CS4300
@@ -16,7 +18,7 @@ AND stands for the lexeme &&
 FLT_LITERAL is a float constant without a sign
 (at least 1 digit before and after decimal pt.; possible exponent)
 INT_LITERAL is an integer constant without a sign
-STR_LITERAL is a string enclosed in quotes (ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬ ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â), not longer than 1 line
+STR_LITERAL is a string enclosed in quotes not longer than 1 line
 STREAMIN is >>
 STREAMOUT is <<
 ID follows the usual rules for C++ identifiers, and may be any length
@@ -46,7 +48,10 @@ extern struct scope_node* global_scope;
 extern struct scope_node* current_scope;
 extern STRLIT_LIST str_list_head;
 extern INTLIT_LIST int_list_head;
+//extern FUNCVARS_LIST func_list_head;
+//extern FUNCVARS_LIST func_list_tail;
 int addNextIDToken = 0;
+int addNextIDParam = 0;
 %}
 
 UINT (0|([1-9][0-9]*))
@@ -121,21 +126,23 @@ COMMA (",")
 
 {STREAMOUT} { yycolumn += strlen(yytext); return STREAMOUT; }
 
-{KEYWORD} { if(DEBUG || LEX_DEBUG) printf("Matched keyword: %s\n", yytext); fflush(stdout); if(strcmp(yytext, "int") == 0 || strcmp(yytext, "float") == 0) addNextIDToken = 1;  yycolumn += strlen(yytext); if(getKind(yytext) == ENDL && lookup("\\n") == NULL) { addSymbol(global_scope->symTab, "\\n", STR_LITERAL); }  yylval.sln = appendToStrList(&str_list_head, "\\n", 0); if(strcmp(yytext, "endl") != 0) yylval.s = lookup(yytext); return getKind(yytext); }
+{KEYWORD} { if(strcmp(yytext, "int") == 0 || strcmp(yytext, "float") == 0) addNextIDToken = 1; yycolumn += strlen(yytext); if(getKind(yytext) == ENDL && lookup("\\n") == NULL) { addSymbol(global_scope->symTab, "\\n", STR_LITERAL); }  yylval.sln = appendToStrList(&str_list_head, "\\n", 0); if(strcmp(yytext, "endl") != 0) yylval.s = lookup(yytext); return getKind(yytext); }
 
-{END_STMT} { yycolumn += strlen(yytext); return yytext[0]; }
+{END_STMT} { addNextIDToken = 0; yycolumn += strlen(yytext); return yytext[0]; }
 
-{ID} { if(DEBUG || LEX_DEBUG) printf("Matched ID: %s\n", yytext); fflush(stdout); if(addNextIDToken == 1) addSymbol(current_scope->symTab, yytext, ID); yycolumn += strlen(yytext); yylval.s = lookup(yytext); if(lookup(yytext) == NULL && (DEBUG || LEX_DEBUG)) printf("!!!%s NOT FOUND IN SYMBOL TABLE(S)!!!\n", yytext); return ID; }
+{ID} { if(addNextIDToken) { addSymbol(current_scope->symTab, yytext, INT); if(addNextIDParam) yylval.vn = appendToFuncParams(lookup(yytext)); else yylval.vn = appendToFuncVars(lookup(yytext)); } else yylval.vn = getFuncVar(yytext); yycolumn += strlen(yytext); return ID; }
 
-{PRE_PROC}  { if(DEBUG || LEX_DEBUG) printf("Matched preprocessor statement\n"); fflush(stdout); yycolumn += strlen(yytext); /* **IGNORE PREPROCESSOR DIRECTIVES** */ }
+{ID}/{O_PAREN} { if(global_scope == current_scope) appendNewFunc(addSymbol(global_scope->symTab, yytext, FUNC)); yycolumn += strlen(yytext); yylval.s = lookup(yytext); return ID; }
+
+{PRE_PROC}  {  yycolumn += strlen(yytext); /* **IGNORE PREPROCESSOR DIRECTIVES** */ }
 
 {COMMENT_LINE} { yycolumn += strlen(yytext); /* **IGNORE COMMENTS** */ }
 
 {COMMENT_BLOCK} { yycolumn += strlen(yytext); /* **IGNORE COMMENTS** */ }
 
-{O_PAREN} { if(global_scope != NULL && global_scope == current_scope) pushScope(); yycolumn += strlen(yytext); return yytext[0]; }
+{O_PAREN} { if(global_scope != NULL && global_scope == current_scope) { pushScope(); addNextIDParam = 1; } yycolumn += strlen(yytext); return yytext[0]; }
 
-{C_PAREN} { yycolumn += strlen(yytext); return yytext[0]; }
+{C_PAREN} { yycolumn += strlen(yytext); addNextIDParam = 0;  return yytext[0]; }
 
 {O_SUBSCRIPT} { yycolumn += strlen(yytext); return yytext[0]; }
 
