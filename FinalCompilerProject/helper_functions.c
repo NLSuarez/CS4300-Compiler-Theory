@@ -952,8 +952,27 @@ struct ast* eval(struct ast *a)
         case NOT:                   /*printf("\tNOT THE RESULT\n");*/ eval(a->l); break;
             
         case '<':                   lnode = a->l; rnode = a->r;
-                                    sprintf(VMQ_add_stmt, "L %d %d /-%d", ((struct intval*)lnode)->number->loc, ((struct intval*)rnode)->number->loc, 2*temp_vars);
-                                    appendToStrList(&VMQ_list, VMQ_add_stmt, 1);
+                                    if (lnode && rnode)
+                                    {
+                                        if (lnode->nodetype == INT_LITERAL && rnode->nodetype == INT_LITERAL)
+                                        {
+                                            sprintf(VMQ_add_stmt, "L %d %d /-%d", ((struct intval*)lnode)->number->loc, ((struct intval*)rnode)->number->loc, 2*temp_vars); // need to place the temp_vars with a label to go the right statement
+                                            appendToStrList(&VMQ_list, VMQ_add_stmt, 1);
+                                        }
+                                        else if (lnode->nodetype != INT_LITERAL && rnode->nodetype == INT_LITERAL)
+                                        {
+                                            // left side is likely a variable or a container of some sort
+                                            sprintf(VMQ_add_stmt, "L /@%d %d /-%d", lookup(((struct symref*)lnode)->s->symbol), ((struct intval*)rnode)->number->loc, 2*temp_vars); // need to place the temp_vars with a label to go the right statement
+                                            appendToStrList(&VMQ_list, VMQ_add_stmt, 1);
+                                        }
+                                        else if (lnode->nodetype == INT_LITERAL && rnode->nodetype != INT_LITERAL)
+                                        {
+                                            // right side is likely a variable or a container of some sort
+                                            sprintf(VMQ_add_stmt, "L %d /@%d /-%d", ((struct intval*)lnode)->number->loc, lookup(((struct symref*)rnode)->s->symbol), 2*temp_vars); // need to place the temp_vars with a label to go the right statement
+                                            appendToStrList(&VMQ_list, VMQ_add_stmt, 1);
+                                        }
+                                        
+                                    }
                                     /*if (((struct intval*)(eval(a->l)))->number->val < ((struct intval*)(eval(a->r)))->number->val)
                                     {
                                         printf("\tLEFT (%d) IS LESS THAN RIGHT (%d)\n", ((struct intval*)(eval(a->l)))->number->val, ((struct intval*)(eval(a->r)))->number->val);
