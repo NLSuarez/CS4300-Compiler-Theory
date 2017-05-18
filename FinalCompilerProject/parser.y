@@ -96,7 +96,7 @@
     function_head:    type ID arguments                 { $$ = newast('f'+'h', newref($2), $3); }
         ;
         
-    arguments:    '(' parameter_list ')'                { $$ = $2 }
+    arguments:    '(' parameter_list ')'                { $$ = $2; }
         ;
         
     parameter_list:                                     { $$ = NULL; }
