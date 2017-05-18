@@ -76,7 +76,7 @@
         ;
         
     function_definitions:    function_head block     { $$ = newast('f'+'d', $1, $2); }
-        | function_definitions function_head block   { $$ = newast('f'+'d'+'s', $1, newast('f'+'d', $1, $2)); }
+        | function_definitions function_head block   { $$ = newast('f'+'d'+'s', $1, newast('f'+'d', $2, $3)); }
         ;
         
     identifier_list:    ID                              { $$ = newref($1); }
@@ -194,6 +194,7 @@
         ;
     
 %%
+
 
 
 

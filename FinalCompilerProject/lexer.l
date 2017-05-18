@@ -1,5 +1,3 @@
-
-
 /*
 Spring 2017
 CS4300
@@ -132,7 +130,7 @@ COMMA (",")
 
 {ID} { if(addNextIDToken) { addSymbol(current_scope->symTab, yytext, INT); if(addNextIDParam) yylval.vn = appendToFuncParams(lookup(yytext)); else yylval.vn = appendToFuncVars(lookup(yytext)); } else yylval.vn = getFuncVar(yytext); yycolumn += strlen(yytext); return ID; }
 
-{ID}/{O_PAREN} { if(global_scope == current_scope) appendNewFunc(addSymbol(global_scope->symTab, yytext, FUNC)); yycolumn += strlen(yytext); yylval.s = lookup(yytext); return ID; }
+{ID}/{O_PAREN} { if(global_scope == current_scope) { appendNewFunc(addSymbol(global_scope->symTab, yytext, FUNC)); } yycolumn += strlen(yytext); yylval.s = lookup(yytext); return ID; }
 
 {PRE_PROC}  {  yycolumn += strlen(yytext); /* **IGNORE PREPROCESSOR DIRECTIVES** */ }
 
@@ -161,6 +159,7 @@ COMMA (",")
 . { /* Call Scooby-Doo and the Gang, because we have a mystery on our hands... */ yycolumn += strlen(yytext); pError(warning, "Mystery char %c\n", *yytext); }
 
 %%
+
 
 
 
