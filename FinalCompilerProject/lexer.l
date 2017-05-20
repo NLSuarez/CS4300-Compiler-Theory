@@ -1,3 +1,5 @@
+
+
 /*
 Spring 2017
 CS4300
@@ -50,6 +52,7 @@ extern INTLIT_LIST int_list_head;
 //extern FUNCVARS_LIST func_list_tail;
 int addNextIDToken = 0;
 int addNextIDParam = 0;
+extern unsigned int global_var_count;
 %}
 
 UINT (0|([1-9][0-9]*))
@@ -128,9 +131,9 @@ COMMA (",")
 
 {END_STMT} { addNextIDToken = 0; yycolumn += strlen(yytext); return yytext[0]; }
 
-{ID} { if(addNextIDToken) { addSymbol(current_scope->symTab, yytext, INT); if(addNextIDParam) yylval.vn = appendToFuncParams(lookup(yytext)); else yylval.vn = appendToFuncVars(lookup(yytext)); } else yylval.vn = getFuncVar(yytext); yycolumn += strlen(yytext); return ID; }
+{ID} { if(addNextIDToken) { addSymbol(current_scope->symTab, yytext, INT); if(addNextIDParam) appendToFuncParams(lookup(yytext)); else if(current_scope == global_scope){ yylval.vn = appendToGlobalVarList(yytext, INT);  } else appendToFuncVars(lookup(yytext)); } yylval.vn = getGlobalVar(yytext); if(yylval.vn == NULL) yylval.vn = getFuncVar(yytext); if(yylval.vn == NULL) { pError(error, "Use of undeclared variable %s", yytext); exit(-1); } yycolumn += strlen(yytext); return ID; }
 
-{ID}/{O_PAREN} { if(global_scope == current_scope) { appendNewFunc(addSymbol(global_scope->symTab, yytext, FUNC)); } yycolumn += strlen(yytext); yylval.s = lookup(yytext); return ID; }
+{ID}/{O_PAREN} { if(global_scope == current_scope) { appendNewFunc(addSymbol(global_scope->symTab, yytext, FUNC)); yylval.vn = malloc(sizeof(struct var_node)); yylval.vn->symbol = strdup(yytext); } else { yylval.vn = malloc(sizeof(struct var_node)); yylval.vn->symbol = strdup(yytext); fflush(stdout); } return ID; }
 
 {PRE_PROC}  {  yycolumn += strlen(yytext); /* **IGNORE PREPROCESSOR DIRECTIVES** */ }
 
@@ -138,9 +141,9 @@ COMMA (",")
 
 {COMMENT_BLOCK} { yycolumn += strlen(yytext); /* **IGNORE COMMENTS** */ }
 
-{O_PAREN} { if(global_scope != NULL && global_scope == current_scope) { pushScope(); addNextIDParam = 1; } yycolumn += strlen(yytext); return yytext[0]; }
+{O_PAREN} { if(global_scope != NULL && global_scope == current_scope) { printf("Hit param list\n"); pushScope(); addNextIDParam = 1; } yycolumn += strlen(yytext); return yytext[0]; }
 
-{C_PAREN} { yycolumn += strlen(yytext); addNextIDParam = 0;  return yytext[0]; }
+{C_PAREN} { yycolumn += strlen(yytext); addNextIDParam = addNextIDToken = 0;  return yytext[0]; }
 
 {O_SUBSCRIPT} { yycolumn += strlen(yytext); return yytext[0]; }
 
