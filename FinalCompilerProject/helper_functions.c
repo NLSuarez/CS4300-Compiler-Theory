@@ -212,8 +212,6 @@ struct var_node* getGlobalVar(char* str)
 // Adds a new variable to the current function's variable list
 struct var_node* appendToFuncVars(struct symbol_node* var)
 {
-	printf("LEXER:: Appending new var | name == %s\n", var->symbol);
-
     if(!func_list_tail) return (struct var_node*)NULL;
  
 	fflush(stdout);
@@ -984,8 +982,30 @@ struct ast* eval(struct ast *a)
     {
         case COUT:          eval(a->l); break;
 
-        case CIN:           lnode = a->l;
-							if(lnode)
+        case CIN:           eval(a->l); break;
+
+		case STREAMIN:		lnode = a->l;
+							rnode = a->r; 
+
+							if(lnode) eval(a->l); // Go to first input statement
+
+							struct var_node* var = ((struct symref*)a->r)->vn;
+
+							if(var->isParam)
+								sprintf(VMQ_add_stmt, "p /%d", var->loc);
+							else if(var->isGlobal)
+								sprintf(VMQ_add_stmt, "p #%d", var->loc);
+							else
+								sprintf(VMQ_add_stmt, "p #/-%d", var->loc);
+
+							appendToStrList(&(current_func->VMQ_list), VMQ_add_stmt, 1);
+							appendToStrList(&(current_func->VMQ_list), "c 0 -1", 1);
+							appendToStrList(&(current_func->VMQ_list), "^ 2", 1);
+							
+							current_func->VMQ_line_count += 3;
+		
+							break;					
+							
 
         case RETURN:        if(strcmp(current_func->func->symbol, "main") == 0) break;
 
@@ -1620,7 +1640,7 @@ struct ast* eval(struct ast *a)
                                         if(++temp_vars > func_max_temp_vars) func_max_temp_vars = temp_vars;
                                         if(temp_vars > expr_max_temp_vars) expr_max_temp_vars = temp_vars;
 
-                                        sprintf(VMQ_add_stmt, "d /-%d %d /-%d", ((struct intval*)lnode)->number->loc, ((struct intval*)rnode)->number->loc, 2*(temp_vars + current_func->var_count));
+                                        sprintf(VMQ_add_stmt, "d %d %d /-%d", ((struct intval*)lnode)->number->loc, ((struct intval*)rnode)->number->loc, 2*(temp_vars + current_func->var_count));
 									}
                                     else if (rnode->nodetype == ID)
 									{
@@ -1970,8 +1990,6 @@ struct ast* eval(struct ast *a)
 									eval(a->l);			// Function head
 								    eval(a->r);			// Function block
 
-									printf("FUNCTION %s, var_count == %d\n", current_func->func->symbol, current_func->var_count);
-									printf("\tCurrent func_max_temp_vars == %d\n", func_max_temp_vars);
 									sprintf(VMQ_add_stmt, "# %d", 2*(current_func->var_count + func_max_temp_vars));
 									appendToStrList(&(current_func->VMQ_stack_frame), VMQ_add_stmt, 1);
 									current_func->VMQ_line_count++;

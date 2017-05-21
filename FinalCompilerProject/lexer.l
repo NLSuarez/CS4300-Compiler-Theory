@@ -141,7 +141,7 @@ COMMA (",")
 
 {COMMENT_BLOCK} { yycolumn += strlen(yytext); /* **IGNORE COMMENTS** */ }
 
-{O_PAREN} { if(global_scope != NULL && global_scope == current_scope) { printf("Hit param list\n"); pushScope(); addNextIDParam = 1; } yycolumn += strlen(yytext); return yytext[0]; }
+{O_PAREN} { if(global_scope != NULL && global_scope == current_scope) { pushScope(); addNextIDParam = 1; } yycolumn += strlen(yytext); return yytext[0]; }
 
 {C_PAREN} { yycolumn += strlen(yytext); addNextIDParam = addNextIDToken = 0;  return yytext[0]; }
 

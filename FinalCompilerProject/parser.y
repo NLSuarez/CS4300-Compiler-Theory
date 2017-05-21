@@ -127,7 +127,7 @@
         | output_statement ';'                                    { $$ = newast(COUT, $1, NULL); }
         ;
         
-    input_statement:    CIN                                        { $$ = NULL; }
+    input_statement:    CIN                                        { $$ = newast(0, NULL, NULL); }
         | input_statement STREAMIN variable                        { $$ = newast(STREAMIN, $1, $3); }
         ;
         
