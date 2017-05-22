@@ -3,8 +3,8 @@
 
 int main(int a1, int a2, float b1, float b2)
 {
-	int x = 4;
-	if (x > 3 || !(6 < 8))
+	//int x = 4;
+	if (4 > 3 || !(6 < 8))
 	{
 		cout << "flase" << endl;
 	}
