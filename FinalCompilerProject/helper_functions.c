@@ -2056,16 +2056,22 @@ struct ast* eval(struct ast *a)
 
                                     printf("\tSWITCH THE ELSE AND THEN STMTS IN THE VMQ_LIST\n");
                                     // Lets switch the tl and el in the VMQ_list
+                                    STRLIT_LIST temp;
                                     if (elLineCount != 0)
                                     {
-                                        STRLIT_LIST temp = elPtr->next;
-                                        elPtr->next = tlPtr->next; // will now point to the start of the then stmts
-                                        while (tlPtr->next != NULL) { tlPtr = tlPtr->next; }
-				        tlPtr->next = temp; // will now point to the start of the else stmts
-                                        int x = tlLineCount - elLineCount;
-                                        while ( x != 0) { tlPtr = tlPtr->next; x--; }
-                                        tlPtr->next = NULL; // gets rid of the loop back to the start of the then stmts
-				    }
+                                        temp = elPtr->next;
+                                    }
+                                    else
+                                    {
+                                        temp = elPtr;
+                                    }
+                                    elPtr->next = tlPtr->next; // will now point to the start of the then stmts; PROBLEM HERE
+                                    printf("\tSHITTY\n");
+                                    while (tlPtr->next != NULL) { tlPtr = tlPtr->next; }
+                                    tlPtr->next = temp; // will now point to the start of the else stmts
+                                    int x = tlLineCount - elLineCount;
+                                    while ( x != 1) { tlPtr = tlPtr->next; x--; }
+                                    tlPtr->next = NULL; // gets rid of the loop back to the start of the then stmts
 
                                     // start of the cond VMQ code, condPtr->next
                                     STRLIT_LIST condPtr = tlPtr;
@@ -2081,13 +2087,13 @@ struct ast* eval(struct ast *a)
 
                                     printf("\tSWITCH THE COND STMTS TO COME BEFORE THE THEN STMTS IN VMQ_LIST\n");
                                     // place the cond stmts in the right place
-                                    STRLIT_LIST temp = elPtr->next; // problem here at the moment
+                                    temp = elPtr->next; // problem here at the moment
                                     printf("\tPOOPY\n");
                                     elPtr->next = condPtr->next; // will now point to the start of the cond VMQ code; possible problem here too.
                                     printf("\tAT THE LAST COUPLE WHILE LOOPS\n");
                                     while (condPtr->next != NULL) { condPtr = condPtr->next; }
                                     condPtr->next = temp; // will now point to start of the then stmt VMQ code
-                                    int x = condLineCount - elLineCount;
+                                    x = condLineCount - elLineCount;
                                     printf("\tx = %d\n", x);
                                     while (x != 0) { condPtr = condPtr->next; x--; }
                                     condPtr->next = NULL; // gets rid of the loop back to the cond stmt
