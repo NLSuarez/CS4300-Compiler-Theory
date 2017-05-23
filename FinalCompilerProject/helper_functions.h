@@ -237,13 +237,7 @@ struct ast *newint(struct intlit_node* intliteral);
 struct ast *newfloat(float num);
 struct ast *newflow(int nodetype, struct ast *cond, struct ast *tl, struct ast *tr);
 struct ast *newref(struct var_node* vn);
-struct ast *newasgn(struct symbol_node *s, struct ast *v);
 struct ast *newrel(int reltype, struct ast *l, struct ast *r);
-//Add later.
-  /*
-   * Function to delete and free an AST
-   */
-void treefree(struct ast *);
 
 // Pointer to head of stack containing VMQ statements (strings).
 typedef struct strlit_node* VMQ_STACK;

@@ -97,12 +97,33 @@ COMMA (",")
 
 {ASSIGNOP} { yycolumn++; return ASSIGNOP; }
 
+/*
+* is fn 1
+/ is fn 2
+% is fn 3
+*/
 {MULOP} { yycolumn += strlen(yytext); switch(yytext[0]){ case '*': yylval.fn = 1; break; case '/': yylval.fn = 2; break; case '%': yylval.fn = 3; } return MULOP; }
 
+/*
++ is fn 1
+- is fn 2
+*/
 {ADDOP} { yycolumn += strlen(yytext); if(strcmp(yytext, "+") == 0) yylval.fn = 1; else yylval.fn = 2; return ADDOP; }
 
+/*
++= is fn 1
+-= is fn 2
+*/
 {INCOP} { yycolumn += strlen(yytext); if(strcmp(yytext, "+=") == 0) yylval.fn = 1; else yylval.fn = 2; return INCOP; }
 
+/*
+> is fn 1
+< is fn 2
+!= is fn 3
+== is fn 4
+>= is fn 5
+<= is fn 6
+*/
 {RELOP} { yycolumn += strlen(yytext); char* arr[] = {">","<","!=","==",">=","<="}; char** relops = arr; for(int i=0;i<6;++i){if(strcmp(yytext,relops[i])==0){yylval.fn=(i+1); break;}} return RELOP; }
 
 {NOT} { yycolumn += strlen(yytext); return NOT; }

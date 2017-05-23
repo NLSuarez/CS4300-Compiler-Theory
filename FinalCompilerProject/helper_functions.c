@@ -920,16 +920,6 @@ struct ast *
 
         return (struct ast * ) a;
     }
-    // struct ast *newasgn(struct symbol_node *s, struct ast *v);
-
-// Function to delete and free AST
-//    Note - This may not even be needed.  Program will exit and OS will take care of deallocation.
-void
-treefree(struct ast * a) {
-    //switch(a->nodetype) {
-    /* cases here will be based on parser */
-    //}
-}
 
 // Some flags and counters for eval that could be useful.
 unsigned int temp_vars = 0;
