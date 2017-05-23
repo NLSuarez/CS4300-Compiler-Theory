@@ -127,7 +127,9 @@ COMMA (",")
 
 {STREAMOUT} { yycolumn += strlen(yytext); return STREAMOUT; }
 
-{KEYWORD} { if(strcmp(yytext, "int") == 0 || strcmp(yytext, "float") == 0) addNextIDToken = 1; yycolumn += strlen(yytext); if(getKind(yytext) == ENDL && lookup("\\n") == NULL) { addSymbol(global_scope->symTab, "\\n", STR_LITERAL); }  yylval.sln = appendToStrList(&str_list_head, "\\n", 0); if(strcmp(yytext, "endl") != 0) yylval.s = lookup(yytext); return getKind(yytext); }
+{KEYWORD}					|
+{WHILE}/([ \t]*{O_PAREN})   |
+{IF}/([ \t]*{O_PAREN})      { if(strcmp(yytext, "int") == 0 || strcmp(yytext, "float") == 0) addNextIDToken = 1; yycolumn += strlen(yytext); if(getKind(yytext) == ENDL && lookup("\\n") == NULL) { addSymbol(global_scope->symTab, "\\n", STR_LITERAL); }  yylval.sln = appendToStrList(&str_list_head, "\\n", 0); if(strcmp(yytext, "endl") != 0) yylval.s = lookup(yytext); return getKind(yytext); }
 
 {END_STMT} { addNextIDToken = 0; yycolumn += strlen(yytext); return yytext[0]; }
 
