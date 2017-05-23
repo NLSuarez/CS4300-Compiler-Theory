@@ -20,20 +20,20 @@ union data
 /* Basic element of the symbol table, which is a hash table with linked-list collision resolution */
 struct symbol_node
 {
-    char* symbol;						// Name of the symbol (ID)
-//	union data val;						// Not really needed, commented out for the moment.
-    int kind;	// INT, FLOAT, or FUNC	// What kind of symbol it is.
-    struct symbol_node* next;			// Pointer to next symbol.
+    char* symbol;                        // Name of the symbol (ID)
+//    union data val;                        // Not really needed, commented out for the moment.
+    int kind;    // INT, FLOAT, or FUNC    // What kind of symbol it is.
+    struct symbol_node* next;            // Pointer to next symbol.
 };
 
 struct var_node
 {
-	unsigned int isParam;	// Flag that signifies if the variable in question is a parameter.
-	unsigned int isGlobal;	// Flag that signifies if the variable in question is a global var.
-	char* symbol;			// Name of the variable (probably not needed.)
-	int kind;				// Kind of variable (INT or FLOAT).
-	int loc;				// VMQ location of variable.
-	struct var_node* next;	// Pointer to next variable.
+    unsigned int isParam;    // Flag that signifies if the variable in question is a parameter.
+    unsigned int isGlobal;    // Flag that signifies if the variable in question is a global var.
+    char* symbol;            // Name of the variable (probably not needed.)
+    int kind;                // Kind of variable (INT or FLOAT).
+    int loc;                // VMQ location of variable.
+    struct var_node* next;    // Pointer to next variable.
 };
 
 /* symbol tables are a dynamically allocated array of symbol_node structs */
@@ -42,10 +42,10 @@ typedef struct symbol_node* SYMBOL_TABLE;
 /* Used to track existing scopes - effectively implemented as a stack of scope_node structs */
 struct scope_node
 {
-    SYMBOL_TABLE symTab;		// Contains the function scope's symbol table.
-    struct scope_node* next;	// Points to next (deeper) scope.
-    int is_new_scope;			// Flag that is useful to ensure an extra symbol table isn't generated
-								// when getting into a new function.
+    SYMBOL_TABLE symTab;        // Contains the function scope's symbol table.
+    struct scope_node* next;    // Points to next (deeper) scope.
+    int is_new_scope;            // Flag that is useful to ensure an extra symbol table isn't generated
+                                // when getting into a new function.
 };
 
 /* 
@@ -54,16 +54,16 @@ struct scope_node
 */
 struct strlit_node
 {
-    char* str;					// Value of string literal the node represents.
-    unsigned int loc;			// VMQ location of string literal.
-    struct strlit_node* next;	// Pointer to next string literal.
+    char* str;                    // Value of string literal the node represents.
+    unsigned int loc;            // VMQ location of string literal.
+    struct strlit_node* next;    // Pointer to next string literal.
 };
 
 struct intlit_node
 {
-	int val;					// Value of integer literal the node represents.
-	unsigned int loc;			// VMQ location of integer literal
-	struct intlit_node* next;	// Pointer to next integer literal
+    int val;                    // Value of integer literal the node represents.
+    unsigned int loc;            // VMQ location of integer literal
+    struct intlit_node* next;    // Pointer to next integer literal
 };
 
 /* Useful typedef's to simplify coding */
@@ -72,28 +72,28 @@ typedef struct intlit_node* INTLIT_LIST;
 typedef struct func_node* FUNC_LIST;
 
 /*
-	Used to keep track of each function's parameters and variables.
-	Also stores the list of VMQ commands that are generated for each
-	respective function.
+    Used to keep track of each function's parameters and variables.
+    Also stores the list of VMQ commands that are generated for each
+    respective function.
 */
 struct func_node
 {
-    struct symbol_node* func;		// Function name
+    struct symbol_node* func;        // Function name
 
-    struct var_node* params;		// List of function's parameters		(Not sure if needed.)
-    struct var_node* vars;			// List of function's local variables.	(Not sure if needed.)
+    struct var_node* params;        // List of function's parameters        (Not sure if needed.)
+    struct var_node* vars;            // List of function's local variables.    (Not sure if needed.)
 
-    unsigned int param_count;		// Number of parameters
-    unsigned int var_count;			// Number of local variables
+    unsigned int param_count;        // Number of parameters
+    unsigned int var_count;            // Number of local variables
 
-	unsigned int end_var_addr;		// VMQ address of last local variable	(Not sure if needed.)
-	unsigned int end_param_addr;	// VMQ address of last parameter		(Not sure if needed.)
+    unsigned int end_var_addr;        // VMQ address of last local variable    (Not sure if needed.)
+    unsigned int end_param_addr;    // VMQ address of last parameter        (Not sure if needed.)
 
-	STRLIT_LIST VMQ_stack_frame;	// Contains the command to create a stack frame, if the function needs it.
-	STRLIT_LIST VMQ_list;			// Head of linked list containing function's equivalent VMQ statements.
-	unsigned int VMQ_line_start;	// Stores the line number of the first VMQ statement for this function.
-	unsigned int VMQ_line_count;	// Stores the number of VMQ statements generated for this function.
-	struct func_node* next;			// Pointer to next func_node (next function in the program).
+    STRLIT_LIST VMQ_stack_frame;    // Contains the command to create a stack frame, if the function needs it.
+    STRLIT_LIST VMQ_list;            // Head of linked list containing function's equivalent VMQ statements.
+    unsigned int VMQ_line_start;    // Stores the line number of the first VMQ statement for this function.
+    unsigned int VMQ_line_count;    // Stores the number of VMQ statements generated for this function.
+    struct func_node* next;            // Pointer to next func_node (next function in the program).
 };
 
 /* Function prototypes useful for keeping track of program state, generating VMQ code */
@@ -177,7 +177,7 @@ struct stringval {
 
 //int literal
 struct intval {
- int nodetype;		// = INT_LITERAL
+ int nodetype;        // = INT_LITERAL
  struct intlit_node* number;
 };
 
