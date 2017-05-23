@@ -2006,45 +2006,47 @@ struct ast* eval(struct ast *a)
 									current_func->VMQ_line_count++;
 									break;
 			
-        case IF:                    printf("\tGOING INTO THE IF CASE\n");
+        case IF:                    //printf("\tGOING INTO THE IF CASE\n");
                                     cond = ((struct flow*)a)->cond;
                                     lnode = ((struct flow*)a)->tl;    //Where to go if the cond is true
                                     rnode = ((struct flow*)a)->el;    //Where to go if the cond is flase
 
-                                    printf("\tGET elLineCount\n");
+                                    //printf("\tGET elLineCount\n");
                                     // Get the line count of VMQ_list before the else statements have been evalualted
                                     int elLineCount = current_func->VMQ_line_count;
-                                    printf("\tGOT elLineCount\n");
-                                    // Get the last next ptr in the list
-                                    STRLIT_LIST elPtr = current_func->VMQ_list; // elPtr->next will point to the start of the else stmts VMQ code
-                                    printf("\tSTART WHILE LOOP\n");
+                                    //printf("\tGOT elLineCount\n");
+                                    STRLIT_LIST elPtr;
+                                    //printf("\tSTART WHILE LOOP\n");
                                     if (elLineCount != 0)
                                     {
+                                        // Get the last next ptr in the list
+                                        elPtr = current_func->VMQ_list; // elPtr->next will point to the start of the else stmts VMQ code
                                         while (elPtr->next != NULL) { elPtr = elPtr->next; }
-				    }
+                                    }
 
-                                    printf("\tEVAL RNODE (ELSE NODE)\n");
+                                    //printf("\tEVAL RNODE (ELSE NODE)\n");
                                     // eval the else statements if there is one
                                     if (rnode != NULL) eval(rnode);
-                                    printf("\tDONE EVALUATING RNODE\n");
+                                    //printf("\tDONE EVALUATING RNODE\n");
+                                    if (elLineCount == 0) elPtr = current_func->VMQ_list; // if a if stmt is the first the node to be evaled, then VMQ_list didn't "exist" yet
 
                                     // Get the line count of the VMQ_list so we can determine how many lines to jump if the "TRUTH" statments are executed
                                     int tlLineCount = current_func->VMQ_line_count;
-                                    printf("\ttlLineCount = %d\n", tlLineCount); 
+                                    //printf("\ttlLineCount = %d\n", tlLineCount); 
 
                                     // Get the last next ptr after all of the else statements
                                     STRLIT_LIST tlPtr = current_func->VMQ_list;; // tlPtr->next will point to the start of the then stmts' VMQ code
                                     if (tlLineCount != 0)
                                     {
-                                        printf("\tSETTING UP tlPtr\n");
-                                        while (tlPtr->next != NULL) { printf("\tINSIDE SETTING\n"); tlPtr = tlPtr->next; }
-                                        printf("\tDONE SETTING UP tlPtr\n");
-				    }
+                                        //printf("\tSETTING UP tlPtr\n");
+                                        while (tlPtr->next != NULL) { /*printf("\tINSIDE SETTING\n");*/ tlPtr = tlPtr->next; }
+                                        //printf("\tDONE SETTING UP tlPtr\n");
+                                    }
 
-                                    printf("\tEVAL LNODE (THEN NODE)\n");
+                                    //printf("\tEVAL LNODE (THEN NODE)\n");
                                     // evaluated the then statements
                                     eval(lnode);
-                                    printf("\tDONE EVALUATING LNODE\n");
+                                    //printf("\tDONE EVALUATING LNODE\n");
 
                                     // Add the jump statement to skip the else statements
                                     sprintf(VMQ_add_stmt, "j %d", tlLineCount - elLineCount);
@@ -2054,52 +2056,60 @@ struct ast* eval(struct ast *a)
                                     // Get the line count of the VMQ_list so we can determine how many lines to jump to get to the else statements
                                     int condLineCount = current_func->VMQ_line_count;
 
-                                    printf("\tSWITCH THE ELSE AND THEN STMTS IN THE VMQ_LIST\n");
+                                    //printf("\tSWITCH THE ELSE AND THEN STMTS IN THE VMQ_LIST\n");
                                     // Lets switch the tl and el in the VMQ_list
+                                    STRLIT_LIST temp;
                                     if (elLineCount != 0)
                                     {
-                                        STRLIT_LIST temp = elPtr->next;
-                                        elPtr->next = tlPtr->next; // will now point to the start of the then stmts
-                                        while (tlPtr->next != NULL) { tlPtr = tlPtr->next; }
-				        tlPtr->next = temp; // will now point to the start of the else stmts
-                                        int x = tlLineCount - elLineCount;
-                                        while ( x != 0) { tlPtr = tlPtr->next; x--; }
-                                        tlPtr->next = NULL; // gets rid of the loop back to the start of the then stmts
-				    }
+                                        temp = elPtr->next;
+                                    }
+                                    else
+                                    {
+                                        temp = elPtr;
+                                    }
+                                    //printf("\tWELL FUCK ME FOR THIS STUPID BUG\n");
+                                    //if (elPtr == NULL) printf("\tWELL FUCK ME\n");
+                                    elPtr->next = tlPtr->next; // will now point to the start of the then stmts; PROBLEM HERE
+                                    //printf("\tSHITTY\n");
+                                    while (tlPtr->next != NULL) { tlPtr = tlPtr->next; }
+                                    tlPtr->next = temp; // will now point to the start of the else stmts
+                                    int x = tlLineCount - elLineCount;
+                                    while ( x != 1) { tlPtr = tlPtr->next; x--; }
+                                    tlPtr->next = NULL; // gets rid of the loop back to the start of the then stmts
 
                                     // start of the cond VMQ code, condPtr->next
                                     STRLIT_LIST condPtr = tlPtr;
 
-                                    printf("\tEVAL COND NODE\n");
+                                    //printf("\tEVAL COND NODE\n");
                                     //printf("\tCHECKING THE NODETYPE OF COND\n");
                                     switch (cond->nodetype)
                                     {
                                         case OR: /*printf("\tCHECKING THE LEFT SIDE\n");*/ eval(cond->l); /*printf("\tCHECKING THE RIGHT SIDE\n");*/ eval(cond->r);break;
                                         case AND: /*printf("\tCHECKING THE LEFT SIDE\n");*/ eval(cond->l); /*printf("\tCHECKING THE RIGHT SIDE\n");*/ eval(cond->r);break;
                                         default:   eval(cond);
-				    }
+                                    }
 
-                                    printf("\tSWITCH THE COND STMTS TO COME BEFORE THE THEN STMTS IN VMQ_LIST\n");
+                                    //printf("\tSWITCH THE COND STMTS TO COME BEFORE THE THEN STMTS IN VMQ_LIST\n");
                                     // place the cond stmts in the right place
-                                    STRLIT_LIST temp = elPtr->next; // problem here at the moment
-                                    printf("\tPOOPY\n");
+                                    temp = elPtr->next; // problem here at the moment
+                                    //printf("\tPOOPY\n");
                                     elPtr->next = condPtr->next; // will now point to the start of the cond VMQ code; possible problem here too.
-                                    printf("\tAT THE LAST COUPLE WHILE LOOPS\n");
+                                    //printf("\tAT THE LAST COUPLE WHILE LOOPS\n");
                                     while (condPtr->next != NULL) { condPtr = condPtr->next; }
                                     condPtr->next = temp; // will now point to start of the then stmt VMQ code
-                                    int x = condLineCount - elLineCount;
-                                    printf("\tx = %d\n", x);
+                                    x = condLineCount - elLineCount;
+                                    //printf("\tx = %d\n", x);
                                     while (x != 0) { condPtr = condPtr->next; x--; }
                                     condPtr->next = NULL; // gets rid of the loop back to the cond stmt
 
-                                    printf("\tDONE EVAL IF NODE\n");
+                                    //printf("\tDONE EVAL IF NODE\n");
 
                                     break;
                                     
         case NOT:                   /*printf("\tNOT THE RESULT\n");*/ eval(a->l); break;
             
         case '<':                   lnode = a->l; rnode = a->r;
-                                    sprintf(VMQ_add_stmt, "L %d %d /-%d", ((struct intval*)lnode)->number->loc, ((struct intval*)rnode)->number->loc, 2*temp_vars);
+                                    sprintf(VMQ_add_stmt, "l %d %d /-%d", ((struct intval*)lnode)->number->loc, ((struct intval*)rnode)->number->loc, 2*temp_vars);
                                     appendToStrList(&(current_func->VMQ_list), VMQ_add_stmt, 1);
                                     /*if (((struct intval*)(eval(a->l)))->number->val < ((struct intval*)(eval(a->r)))->number->val)
                                     {
@@ -2108,7 +2118,7 @@ struct ast* eval(struct ast *a)
                                     break;
             
         case '>':                   lnode = a->l; rnode = a->r;
-                                    sprintf(VMQ_add_stmt, "G %d %d /-%d", ((struct intval*)lnode)->number->loc, ((struct intval*)rnode)->number->loc, 2*temp_vars);
+                                    sprintf(VMQ_add_stmt, "g %d %d /-%d", ((struct intval*)lnode)->number->loc, ((struct intval*)rnode)->number->loc, 2*temp_vars);
                                     appendToStrList(&(current_func->VMQ_list), VMQ_add_stmt, 1);
                                     /*if (((struct intval*)(eval(a->l)))->number->val > ((struct intval*)(eval(a->r)))->number->val)
                                     {
