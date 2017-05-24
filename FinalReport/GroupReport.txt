@@ -20,7 +20,6 @@ Finally, among the features we have, we also managed to implement function calls
 Things we did not manage to include were float literals; arrays; complex boolean expressions using AND, NOT and OR; if-else statements; and user input.
 
 A few things are broken in the current build so the following test files included in this .zip will not work (seg fault error):
-reltest.cpp
 GCD.cpp
 loop.cpp
 params.cpp
