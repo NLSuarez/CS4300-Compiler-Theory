@@ -107,7 +107,7 @@ struct control_node
 	unsigned int VMQ_false_line_count;			// Only used if kind == IF
 	
 	unsigned int temp_vars;				// Number of temporary variables required by compiler to evaluate the condition.
-	struct control_node* prev;			// Points to outer control structure (deeper node in stack).
+	struct control_node* next;			// Points to outer control structure (deeper node in stack).
 };
 
 /* Function prototypes useful for keeping track of program state, generating VMQ code */
@@ -256,6 +256,7 @@ void printAST(struct ast *a);
 
 // DEBUG print statement for FUNCVARS_LIST
 void printFuncLists();
+
 
 
 

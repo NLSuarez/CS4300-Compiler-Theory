@@ -97,7 +97,7 @@ COMMA (",")
 
 {ASSIGNOP} { yycolumn++; return ASSIGNOP; }
 
-{MULOP} { yycolumn += strlen(yytext); switch(yytext[0]){ case '*': yylval.fn = 1; break; case '/': yylval.fn = 2; break; case '%': yylval.fn = 3; } return MULOP; 
+{MULOP} { yycolumn += strlen(yytext); switch(yytext[0]){ case '*': yylval.fn = 1; break; case '/': yylval.fn = 2; break; case '%': yylval.fn = 3; } return MULOP;
 /* 
 * is fn 1
 / is fn 2 
@@ -110,14 +110,13 @@ COMMA (",")
 - is fn 2 
 */}
 
-
-{INCOP} { yycolumn += strlen(yytext); if(strcmp(yytext, "+=") == 0) yylval.fn = 1; else yylval.fn = 2; return INCOP; 
+{INCOP} { yycolumn += strlen(yytext); if(strcmp(yytext, "+=") == 0) yylval.fn = 1; else yylval.fn = 2; return INCOP;
 /* 
 += is fn 1
 -= is fn 2 
 */}
 
-{RELOP} { yycolumn += strlen(yytext); char* arr[] = {">","<","!=","==",">=","<="}; char** relops = arr; for(int i=0;i<6;++i){if(strcmp(yytext,relops[i])==0){yylval.fn=(i+1); break;}} return RELOP; 
+{RELOP} { yycolumn += strlen(yytext); char* arr[] = {">","<","!=","==",">=","<="}; char** relops = arr; for(int i=0;i<6;++i){if(strcmp(yytext,relops[i])==0){yylval.fn=(i+1); break;}} return RELOP;
 /*
 > is fn 1
 < is fn 2
@@ -149,15 +148,15 @@ COMMA (",")
 
 {STREAMOUT} { yycolumn += strlen(yytext); return STREAMOUT; }
 
-{KEYWORD}					|
-{WHILE}/([ \t]*{O_PAREN})   |
-{IF}/([ \t]*{O_PAREN})      { if(strcmp(yytext, "int") == 0 || strcmp(yytext, "float") == 0) addNextIDToken = 1; yycolumn += strlen(yytext); if(getKind(yytext) == ENDL && lookup("\\n") == NULL) { addSymbol(global_scope->symTab, "\\n", STR_LITERAL); }  yylval.sln = appendToStrList(&str_list_head, "\\n", 0); if(strcmp(yytext, "endl") != 0) yylval.s = lookup(yytext); return getKind(yytext); }
+{WHILE}/([ \t]*{O_PAREN})   { current_scope->is_new_scope = 0; yylval.s = lookup(yytext); return getKind(yytext); }
+{IF}/([ \t]*{O_PAREN})		{ current_scope->is_new_scope = 0; yylval.s = lookup(yytext); return getKind(yytext); }
+{KEYWORD}  { current_scope->is_new_scope = 0; if(strcmp(yytext, "int") == 0 || strcmp(yytext, "float") == 0) addNextIDToken = 1; yycolumn += strlen(yytext); if(getKind(yytext) == ENDL && lookup("\\n") == NULL) { addSymbol(global_scope->symTab, "\\n", STR_LITERAL); }  yylval.sln = appendToStrList(&str_list_head, "\\n", 0); if(strcmp(yytext, "endl") != 0) yylval.s = lookup(yytext); return getKind(yytext); }
 
 {END_STMT} { addNextIDToken = 0; yycolumn += strlen(yytext); return yytext[0]; }
 
-{ID} { if(addNextIDToken) { addSymbol(current_scope->symTab, yytext, INT); if(addNextIDParam) appendToFuncParams(lookup(yytext)); else if(current_scope == global_scope){ yylval.vn = appendToGlobalVarList(yytext, INT);  } else appendToFuncVars(lookup(yytext)); } yylval.vn = getGlobalVar(yytext); if(yylval.vn == NULL) yylval.vn = getFuncVar(yytext); if(yylval.vn == NULL) { pError(error, "Use of undeclared variable %s", yytext); exit(-1); } yycolumn += strlen(yytext); return ID; }
+{ID} { current_scope->is_new_scope = 0; if(addNextIDToken) { addSymbol(current_scope->symTab, yytext, INT); if(addNextIDParam) appendToFuncParams(lookup(yytext)); else if(current_scope == global_scope){ yylval.vn = appendToGlobalVarList(yytext, INT);  } else appendToFuncVars(lookup(yytext)); } yylval.vn = getGlobalVar(yytext); if(yylval.vn == NULL) yylval.vn = getFuncVar(yytext); if(yylval.vn == NULL) { pError(error, "Use of undeclared variable %s", yytext); exit(-1); } yycolumn += strlen(yytext); return ID; }
 
-{ID}/{O_PAREN} { if(global_scope == current_scope) { appendNewFunc(addSymbol(global_scope->symTab, yytext, FUNC)); yylval.vn = malloc(sizeof(struct var_node)); yylval.vn->symbol = strdup(yytext); } else { yylval.vn = malloc(sizeof(struct var_node)); yylval.vn->symbol = strdup(yytext); fflush(stdout); } return ID; }
+{ID}/{O_PAREN} { current_scope->is_new_scope = 0; if(global_scope == current_scope) { appendNewFunc(addSymbol(global_scope->symTab, yytext, FUNC)); yylval.vn = malloc(sizeof(struct var_node)); yylval.vn->symbol = strdup(yytext); } else { yylval.vn = malloc(sizeof(struct var_node)); yylval.vn->symbol = strdup(yytext); fflush(stdout); } return ID; }
 
 {PRE_PROC}  {  yycolumn += strlen(yytext); /* **IGNORE PREPROCESSOR DIRECTIVES** */ }
 
@@ -186,6 +185,7 @@ COMMA (",")
 . { /* Call Scooby-Doo and the Gang, because we have a mystery on our hands... */ yycolumn += strlen(yytext); pError(warning, "Mystery char %c\n", *yytext); }
 
 %%
+
 
 
 
