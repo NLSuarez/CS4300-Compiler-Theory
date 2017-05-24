@@ -20,6 +20,4 @@ Finally, among the features we have, we also managed to implement function calls
 Things we did not manage to include were float literals; arrays; complex boolean expressions using AND, NOT and OR; and user input.
 
 Group Contributions:
-Stefan made the basic structure of the lexer, most of the AST Code, and was VMQ helper. Manjinder made the parser, all of the error codes and functions, and helped with some of the evaluation functions. Thomas wrote almost all of the evaluation algorithms, the entire symbol table code, and was our primary debugger. 
-
-Viss: Student.  
+Stefan made the basic structure of the lexer, most of the AST Code, and was VMQ helper. Manjinder made the parser, all of the error codes and functions, and helped with some of the evaluation functions. Thomas wrote almost all of the evaluation algorithms, the entire symbol table code, and was our primary debugger. Viss wrote the code that eventually became the inspiration for our compiler's ability to take a .cpp file, copy it, remove the extension, and then generate a .q file of the same name where our VMQ quads would be stored.
