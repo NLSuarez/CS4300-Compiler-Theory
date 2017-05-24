@@ -1,0 +1,25 @@
+For: Dr. Carter
+CS4300
+Spring 2017
+Final Team Report
+Members:
+Stefan Suarez
+Thomas Ferguson
+Manjinder Singh
+Timothy Viss
+
+Project Features Summary:
+From the initial compiler specifications, our group got quite a few of the features working.  First of all, printing is almost entirely finished with the exception of float literals. Integer literals, string literals and variables work in print statements for our compiler; and chained print statements - like 'COUT << "Hello" << "World" << endl;' - function without error. Integer arithmetic is also possible in any print statement, with all precedence for MULOP and ADDOP being properly observed.
+
+In terms of variables, the compiler handles assignment for strings and integers, but does not handle floats or arrays. Variables can be plainly assigned, incremented or decremented. They can also be used in conjunction with arithmetic operations.
+
+Our most recent contributions were in the domain of flow, where we have "while" statements working for what seems to be any number of nested loops. <Insert if-else here>
+
+Finally, among the features we have, we also managed to implement function calls with integer and string parameters. Our scope appears to be working properly to separate global variables from local variables as well, and each function is able to return a value as expected.
+
+Things we did not manage to include were float literals; arrays; complex boolean expressions using AND, NOT and OR; and user input.
+
+Group Contributions:
+Stefan made the basic structure of the lexer, most of the AST Code, and was VMQ helper. Manjinder made the parser, all of the error codes and functions, and helped with some of the evaluation functions. Thomas wrote almost all of the evaluation algorithms, the entire symbol table code, and was our primary debugger. 
+
+Viss: Student.  

@@ -870,7 +870,7 @@ struct ast *
         }
         //printf("\n\t\tNew int built with nodetype == %d\n", INT_LITERAL);
 
-        a->nodetype = INT_LITERAL; //VMQ defines an int using f
+        a->nodetype = INT_LITERAL;
         a->number = intliteral;
         return (struct ast * ) a;
     }
