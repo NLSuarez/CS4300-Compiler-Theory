@@ -1,17 +1,19 @@
-// Simple test program - feel free to edit.
 #include <iostream>
 
-int main(int a1, int a2, float b1, float b2)
+int main()
 {
-	//int x = 4;
-	if (4 > 3 || !(6 < 8))
-	{
-		cout << "flase" << endl;
-	}
-	else
-	{
-		cout << "true" << endl;
-	}
-	
-	return 0;
+
+    int x;
+
+    cout << "Enter non-negative integer between 0 and 10: ";
+
+    cin >> x;
+
+    if(x > 5)
+        cout << "x is greater than 5" << endl;
+    else
+        cout << "x is less than or equal to 5" << endl;
+
+    return 0;
 }
+
