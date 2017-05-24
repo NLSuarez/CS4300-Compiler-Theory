@@ -1,0 +1,9 @@
+What I learned the most from this project was actually experiencing real group work that I hadn't the chance til now. Granted I've had group projects, but those projects
+have never felt like group projects as there wasn't any collorbation as was in this project. I've also had fun working on the error routines as they were extermely fun to
+debug and getting them to work. The way I had intially set them up turned out to be incompatiable with the CS Lab machines so I had to change them. The problem was that
+machines in the CS Lab have an older verison of bison I was try to use features that were added two revisions later. I worked on the parser, mainly putting the syntax
+rules in place for when we start working on parsing everything, I also helped in parsing some of the input such as the IF, WHILE, and the RELOPS. At first I had trouble
+deciding how to the input should be parsed based on the structs that Stefan had finished at the time. I also worked on the eval function, but it was mostly finished
+by Thomas. At times it would be a bit difficult as I would be working on one thing and by the time I was done, Thomas would have changed quite a bit of things and I
+would have to plajy catch up with his changes. Though I did find this experience valuable as it's quite possible that I will facve similar experience in real life work
+as everyone has a different working/typing speed. I wish that I had more group projects like this through my time in college.
