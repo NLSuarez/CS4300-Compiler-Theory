@@ -13,11 +13,11 @@ From the initial compiler specifications, our group got quite a few of the featu
 
 In terms of variables, the compiler handles assignment for strings and integers, but does not handle floats or arrays. Variables can be plainly assigned, incremented or decremented. They can also be used in conjunction with arithmetic operations.
 
-Our most recent contributions were in the domain of flow, where we have "while" statements working for what seems to be any number of nested loops. <Insert if-else here>
+Our most recent contributions were in the domain of flow, where we have "while" statements working for what seems to be any number of nested loops.
 
 Finally, among the features we have, we also managed to implement function calls with integer and string parameters. Our scope appears to be working properly to separate global variables from local variables as well, and each function is able to return a value as expected.
 
-Things we did not manage to include were float literals; arrays; complex boolean expressions using AND, NOT and OR; and user input.
+Things we did not manage to include were float literals; arrays; complex boolean expressions using AND, NOT and OR; if-else statements; and user input.
 
 Group Contributions:
 Stefan made the basic structure of the lexer, most of the AST Code, and was VMQ helper. Manjinder made the parser, all of the error codes and functions, and helped with some of the evaluation functions. Thomas wrote almost all of the evaluation algorithms, the entire symbol table code, and was our primary debugger. Viss wrote the code that eventually became the inspiration for our compiler's ability to take a .cpp file, copy it, remove the extension, and then generate a .q file of the same name where our VMQ quads would be stored.
